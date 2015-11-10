@@ -21,6 +21,7 @@ from google.appengine.api import files, images
 
 class User(ndb.Model):
     name = ndb.StringProperty()
+    has_app = ndb.BooleanProperty()
     phone_number = ndb.StringProperty()
     squads = ndb.KeyProperty(repeated=True)
     gathers_owned = ndb.KeyProperty(repeated=True)
