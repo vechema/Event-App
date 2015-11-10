@@ -59,6 +59,7 @@
     <string name="title_activity_view_subscribed">ViewSubscribed</string>
     <string name="title_activity_search">Search</string>
     <string name="title_activity_offline_upload">OfflineUpload</string>
+    <string name="title_activity_create_agather">CreateAGather</string>
 
 
 
