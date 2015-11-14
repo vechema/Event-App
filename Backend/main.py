@@ -56,19 +56,65 @@ class Squad(ndb.Model):
     description = ndb.StringProperty()
 
 
-class MainPage(webapp2.RequestHandler):
-    def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello World!')
-
-
-class mViewNearby (webapp2.RequestHandler):
+class Search (webapp2.RequestHandler):
     def get(self):
         dictPassed = {
         }
         jsonObj = json.dumps(dictPassed, sort_keys=True,indent=4, separators=(',', ': '))
         self.response.write(jsonObj)
 
+
+class CreateGather (webapp2.RequestHandler):
+    def get(self):
+        dictPassed = {
+        }
+        jsonObj = json.dumps(dictPassed, sort_keys=True,indent=4, separators=(',', ': '))
+        self.response.write(jsonObj)
+
+
+class ViewGather (webapp2.RequestHandler):
+    def get(self):
+        dictPassed = {
+        }
+        jsonObj = json.dumps(dictPassed, sort_keys=True,indent=4, separators=(',', ': '))
+        self.response.write(jsonObj)
+
+
+class WhatsHappening (webapp2.RequestHandler):
+    def get(self):
+        dictPassed = {
+        }
+        jsonObj = json.dumps(dictPassed, sort_keys=True,indent=4, separators=(',', ': '))
+        self.response.write(jsonObj)
+
+
+class MyGathers (webapp2.RequestHandler):
+    def get(self):
+        dictPassed = {
+        }
+        jsonObj = json.dumps(dictPassed, sort_keys=True,indent=4, separators=(',', ': '))
+        self.response.write(jsonObj)
+
+
+class MainPage(webapp2.RequestHandler):
+    def get(self):
+        self.response.headers['Content-Type'] = 'text/plain'
+        self.response.write('Hello World!')
+
+
+class Template (webapp2.RequestHandler):
+    def get(self):
+        dictPassed = {
+        }
+        jsonObj = json.dumps(dictPassed, sort_keys=True,indent=4, separators=(',', ': '))
+        self.response.write(jsonObj)
+
+
 app = webapp2.WSGIApplication([
+    ('/search', Search),
+    ('/creategather', CreateGather),
+    ('/viewgather', ViewGather),
+    ('/whatshappening', WhatsHappening),
+    ('/mygathers', MyGathers),
     ('/', MainPage),
     ], debug=True)
