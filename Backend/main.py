@@ -19,6 +19,7 @@ from google.appengine.api.images import get_serving_url
 from google.appengine.api import files, images
 
 
+# For each user, identified by their phone_number
 class User(ndb.Model):
     name = ndb.StringProperty()
     has_app = ndb.BooleanProperty()
@@ -31,6 +32,7 @@ class User(ndb.Model):
     gathers_interested = ndb.KeyProperty(repeated=True)
 
 
+# For each gather, identified by an id (name)
 class Gather(ndb.Model):
     name = ndb.StringProperty()
     latitude = ndb.FloatProperty()
@@ -48,6 +50,7 @@ class Gather(ndb.Model):
     picture = ndb.BlobKeyProperty()
 
 
+# For each squad, identified by name
 class Squad(ndb.Model):
     admins = ndb.KeyProperty(repeated=True)
     members = ndb.KeyProperty(repeated=True)
@@ -56,9 +59,33 @@ class Squad(ndb.Model):
     description = ndb.StringProperty()
 
 
+# Search by search terms
 class Search (webapp2.RequestHandler):
     def get(self):
+        # Get the search terms
+        terms = self.request.get('terms')
+
+        # Search appropriately for gathers
+        # 1) Gathers that are public
+        # 2) Gathers the person is invited to
+
+        # Sort gathers by start time (sooner first)
+
+        # Create arrays to pass back
+        names = []
+        latitudes = []
+        longitudes = []
+        start_times = []
+        end_times = []
+        user_statuses = []
+
         dictPassed = {
+            'names' : names,
+            'latitudes' : latitudes,
+            'longitudes' : longitudes,
+            'start_times' : start_times,
+            'end_times' : end_times,
+            'user_statuses' : user_statuses,
         }
         jsonObj = json.dumps(dictPassed, sort_keys=True,indent=4, separators=(',', ': '))
         self.response.write(jsonObj)
@@ -104,7 +131,9 @@ class MainPage(webapp2.RequestHandler):
 
 class Template (webapp2.RequestHandler):
     def get(self):
+        list = []
         dictPassed = {
+            'list' : list,
         }
         jsonObj = json.dumps(dictPassed, sort_keys=True,indent=4, separators=(',', ': '))
         self.response.write(jsonObj)
