@@ -37,11 +37,11 @@
             android:layout_height="wrap_content"
             android:text="Location:" />
 
-        <Button android:id="@+id/gather_location"
+        <EditText android:id="@+id/gather_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Add Location"
+           />/ android:text="Add Location"
             />
     </LinearLayout>
 
