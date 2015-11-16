@@ -21,9 +21,8 @@ from google.appengine.api import files, images
 
 # For each user, identified by their phone_number
 class User(ndb.Model):
-    name = ndb.StringProperty()  # This is the key
-    has_app = ndb.BooleanProperty()
-    phone_number = ndb.StringProperty()
+    name = ndb.StringProperty()
+    phone_number = ndb.StringProperty()  # This is the key
     squads = ndb.KeyProperty(repeated=True)
     gathers_owned = ndb.KeyProperty(repeated=True)
     gathers_going = ndb.KeyProperty(repeated=True)
@@ -78,6 +77,7 @@ class Search (webapp2.RequestHandler):
         # Search appropriately for gathers
         # 1) Gathers that are public
         # 2) Gathers the person is invited to
+        # 3) Gathers that aren't ignored
 
         # Sort gathers by start time (sooner first)
 
@@ -131,7 +131,7 @@ class ViewGather (webapp2.RequestHandler):
         invite_level = gather.invite_level
 
         # Extract the more complicated variables
-        # The admins of the gather
+        # If the current user is an admin
 
         # The picture url
 
@@ -143,16 +143,63 @@ class ViewGather (webapp2.RequestHandler):
         self.response.write(json_obj)
 
 
+# Give the gathers that are nearby
 class WhatsHappening (webapp2.RequestHandler):
     def get(self):
+        # Identify the user
+        user = identify_user(self.request.get('number'))
+
+        # Get current location
+        current_latitude = self.request.get('latitude')
+        current_longitude = self.request.get('longitude')
+
+        # Get all the gathers
+        # who have already started and are not ignored
+
+        # Sort gathers by location
+
+        # Make arrays to pass back
+        names = []
+        latitudes = []
+        longitudes = []
+        end_times = []
+        user_statuses = []
+
         dict_passed = {
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
 
+# Calculates the distance between two sets of latitudes & longitudes
+# Currently returns in km
+def calc_dist(latitude1, longitude1, latitude2, longitude2):
+    lat1 = math.radians(float(latitude1))
+    lon1 = math.radians(float(longitude1))
+    lat2 = math.radians(float(latitude2))
+    lon2 = math.radians(float(longitude2))
+    R = 6373
 
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = (math.sin(dlat/2))**2 + math.cos(lat1) * math.cos(lat2) * (math.sin(dlon/2))**2
+    c = 2 * math.atan2( math.sqrt(a), math.sqrt(1-a) )
+    d = R * c #(where R is the radius of the Earth)
+    return d
+
+
+# Show the gathers the pertain to an individual
 class MyGathers (webapp2.RequestHandler):
     def get(self):
+        # Identify the user
+        user = identify_user(self.request.get('number'))
+
+        # Get all the gathers the person is apart of, no need for ignored here
+        # User status will now just be determined by which list
+        # Owned
+        # Going
+        # Invited
+        # Interested
+
         dict_passed = {
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
