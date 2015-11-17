@@ -73,6 +73,9 @@ class Search (webapp2.RequestHandler):
     def get(self):
         # Get the search terms
         terms = self.request.get('terms')
+		
+		# Identify the user
+		user = identify_user(self.request.get('number'))
 
         # Search appropriately for gathers
         # 1) Gathers that are public
@@ -103,6 +106,15 @@ class Search (webapp2.RequestHandler):
 
 # For when a gather is created, put the info in the database
 class CreateGather (webapp2.RequestHandler):
+
+	# Make sure the name for the gather hasn't already been used
+	
+	# Create the gather
+	
+	# Add the gather to the list of gathers that the current user owns
+	
+	# Return true or false (if the gather was successfully made)
+	
     def get(self):
         dict_passed = {
         }
@@ -153,10 +165,12 @@ class WhatsHappening (webapp2.RequestHandler):
         current_latitude = self.request.get('latitude')
         current_longitude = self.request.get('longitude')
 
-        # Get all the gathers
-        # who have already started and are not ignored
+        # Get all the gathers that have, filtered in this order
+		#  1) already started 
+		#  2) public OR the user is invited
+		#  3) are not ignored
 
-        # Sort gathers by location
+        # Sort gathers by distance from current location
 
         # Make arrays to pass back
         names = []
@@ -166,6 +180,11 @@ class WhatsHappening (webapp2.RequestHandler):
         user_statuses = []
 
         dict_passed = {
+            'names': names,
+            'latitudes': latitudes,
+            'longitudes': longitudes,
+            'end_times': end_times,
+            'user_statuses': user_statuses,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -187,7 +206,7 @@ def calc_dist(latitude1, longitude1, latitude2, longitude2):
     return d
 
 
-# Show the gathers the pertain to an individual
+# Show the gathers as they pertain to an individual
 class MyGathers (webapp2.RequestHandler):
     def get(self):
         # Identify the user
@@ -199,12 +218,66 @@ class MyGathers (webapp2.RequestHandler):
         # Going
         # Invited
         # Interested
+		
+		# Create arrays to pass back
+		names = []
+        latitudes = []
+        longitudes = []
+		start_times = []
+        end_times = []
+        user_statuses = []
 
         dict_passed = {
+            'names': names,
+            'latitudes': latitudes,
+            'longitudes': longitudes,
+            'start_times': start_times,
+            'end_times': end_times,
+            'user_statuses': user_statuses,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
 
+		
+# See if a person is a user already	
+class Login (webapp2.RequestHandler):
+    def get(self):
+	
+		# See if the current user is in the datastore
+		
+		# If they are not, add them by number and return null
+		
+		# If they are, return their name
+        
+        dict_passed = {
+            
+        }
+        json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
+        self.response.write(json_obj)
+
+		
+# Since the person isn't a user, get their name in the database
+class SignUp (webapp2.RequestHandler):
+    def get(self):
+	
+		# Identify the current user
+		user = identify_user(self.request.get('number'))
+		
+		# Set the user's name
+		user.name = self.request.get(('name'))
+		
+		# Put the user back into the datastore
+		user.put()
+		
+		# Return true on success
+		result = True
+        
+        dict_passed = {
+            'result': result,
+        }
+        json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
+        self.response.write(json_obj)
+		
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
@@ -228,5 +301,7 @@ app = webapp2.WSGIApplication([
     ('/viewgather', ViewGather),
     ('/whatshappening', WhatsHappening),
     ('/mygathers', MyGathers),
+    ('/login', Login),
+    ('/signup', SignUp),
     ('/', MainPage),
     ], debug=True)
