@@ -1,5 +1,6 @@
 package com.aptmini.jreacs.connexus;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
@@ -8,9 +9,12 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.SmsManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -49,7 +53,37 @@ public class CreateAGather extends FragmentActivity {
         setContentView(R.layout.activity_create_a_gather);
     }
 
-    //Define the a fragment which will help us display a time picker dialog.
+    //Define a fragment which will help us display a date picker dialog.
+    public static class DatePickerFragment extends DialogFragment
+            implements DatePickerDialog.OnDateSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current date as the default date in the picker
+            final Calendar c = Calendar.getInstance();
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+            // Create a new instance of DatePickerDialog and return it
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            // Do something with the date chosen by the user
+            System.out.println(year);
+            System.out.println(month);
+            System.out.println(day);
+        }
+    }
+
+    //Show the start-date picker dialog when the button is pressed
+    public void showStartDatePickerDialog(View v) {
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getFragmentManager(), "datePicker");
+    }
+
+    //Define a fragment which will help us display a time picker dialog.
     public static class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
 
@@ -75,6 +109,13 @@ public class CreateAGather extends FragmentActivity {
     public void showStartTimePickerDialog(View v) {
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getFragmentManager(),"timePicker");
+    }
+
+    //Make the gather!
+    public void makeGather(View v){
+        EditText txtphoneNo = (EditText) findViewById(R.id.guests);
+        numbers.add(txtphoneNo.toString());
+        sendSMSMessage();
     }
 
     //Pass the Gather information to the backend
@@ -105,6 +146,24 @@ public class CreateAGather extends FragmentActivity {
                 Log.e("Get_serving_url", "There was a problem in retrieving the url : " + e.toString());
             }
         });
+    }
+
+    //Send the Gather information out as a text message
+    protected void sendSMSMessage() {
+        Log.i("Send SMS", "");
+        String phoneNo = numbers.get(0);
+        String message = "You have been invited to a gather!";
+
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phoneNo, null, message, null, null);
+            Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
+        }
+
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "SMS faild, please try again.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
     }
 
     //Pass the Gather information to the backend
