@@ -77,7 +77,7 @@ class Search (webapp2.RequestHandler):
 		# Identify the user
 		user = identify_user(self.request.get('number'))
 
-        # Search appropriately for gathers
+        # Search appropriately for gathers by name in this order
         # 1) Gathers that are public
         # 2) Gathers the person is invited to
         # 3) Gathers that aren't ignored
@@ -106,6 +106,8 @@ class Search (webapp2.RequestHandler):
 
 # For when a gather is created, put the info in the database
 class CreateGather (webapp2.RequestHandler):
+
+	# Get all the gather information
 
 	# Make sure the name for the gather hasn't already been used
 	
@@ -213,7 +215,8 @@ class MyGathers (webapp2.RequestHandler):
         user = identify_user(self.request.get('number'))
 
         # Get all the gathers the person is apart of, no need for ignored here
-        # User status will now just be determined by which list
+		# Aggregate them all into one list
+		
         # Owned
         # Going
         # Invited
@@ -244,13 +247,21 @@ class Login (webapp2.RequestHandler):
     def get(self):
 	
 		# See if the current user is in the datastore
+		number = self.request.get('number')
+		user = identify_user(number)
 		
-		# If they are not, add them by number and return null
+		# If they are not in the database, add them by number and return None
+		if user == None:
+			new_user = User(id = number, phone_number = number)
+			new_user.put()
+			result = None
 		
-		# If they are, return their name
-        
+		# If they are in the database, return their name
+        else:
+			result = user.name
+			
         dict_passed = {
-            
+            'result': result,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -260,7 +271,7 @@ class Login (webapp2.RequestHandler):
 class SignUp (webapp2.RequestHandler):
     def get(self):
 	
-		# Identify the current user
+		# Identify the current user, we put them in there with Login
 		user = identify_user(self.request.get('number'))
 		
 		# Set the user's name
