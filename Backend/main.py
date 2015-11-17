@@ -19,6 +19,20 @@ from google.appengine.api.images import get_serving_url
 from google.appengine.api import files, images
 
 
+# Constants for parameters passed
+NUMBER = 'number'
+LATITUDE = 'latitude'
+LONGITUDE = 'longitude'
+GATHER_ID = 'gatherid'
+NAME = 'name'
+START_TIME = 'start_time'
+END_TIME = 'end_time'
+DESCRIPTION = 'description'
+USER_STATUS = 'user_status'
+VISIBILITY = 'visibility'
+TERMS = 'terms'
+
+
 # For each user, identified by their phone_number
 class User(ndb.Model):
     name = ndb.StringProperty()
@@ -76,10 +90,10 @@ def identify_gather(gather_id):
 class Search (webapp2.RequestHandler):
     def get(self):
         # Get the search terms
-        terms = self.request.get('terms')
+        terms = self.request.get(TERMS)
 
         # Identify the user
-        user = identify_user(self.request.get('number'))
+        user = identify_user(self.request.get(NUMBER))
 
         # Search appropriately for gathers by name in this order
         # 1) Gathers that are public
@@ -111,11 +125,13 @@ class Search (webapp2.RequestHandler):
 # For when a gather is created, put the info in the database
 class CreateGather (webapp2.RequestHandler):
 
-    # Get all the gather information
+    # Get the name
 
     # Make sure the name for the gather hasn't already been used
 
-    # Create the gather
+    # Gather other info and create the gather
+
+    # Make current user an admin
 
     # Add the gather to the list of gathers that the current user owns
 
@@ -133,10 +149,10 @@ class ViewGather (webapp2.RequestHandler):
     def get(self):
 
         # Identify the user
-        user = identify_user(self.request.get('number'))
+        user = identify_user(self.request.get(NUMBER))
 
         # Identify which gather
-        gather = identify_gather(self.request.get('gatherid'))
+        gather = identify_gather(self.request.get(GATHER_ID))
 
         # Create variables to pass back
         name = gather.name
@@ -165,11 +181,11 @@ class ViewGather (webapp2.RequestHandler):
 class WhatsHappening (webapp2.RequestHandler):
     def get(self):
         # Identify the user
-        user = identify_user(self.request.get('number'))
+        user = identify_user(self.request.get(NUMBER))
 
         # Get current location
-        current_latitude = self.request.get('latitude')
-        current_longitude = self.request.get('longitude')
+        current_latitude = self.request.get(LATITUDE)
+        current_longitude = self.request.get(LONGITUDE)
 
         # Get all the gathers that have, filtered in this order
         #  1) already started
@@ -217,7 +233,7 @@ def calc_dist(latitude1, longitude1, latitude2, longitude2):
 class MyGathers (webapp2.RequestHandler):
     def get(self):
         # Identify the user
-        user = identify_user(self.request.get('number'))
+        user = identify_user(self.request.get(NUMBER))
 
         # Get all the gathers the person is apart of, no need for ignored here
         # Aggregate them all into one list
@@ -252,7 +268,7 @@ class Login (webapp2.RequestHandler):
     def get(self):
 
         # See if the current user is in the datastore
-        number = self.request.get('number')
+        number = self.request.get(NUMBER)
         user = identify_user(number)
 
         # If they are not in the database, add them by number and return None
