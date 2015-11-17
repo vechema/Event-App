@@ -31,6 +31,8 @@ DESCRIPTION = 'description'
 USER_STATUS = 'user_status'
 VISIBILITY = 'visibility'
 TERMS = 'terms'
+PUBLIC = 'public'
+PRIVATE = 'private'
 
 
 # For each user, identified by their phone_number
@@ -58,7 +60,7 @@ class Gather(ndb.Model):
     users_invited = ndb.KeyProperty(repeated=True)
     users_ignored = ndb.KeyProperty(repeated=True)
     users_interested = ndb.KeyProperty(repeated=True)
-    visibility = ndb.StringProperty()
+    visibility = ndb.StringProperty()  # "public" or "private"
     invite_level = ndb.StringProperty()
     picture = ndb.BlobKeyProperty()
 
@@ -96,11 +98,18 @@ class Search (webapp2.RequestHandler):
         user = identify_user(self.request.get(NUMBER))
 
         # Search appropriately for gathers by name in this order
-        # 1) Gathers that are public
-        # 2) Gathers the person is invited to
-        # 3) Gathers that aren't ignored
+        query_list = terms.replace(',', '').split(" ")
+        gather_query = Gather.query()
+        for query in query_list:
+            if query != '':
+                gather_query = gather_query.filter(Gather.name == query)
+        # 1) Gathers that are public OR they are invited to
+        gather_query = gather_query.filter(ndb.OR(Gather.visibility == PUBLIC, Gather.key in user.gathers_invited))
+        # 2) Gathers that aren't ignored
+        gather_query = gather_query.filter(Gather.key not in user.gathers_ignored)
 
         # Sort gathers by start time (sooner first)
+        gathers = gather_query.order(-Gather.time_start).fetch(400)
 
         # Create arrays to pass back
         names = []
@@ -123,22 +132,40 @@ class Search (webapp2.RequestHandler):
 
 
 # For when a gather is created, put the info in the database
+# SMS invites/notifications are done with Android
 class CreateGather (webapp2.RequestHandler):
+    def post(self):
+        # Get the name
+        name = self.request.params[NAME]  # If it's post, .get(NAME) for get
 
-    # Get the name
+        # Make sure the name for the gather hasn't already been used
+        gather_query = Gather.query(Gather.name == name)
+        gathers = gather_query.fetch(400)
+        if gathers:
+            result = False  # Return that the gather couldn't be made
+        else:
+            # Aggregate the basic data
+            gather = Gather()
+            gather.name = name
+            gather.latitude = self.request.params[LATITUDE]
+            gather.longitude = self.request.params[LONGITUDE]
+            gather.description = self.request.params[DESCRIPTION]
+            gather.visibility = self.request.params[VISIBILITY]
 
-    # Make sure the name for the gather hasn't already been used
+            # Format start & end times
 
-    # Gather other info and create the gather
+            # Make current user an admin
 
-    # Make current user an admin
+            # Put the gather in the database
+            gather.put()
 
-    # Add the gather to the list of gathers that the current user owns
+            # Add the gather to the list of gathers that the current user owns
 
-    # Return true or false (if the gather was successfully made)
+            result = True  # Return that it was made successfully, yay
 
-    def get(self):
+        # Return true or false (if the gather was successfully made)
         dict_passed = {
+            'result': result,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
