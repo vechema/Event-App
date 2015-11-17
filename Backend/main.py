@@ -59,6 +59,10 @@ class Squad(ndb.Model):
 
 
 def identify_user(number):
+    """
+
+    :rtype : a user object
+    """
     user_key = ndb.Key(User, number)
     return user_key.get()
 
@@ -73,9 +77,9 @@ class Search (webapp2.RequestHandler):
     def get(self):
         # Get the search terms
         terms = self.request.get('terms')
-		
-		# Identify the user
-		user = identify_user(self.request.get('number'))
+
+        # Identify the user
+        user = identify_user(self.request.get('number'))
 
         # Search appropriately for gathers by name in this order
         # 1) Gathers that are public
@@ -107,16 +111,16 @@ class Search (webapp2.RequestHandler):
 # For when a gather is created, put the info in the database
 class CreateGather (webapp2.RequestHandler):
 
-	# Get all the gather information
+    # Get all the gather information
 
-	# Make sure the name for the gather hasn't already been used
-	
-	# Create the gather
-	
-	# Add the gather to the list of gathers that the current user owns
-	
-	# Return true or false (if the gather was successfully made)
-	
+    # Make sure the name for the gather hasn't already been used
+
+    # Create the gather
+
+    # Add the gather to the list of gathers that the current user owns
+
+    # Return true or false (if the gather was successfully made)
+
     def get(self):
         dict_passed = {
         }
@@ -168,9 +172,9 @@ class WhatsHappening (webapp2.RequestHandler):
         current_longitude = self.request.get('longitude')
 
         # Get all the gathers that have, filtered in this order
-		#  1) already started 
-		#  2) public OR the user is invited
-		#  3) are not ignored
+        #  1) already started
+        #  2) public OR the user is invited
+        #  3) are not ignored
 
         # Sort gathers by distance from current location
 
@@ -191,6 +195,7 @@ class WhatsHappening (webapp2.RequestHandler):
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
 
+
 # Calculates the distance between two sets of latitudes & longitudes
 # Currently returns in km
 def calc_dist(latitude1, longitude1, latitude2, longitude2):
@@ -198,13 +203,13 @@ def calc_dist(latitude1, longitude1, latitude2, longitude2):
     lon1 = math.radians(float(longitude1))
     lat2 = math.radians(float(latitude2))
     lon2 = math.radians(float(longitude2))
-    R = 6373
+    r = 6373
 
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = (math.sin(dlat/2))**2 + math.cos(lat1) * math.cos(lat2) * (math.sin(dlon/2))**2
-    c = 2 * math.atan2( math.sqrt(a), math.sqrt(1-a) )
-    d = R * c #(where R is the radius of the Earth)
+    d_lon = lon2 - lon1
+    d_lat = lat2 - lat1
+    a = (math.sin(d_lat/2))**2 + math.cos(lat1) * math.cos(lat2) * (math.sin(d_lon/2))**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    d = r * c  # (where R is the radius of the Earth)
     return d
 
 
@@ -215,18 +220,18 @@ class MyGathers (webapp2.RequestHandler):
         user = identify_user(self.request.get('number'))
 
         # Get all the gathers the person is apart of, no need for ignored here
-		# Aggregate them all into one list
-		
+        # Aggregate them all into one list
+
         # Owned
         # Going
         # Invited
         # Interested
-		
-		# Create arrays to pass back
-		names = []
+
+        # Create arrays to pass back
+        names = []
         latitudes = []
         longitudes = []
-		start_times = []
+        start_times = []
         end_times = []
         user_statuses = []
 
@@ -241,54 +246,54 @@ class MyGathers (webapp2.RequestHandler):
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
 
-		
+
 # See if a person is a user already	
 class Login (webapp2.RequestHandler):
     def get(self):
-	
-		# See if the current user is in the datastore
-		number = self.request.get('number')
-		user = identify_user(number)
-		
-		# If they are not in the database, add them by number and return None
-		if user == None:
-			new_user = User(id = number, phone_number = number)
-			new_user.put()
-			result = None
-		
-		# If they are in the database, return their name
+
+        # See if the current user is in the datastore
+        number = self.request.get('number')
+        user = identify_user(number)
+
+        # If they are not in the database, add them by number and return None
+        if user is None:
+            new_user = User(id=number, phone_number=number)
+            new_user.put()
+            result = None
+
+        # If they are in the database, return their name
         else:
-			result = user.name
-			
+            result = user.name
+
         dict_passed = {
             'result': result,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
 
-		
+
 # Since the person isn't a user, get their name in the database
 class SignUp (webapp2.RequestHandler):
     def get(self):
-	
-		# Identify the current user, we put them in there with Login
-		user = identify_user(self.request.get('number'))
-		
-		# Set the user's name
-		user.name = self.request.get(('name'))
-		
-		# Put the user back into the datastore
-		user.put()
-		
-		# Return true on success
-		result = True
-        
+
+        # Identify the current user, we put them in there with Login
+        user = identify_user(self.request.get('number'))
+
+        # Set the user's name
+        user.name = self.request.get('name')
+
+        # Put the user back into the datastore
+        user.put()
+
+        # Return true on success
+        result = True
+
         dict_passed = {
             'result': result,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
-		
+
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
