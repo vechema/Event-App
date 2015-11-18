@@ -31,8 +31,14 @@ DESCRIPTION = 'description'
 USER_STATUS = 'user_status'
 VISIBILITY = 'visibility'
 TERMS = 'terms'
+
 PUBLIC = 'public'
 PRIVATE = 'private'
+
+IGNORED = 'ignored'
+GOING = 'going'
+INVITED = 'invited'
+INTERESTED = 'interested'
 
 
 # For each user, identified by their phone_number
@@ -88,6 +94,24 @@ def identify_gather(gather_id):
     return gather_key.get()
 
 
+# Given a gather and a user, returns invited, ignored, interested, or going
+def find_user_status(gather, user):
+    if gather.key in user.gathers_ignored:
+        return IGNORED
+    elif gather.key in user.gathers_invited:
+        return INVITED
+    elif gather.key in user.gathers_interested:
+        return INTERESTED
+    elif gather.key in user.gathers_going:
+        return GOING
+
+
+# Return a datetime from a string
+def string_to_datetime(string_date):
+    parse_pattern = "%Y-%m-%d %H:%M:%S.%f"
+    return datetime.datetime.strptime(string_date, parse_pattern)
+
+
 # Search by search terms
 class Search (webapp2.RequestHandler):
     def get(self):
@@ -118,6 +142,14 @@ class Search (webapp2.RequestHandler):
         start_times = []
         end_times = []
         user_statuses = []
+
+        for gather in gathers:
+            names.append(gather.name)
+            latitudes.append(gather.latitude)
+            longitudes.append(gather.longitude)
+            start_times.append(str(gather.time_start))
+            end_times.append(str(gather.time_end))
+            user_statuses.append(find_user_status(gather, user))
 
         dict_passed = {
             'names': names,
@@ -264,11 +296,26 @@ class MyGathers (webapp2.RequestHandler):
 
         # Get all the gathers the person is apart of, no need for ignored here
         # Aggregate them all into one list
-
+        gathers = []
         # Owned
+        user_owned = user.gathers_owned
+        for owned in user_owned:
+            gathers.append(owned.get())
         # Going
+        user_going = user.gathers_going
+        for going in user_going:
+            gathers.append(going.get())
         # Invited
+        user_invited = user.gathers_invited
+        for invited in user_invited:
+            gathers.append(invited.get())
         # Interested
+        user_interested = user.gathers_interested
+        for interested in user_interested:
+            gathers.append(interested.get())
+
+        # Sort gathers by start time
+        gathers = sorted(gathers, key=lambda k: k.time_start, reverse=True)
 
         # Create arrays to pass back
         names = []
@@ -277,6 +324,14 @@ class MyGathers (webapp2.RequestHandler):
         start_times = []
         end_times = []
         user_statuses = []
+
+        for gather in gathers:
+            names.append(gather.name)
+            latitudes.append(gather.latitude)
+            longitudes.append(gather.longitude)
+            start_times.append(str(gather.time_start))
+            end_times.append(str(gather.time_end))
+            user_statuses.append(find_user_status(gather, user))
 
         dict_passed = {
             'names': names,
@@ -338,6 +393,98 @@ class SignUp (webapp2.RequestHandler):
         self.response.write(json_obj)
 
 
+class Purge(webapp2.RequestHandler):
+    def get(self):
+        try:
+            query = blobstore.BlobInfo.all()
+            blobs = query.fetch(400)
+            index = 0
+            if len(blobs) > 0:
+                for blob in blobs:
+                    blob.delete()
+                    index += 1
+
+            hour = datetime.datetime.now().time().hour
+            minute = datetime.datetime.now().time().minute
+            second = datetime.datetime.now().time().second
+            blob_message = (str(index) + ' items deleted from Blobstore at ' + str(hour) + ':' + str(minute) + ':' + str(second)+'\n\n')
+            if index == 400:
+                self.redirect("/purge")
+
+        except Exception, e:
+            # self.response.out.write('Error is: ' + repr(e) + '\n')
+            pass
+
+        try:
+            user_query = User.query()
+            users = user_query.fetch(400)
+            index = 0
+            if len(users) > 0:
+                for result in users:
+                    result.key.delete()
+                    index+=1
+
+            hour = datetime.datetime.now().time().hour
+            minute = datetime.datetime.now().time().minute
+            second = datetime.datetime.now().time().second
+            user_message = (str(index) + ' items deleted from User at ' + str(hour) + ':' + str(minute) + ':' + str(second)+'\n\n')
+            if index == 400:
+                self.redirect("/purge")
+
+        except Exception, e:
+            # self.response.out.write('Error is: ' + repr(e) + '\n')
+            pass
+
+        try:
+            gather_query = Gather.query()
+            gathers = gather_query.fetch(400)
+            index = 0
+            if len(gathers) > 0:
+                for result in gathers:
+                    result.key.delete()
+                    index+=1
+
+            hour = datetime.datetime.now().time().hour
+            minute = datetime.datetime.now().time().minute
+            second = datetime.datetime.now().time().second
+            gather_message = (str(index) + ' items deleted from Gather at ' + str(hour) + ':' + str(minute) + ':' + str(second)+'\n\n')
+            if index == 400:
+                self.redirect("/purge")
+
+        except Exception, e:
+            # self.response.out.write('Error is: ' + repr(e) + '\n')
+            pass
+
+        try:
+            squad_query = Squad.query()
+            squads = squad_query.fetch(400)
+            index = 0
+            if len(squads) > 0:
+                for result in squads:
+                    result.key.delete()
+                    index+=1
+
+            hour = datetime.datetime.now().time().hour
+            minute = datetime.datetime.now().time().minute
+            second = datetime.datetime.now().time().second
+            squad_message = (str(index) + ' items deleted from Squad at ' + str(hour) + ':' + str(minute) + ':' + str(second)+'\n\n')
+            if index == 400:
+                self.redirect("/purge")
+
+        except Exception, e:
+            # self.response.out.write('Error is: ' + repr(e) + '\n')
+            pass
+
+        dict_passed ={
+            'blob_message': blob_message,
+            'user_message': user_message,
+            'gather_message': gather_message,
+            'squad_message': squad_message,
+        }
+        json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
+        self.response.write(json_obj)
+
+
 class MainPage(webapp2.RequestHandler):
     def get(self):
         self.response.headers['Content-Type'] = 'text/plain'
@@ -354,6 +501,32 @@ class Template (webapp2.RequestHandler):
         self.response.write(json_obj)
 
 
+# Testing purposes!
+class Thing(ndb.Model):
+    time = ndb.DateTimeProperty(auto_now_add=True)
+
+
+class DateTimeTest (webapp2.RequestHandler):
+    def get(self):
+        string_date = '2015-11-18 01:34:00.0'
+        result = str(datetime.datetime.now())
+        result2 = str(string_to_datetime(string_date))
+        thing = Thing()
+        thing.put()
+        result3 = str(thing.time)
+        thing.time = string_to_datetime(string_date)
+        thing.put()
+        result4 = str(thing.time)
+        dict_passed = {
+            'result': result,
+            'result2': result2,
+            'result3': result3,
+            'result4': result4,
+        }
+        json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
+        self.response.write(json_obj)
+
+
 app = webapp2.WSGIApplication([
     ('/search', Search),
     ('/creategather', CreateGather),
@@ -362,5 +535,7 @@ app = webapp2.WSGIApplication([
     ('/mygathers', MyGathers),
     ('/login', Login),
     ('/signup', SignUp),
+    ('/purge', Purge),
     ('/', MainPage),
+    ('/testdatetime', DateTimeTest),
     ], debug=True)
