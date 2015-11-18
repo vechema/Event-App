@@ -1,5 +1,6 @@
 package com.aptmini.jreacs.connexus;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
@@ -8,9 +9,12 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.SmsManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -29,16 +33,16 @@ import java.util.List;
 
 public class CreateAGather extends FragmentActivity {
     Context context = this;
-    int startYear;
-    int startMonth;
-    int startDay;
-    int startHour;
-    int startMinute;
-    int endYear;
-    int endMonth;
-    int endDay;
-    int endHour;
-    int endMinute;
+    static int startYear;
+    static int startMonth;
+    static int startDay;
+    static int startHour;
+    static int startMinute;
+    static int endYear;
+    static int endMonth;
+    static int endDay;
+    static int endHour;
+    static int endMinute;
     String title;
     String address;
     List<String> numbers;
@@ -47,10 +51,51 @@ public class CreateAGather extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_a_gather);
+        numbers = new ArrayList<String>();
+        final Calendar c = Calendar.getInstance();
+        startYear = c.get(Calendar.YEAR);
+        startMonth = c.get(Calendar.MONTH);
+        startDay = c.get(Calendar.DAY_OF_MONTH);
+        startHour = c.get(Calendar.HOUR_OF_DAY);
+        startMinute = c.get(Calendar.MINUTE);
     }
 
-    //Define the a fragment which will help us display a time picker dialog.
-    public static class TimePickerFragment extends DialogFragment
+    //Define a fragment which will help us display a date picker dialog.
+    //Default is current date
+    public static class StartDatePickerFragment extends DialogFragment
+            implements DatePickerDialog.OnDateSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current date as the default date in the picker
+            final Calendar c = Calendar.getInstance();
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+            // Create a new instance of DatePickerDialog and return it
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            // Do something with the date chosen by the user
+            System.out.println(year);
+            System.out.println(month);
+            System.out.println(day);
+            startYear = year;
+            startMonth = month;
+            startDay = day;
+        }
+    }
+
+    //Show the start-date picker dialog when the button is pressed
+    public void showStartDatePickerDialog(View v) {
+        DialogFragment newFragment = new StartDatePickerFragment();
+        newFragment.show(getFragmentManager(), "datePicker");
+    }
+
+    //Define a fragment which will help us display a start time picker dialog.
+    public static class StartTimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
 
         @Override
@@ -68,13 +113,88 @@ public class CreateAGather extends FragmentActivity {
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             System.out.println(hourOfDay);
             System.out.println(minute);
+            startHour = hourOfDay;
+            startMinute = minute;
         }
     }
 
     //Show the start-time picker dialog when the button is pressed
     public void showStartTimePickerDialog(View v) {
-        DialogFragment newFragment = new TimePickerFragment();
+        DialogFragment newFragment = new StartTimePickerFragment();
         newFragment.show(getFragmentManager(),"timePicker");
+    }
+
+    //Define a fragment which will help us display a date picker dialog.
+    //Default is start date
+    public static class EndDatePickerFragment extends DialogFragment
+            implements DatePickerDialog.OnDateSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the start date as the default date in the picker
+            final Calendar c = Calendar.getInstance();
+            int year = startYear;
+            int month = startMonth;
+            int day = startDay;
+
+            // Create a new instance of DatePickerDialog and return it
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            // Do something with the date chosen by the user
+            System.out.println(year);
+            System.out.println(month);
+            System.out.println(day);
+        }
+    }
+
+    //Show the start-date picker dialog when the button is pressed
+    public void showEndDatePickerDialog(View v) {
+        DialogFragment newFragment = new EndDatePickerFragment();
+        newFragment.show(getFragmentManager(), "datePicker");
+    }
+
+    //Define a fragment which will help us display a start time picker dialog.
+    public static class EndTimePickerFragment extends DialogFragment
+            implements TimePickerDialog.OnTimeSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current time as the default values for the picker
+            final Calendar c = Calendar.getInstance();
+            int hour = startHour + 1;
+            if(hour == 24){
+                hour = 0;
+            }
+            int minute = startMinute;
+
+            // Create a new instance of TimePickerDialog and return it
+            return new TimePickerDialog(getActivity(), this, hour, minute,
+                    DateFormat.is24HourFormat(getActivity()));
+        }
+
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            System.out.println(hourOfDay);
+            System.out.println(minute);
+        }
+    }
+
+    //Show the start-time picker dialog when the button is pressed
+    public void showEndTimePickerDialog(View v) {
+        DialogFragment newFragment = new EndTimePickerFragment();
+        newFragment.show(getFragmentManager(),"timePicker");
+    }
+
+
+    //Make the gather!
+    public void makeGather(View v){
+        EditText txtphoneNo = (EditText) findViewById(R.id.guests);
+        String numberString = txtphoneNo.getText().toString();
+        System.out.println("I AM DEBUGGING!!!!!");
+        System.out.println(numberString);
+        numbers.add(numberString);
+        sendSMSMessage();
     }
 
     //Pass the Gather information to the backend
@@ -105,6 +225,24 @@ public class CreateAGather extends FragmentActivity {
                 Log.e("Get_serving_url", "There was a problem in retrieving the url : " + e.toString());
             }
         });
+    }
+
+    //Send the Gather information out as a text message
+    protected void sendSMSMessage() {
+        Log.i("Send SMS", "");
+        String phoneNo = numbers.get(0);
+        String message = "You have been invited to a gather!";
+
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phoneNo, null, message, null, null);
+            Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
+        }
+
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "SMS faild, please try again.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
     }
 
     //Pass the Gather information to the backend

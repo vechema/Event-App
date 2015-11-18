@@ -96,6 +96,9 @@ public class Homepage extends ActionBarActivity implements
     Context context = this;
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Intent intent = new Intent(this, CreateAGather.class);
+        startActivity(intent);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
 
