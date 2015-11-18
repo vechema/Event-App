@@ -30,6 +30,8 @@ END_TIME = 'end_time'
 DESCRIPTION = 'description'
 USER_STATUS = 'user_status'
 VISIBILITY = 'visibility'
+INVITE_LEVEL = 'invite_level'
+
 TERMS = 'terms'
 
 PUBLIC = 'public'
@@ -39,6 +41,8 @@ IGNORED = 'ignored'
 GOING = 'going'
 INVITED = 'invited'
 INTERESTED = 'interested'
+
+PARSE_PATTERN = "%Y-%m-%d %H:%M:%S.%f"
 
 
 # For each user, identified by their phone_number
@@ -58,8 +62,8 @@ class Gather(ndb.Model):
     name = ndb.StringProperty()  # This is the key
     latitude = ndb.FloatProperty()
     longitude = ndb.FloatProperty()
-    time_start = ndb.DateTimeProperty()
-    time_end = ndb.DateTimeProperty()
+    start_time = ndb.DateTimeProperty()
+    end_time = ndb.DateTimeProperty()
     description = ndb.StringProperty()
     admins = ndb.KeyProperty(repeated=True)
     users_going = ndb.KeyProperty(repeated=True)
@@ -69,6 +73,7 @@ class Gather(ndb.Model):
     visibility = ndb.StringProperty()  # "public" or "private"
     invite_level = ndb.StringProperty()
     picture = ndb.BlobKeyProperty()
+    distance = ndb.FloatProperty()
 
 
 # For each squad, identified by name
@@ -108,8 +113,7 @@ def find_user_status(gather, user):
 
 # Return a datetime from a string
 def string_to_datetime(string_date):
-    parse_pattern = "%Y-%m-%d %H:%M:%S.%f"
-    return datetime.datetime.strptime(string_date, parse_pattern)
+    return datetime.datetime.strptime(string_date, PARSE_PATTERN)
 
 
 # Search by search terms
@@ -128,12 +132,16 @@ class Search (webapp2.RequestHandler):
             if query != '':
                 gather_query = gather_query.filter(Gather.name == query)
         # 1) Gathers that are public OR they are invited to
-        gather_query = gather_query.filter(ndb.OR(Gather.visibility == PUBLIC, Gather.key in user.gathers_invited))
+        gather_query = gather_query.filter(ndb.OR(Gather.visibility == PUBLIC, Gather.key.IN(user.gathers_invited)))
         # 2) Gathers that aren't ignored
-        gather_query = gather_query.filter(Gather.key not in user.gathers_ignored)
+        # gather_query = gather_query.filter(Gather.key not in user.gathers_ignored)  # I wish
+        gathers = gather_query.fetch()
+        for gather in gathers:
+            if gather.key in user.gathers_ignored:
+                gathers.remove(gather)
 
         # Sort gathers by start time (sooner first)
-        gathers = gather_query.order(-Gather.time_start).fetch(400)
+        gathers = sorted(gathers, key=lambda k: k.start_time,reverse = False)
 
         # Create arrays to pass back
         names = []
@@ -147,17 +155,17 @@ class Search (webapp2.RequestHandler):
             names.append(gather.name)
             latitudes.append(gather.latitude)
             longitudes.append(gather.longitude)
-            start_times.append(str(gather.time_start))
-            end_times.append(str(gather.time_end))
+            start_times.append(str(gather.start_time))
+            end_times.append(str(gather.end_time))
             user_statuses.append(find_user_status(gather, user))
 
         dict_passed = {
-            'names': names,
-            'latitudes': latitudes,
-            'longitudes': longitudes,
-            'start_times': start_times,
-            'end_times': end_times,
-            'user_statuses': user_statuses,
+            NAME+'s': names,
+            LATITUDE+'s': latitudes,
+            LONGITUDE+'s': longitudes,
+            START_TIME+'s': start_times,
+            END_TIME+'s': end_times,
+            USER_STATUS+'es': user_statuses,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -179,19 +187,31 @@ class CreateGather (webapp2.RequestHandler):
             # Aggregate the basic data
             gather = Gather()
             gather.name = name
+            gather.id = name
             gather.latitude = self.request.params[LATITUDE]
             gather.longitude = self.request.params[LONGITUDE]
             gather.description = self.request.params[DESCRIPTION]
             gather.visibility = self.request.params[VISIBILITY]
 
             # Format start & end times
+            gather.start_time = string_to_datetime(self.request.params[START_TIME])
+            gather.end_time = string_to_datetime(self.request.params[END_TIME])
 
             # Make current user an admin
+            user = identify_user(self.request.params[NUMBER])
+            admin = [user]
+            gather.admins = admin
 
-            # Put the gather in the database
-            gather.put()
+            # Still missing picture, invite_level
 
             # Add the gather to the list of gathers that the current user owns
+            owned = user.gathers_owned
+            owned.append(gather.key)
+            user.gathers_owned = owned
+
+            # Put everything in the database!
+            user.put()
+            gather.put()
 
             result = True  # Return that it was made successfully, yay
 
@@ -217,20 +237,34 @@ class ViewGather (webapp2.RequestHandler):
         name = gather.name
         latitude = gather.latitude
         longitude = gather.longitude
-        time_start = gather.time_start
-        time_end = gather.time_end
+        start_time = str(gather.start_time)
+        end_time = str(gather.end_time)
         description = gather.description
         visibility = gather.visibility
         invite_level = gather.invite_level
 
         # Extract the more complicated variables
         # If the current user is an admin
+        admin = False
+        if user.key in gather.admins:
+            admin = True
 
         # The picture url
 
         # The current user's status
+        user_status = find_user_status(gather, user)
 
         dict_passed = {
+            NAME: name,
+            LATITUDE: latitude,
+            LONGITUDE: longitude,
+            START_TIME: start_time,
+            END_TIME: end_time,
+            USER_STATUS: user_status,
+            DESCRIPTION: description,
+            VISIBILITY : visibility,
+            INVITE_LEVEL : invite_level,
+            'admin': admin,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -247,11 +281,29 @@ class WhatsHappening (webapp2.RequestHandler):
         current_longitude = self.request.get(LONGITUDE)
 
         # Get all the gathers that have, filtered in this order
-        #  1) already started
+        gather_query = Gather.query()
+        #  1) already started but not ended, time NOW > time 4 seconds ago: start < now < end
+        now = datetime.datetime.now()
+        gather_query = gather_query.filter(ndb.AND(Gather.start_time < now, Gather.end_time > now))
         #  2) public OR the user is invited
+        gather_query = gather_query.filter(ndb.OR(Gather.visibility == PUBLIC, Gather.key.IN(user.gathers_invited)))
         #  3) are not ignored
+        # gather_query = gather_query.filter(Gather.key not in user.gathers_ignored)  # I wish
+        gather_list = gather_query.fetch()
+        for gather in gather_list:
+            if gather.key in user.gathers_ignored:
+                gather_list.remove(gather)
+
+        gathers = []
+        # Give each gather a distance value
+        for gather in gather_list:
+            gather.distance = calc_dist(current_latitude, current_longitude,
+                                        gather.latitude, gather.longitude)
+            gather.put()
+            gathers.append(gather)
 
         # Sort gathers by distance from current location
+        gathers = sorted(gathers, key=lambda k: k.distance,reverse = False)
 
         # Make arrays to pass back
         names = []
@@ -260,12 +312,19 @@ class WhatsHappening (webapp2.RequestHandler):
         end_times = []
         user_statuses = []
 
+        for gather in gathers:
+            names.append(gather.name)
+            latitudes.append(gather.latitude)
+            longitudes.append(gather.longitude)
+            end_times.append(str(gather.end_time))
+            user_statuses.append(find_user_status(gather, user))
+
         dict_passed = {
-            'names': names,
-            'latitudes': latitudes,
-            'longitudes': longitudes,
-            'end_times': end_times,
-            'user_statuses': user_statuses,
+            NAME+'s': names,
+            LATITUDE+'s': latitudes,
+            LONGITUDE+'s': longitudes,
+            END_TIME+'s': end_times,
+            USER_STATUS+'es': user_statuses,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -315,7 +374,7 @@ class MyGathers (webapp2.RequestHandler):
             gathers.append(interested.get())
 
         # Sort gathers by start time
-        gathers = sorted(gathers, key=lambda k: k.time_start, reverse=True)
+        gathers = sorted(gathers, key=lambda k: k.start_time, reverse=True)
 
         # Create arrays to pass back
         names = []
@@ -329,17 +388,17 @@ class MyGathers (webapp2.RequestHandler):
             names.append(gather.name)
             latitudes.append(gather.latitude)
             longitudes.append(gather.longitude)
-            start_times.append(str(gather.time_start))
-            end_times.append(str(gather.time_end))
+            start_times.append(str(gather.start_time))
+            end_times.append(str(gather.end_time))
             user_statuses.append(find_user_status(gather, user))
 
         dict_passed = {
-            'names': names,
-            'latitudes': latitudes,
-            'longitudes': longitudes,
-            'start_times': start_times,
-            'end_times': end_times,
-            'user_statuses': user_statuses,
+            NAME+'s': names,
+            LATITUDE+'s': latitudes,
+            LONGITUDE+'s': longitudes,
+            START_TIME+'s': start_times,
+            END_TIME+'s': end_times,
+            USER_STATUS+'es': user_statuses,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -503,7 +562,7 @@ class Template (webapp2.RequestHandler):
 
 # Testing purposes!
 class Thing(ndb.Model):
-    time = ndb.DateTimeProperty(auto_now_add=True)
+    time = ndb.DateTimeProperty()
 
 
 class DateTimeTest (webapp2.RequestHandler):
@@ -512,20 +571,50 @@ class DateTimeTest (webapp2.RequestHandler):
         result = str(datetime.datetime.now())
         result2 = str(string_to_datetime(string_date))
         thing = Thing()
+        thing.time = datetime.datetime.now()
         thing.put()
         result3 = str(thing.time)
         thing.time = string_to_datetime(string_date)
         thing.put()
         result4 = str(thing.time)
+        time_s = 'Time'
         dict_passed = {
-            'result': result,
-            'result2': result2,
-            'result3': result3,
-            'result4': result4,
+            time_s + ' NOW': result,
+            time_s + ' from String': result2,
+            time_s + ' stored': result3,
+            time_s + ' stored string': result4,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
 
+
+class QueryTest(webapp2.RequestHandler):
+    def get(self):
+        test1 = Gather()
+        test1.name = "Test 1"
+        test1.id = test1.name
+        test1.put()
+        test2 = Gather()
+        test2.name = "Test 2"
+        test2.id = test2.name
+        test2.put()
+
+        gather_query = Gather.query()
+        query_type = str(type(gather_query))
+        gathers = gather_query.fetch()
+        gathers_type = str(type(gathers))
+
+        names = []
+        for gather in gathers:
+            names.append(gather.name)
+
+        dict_passed = {
+            'query_type': query_type,
+            'gathers_type': gathers_type,
+            'names': names,
+        }
+        json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
+        self.response.write(json_obj)
 
 app = webapp2.WSGIApplication([
     ('/search', Search),
@@ -538,4 +627,5 @@ app = webapp2.WSGIApplication([
     ('/purge', Purge),
     ('/', MainPage),
     ('/testdatetime', DateTimeTest),
+    ('/testquery', QueryTest),
     ], debug=True)
