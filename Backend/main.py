@@ -307,7 +307,7 @@ def add_to_list(user, gather, status):
     gather_list = pick_gather_list(gather, status)
     gather_list.append(user)
     set_gather_list(gather, gather_list, status)
-    
+
     user_list = pick_user_list(user, status)
     user_list.append(gather)
     set_user_list(user, user_list, status)
@@ -561,7 +561,7 @@ class Login (webapp2.RequestHandler):
             result = user.name
 
         dict_passed = {
-            'result': result,
+            'name': result,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -572,12 +572,19 @@ class SignUp (webapp2.RequestHandler):
     def get(self):
 
         # Identify the current user, we put them in there with Login
-        user = identify_user(self.request.get('number'))
+        number = self.request.get(NUMBER)
+        user = identify_user(number)
+
+        # If, for some reason, the user isn't already in the data base, add them
+        if user is None:
+            new_user = User(id=number, phone_number=number)
+            new_user.put()
+            user = new_user
 
         # Set the user's name
-        user.name = self.request.get('name')
+        user.name = self.request.get(NAME)
 
-        # Put the user back into the datastore
+        # Put the user back into the data store
         user.put()
 
         # Return true on success
@@ -619,7 +626,7 @@ class Purge(webapp2.RequestHandler):
             if len(users) > 0:
                 for result in users:
                     result.key.delete()
-                    index+=1
+                    index += 1
 
             hour = datetime.datetime.now().time().hour
             minute = datetime.datetime.now().time().minute
@@ -639,7 +646,7 @@ class Purge(webapp2.RequestHandler):
             if len(gathers) > 0:
                 for result in gathers:
                     result.key.delete()
-                    index+=1
+                    index += 1
 
             hour = datetime.datetime.now().time().hour
             minute = datetime.datetime.now().time().minute
@@ -659,7 +666,7 @@ class Purge(webapp2.RequestHandler):
             if len(squads) > 0:
                 for result in squads:
                     result.key.delete()
-                    index+=1
+                    index += 1
 
             hour = datetime.datetime.now().time().hour
             minute = datetime.datetime.now().time().minute
