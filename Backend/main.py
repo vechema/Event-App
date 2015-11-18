@@ -31,6 +31,7 @@ DESCRIPTION = 'description'
 USER_STATUS = 'user_status'
 VISIBILITY = 'visibility'
 INVITE_LEVEL = 'invite_level'
+USERS_INVITED = 'users_invited'
 
 TERMS = 'terms'
 
@@ -176,18 +177,17 @@ class Search (webapp2.RequestHandler):
 class CreateGather (webapp2.RequestHandler):
     def post(self):
         # Get the name
-        name = self.request.params[NAME]  # If it's post, .get(NAME) for get
+        gather_name = self.request.params[NAME]  # If it's post, .get(NAME) for get
 
         # Make sure the name for the gather hasn't already been used
-        gather_query = Gather.query(Gather.name == name)
+        gather_query = Gather.query(Gather.name == gather_name)
         gathers = gather_query.fetch(400)
         if gathers:
             result = False  # Return that the gather couldn't be made
         else:
             # Aggregate the basic data
-            gather = Gather()
-            gather.name = name
-            gather.id = name
+            gather = Gather(id=gather_name)
+            gather.name = gather_name
             gather.latitude = self.request.params[LATITUDE]
             gather.longitude = self.request.params[LONGITUDE]
             gather.description = self.request.params[DESCRIPTION]
@@ -208,6 +208,27 @@ class CreateGather (webapp2.RequestHandler):
             owned = user.gathers_owned
             owned.append(gather.key)
             user.gathers_owned = owned
+
+            # Add the users that are invited to users_invited
+            users_invited_string = self.request.params[USERS_INVITED]
+            users_invited = users_invited_string.split('+')
+
+            for invited in users_invited:
+                user_invited = identify_user(invited)
+                # If they aren't a user, make them one
+                if user_invited is None:
+                    user_invited = User(id=invited, phone_number=invited)
+                    user_invited.put()
+                # Add the gather to the list of gathers they are invited to
+                user_gather_invited = user_invited.gathers_invited
+                user_gather_invited.append(gather.key)
+                user_invited.gathers_invited = user_gather_invited
+                user_invited.put()
+
+                # Add the user to the list of users that are invited
+                gather_invited = gather.users_invited
+                gather_invited.append(user_invited.key)
+                gather.users_invited = gather_invited
 
             # Put everything in the database!
             user.put()
@@ -418,6 +439,10 @@ class Login (webapp2.RequestHandler):
             new_user.put()
             result = None
 
+        # They were invited to something but haven't used the app yet
+        elif user.name is None:
+            result = None
+
         # If they are in the database, return their name
         else:
             result = user.name
@@ -590,13 +615,13 @@ class DateTimeTest (webapp2.RequestHandler):
 
 class QueryTest(webapp2.RequestHandler):
     def get(self):
-        test1 = Gather()
-        test1.name = "Test 1"
-        test1.id = test1.name
+        # Have to put id in Gather constructor!
+        test1 = Gather(name="Test 1", id="Test 1")
         test1.put()
+
         test2 = Gather()
         test2.name = "Test 2"
-        test2.id = test2.name
+        test2.id = "Test 2"
         test2.put()
 
         gather_query = Gather.query()
