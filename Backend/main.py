@@ -30,6 +30,9 @@ END_TIME = 'end_time'
 DESCRIPTION = 'description'
 USER_STATUS = 'user_status'
 VISIBILITY = 'visibility'
+INVITE_LEVEL = 'invite_level'
+USERS_INVITED = 'users_invited'
+
 TERMS = 'terms'
 
 PUBLIC = 'public'
@@ -39,6 +42,8 @@ IGNORED = 'ignored'
 GOING = 'going'
 INVITED = 'invited'
 INTERESTED = 'interested'
+
+PARSE_PATTERN = "%Y-%m-%d %H:%M:%S.%f"
 
 
 # For each user, identified by their phone_number
@@ -58,8 +63,8 @@ class Gather(ndb.Model):
     name = ndb.StringProperty()  # This is the key
     latitude = ndb.FloatProperty()
     longitude = ndb.FloatProperty()
-    time_start = ndb.DateTimeProperty()
-    time_end = ndb.DateTimeProperty()
+    start_time = ndb.DateTimeProperty()
+    end_time = ndb.DateTimeProperty()
     description = ndb.StringProperty()
     admins = ndb.KeyProperty(repeated=True)
     users_going = ndb.KeyProperty(repeated=True)
@@ -69,6 +74,7 @@ class Gather(ndb.Model):
     visibility = ndb.StringProperty()  # "public" or "private"
     invite_level = ndb.StringProperty()
     picture = ndb.BlobKeyProperty()
+    distance = ndb.FloatProperty()
 
 
 # For each squad, identified by name
@@ -108,8 +114,7 @@ def find_user_status(gather, user):
 
 # Return a datetime from a string
 def string_to_datetime(string_date):
-    parse_pattern = "%Y-%m-%d %H:%M:%S.%f"
-    return datetime.datetime.strptime(string_date, parse_pattern)
+    return datetime.datetime.strptime(string_date, PARSE_PATTERN)
 
 
 # Search by search terms
@@ -128,12 +133,16 @@ class Search (webapp2.RequestHandler):
             if query != '':
                 gather_query = gather_query.filter(Gather.name == query)
         # 1) Gathers that are public OR they are invited to
-        gather_query = gather_query.filter(ndb.OR(Gather.visibility == PUBLIC, Gather.key in user.gathers_invited))
+        gather_query = gather_query.filter(ndb.OR(Gather.visibility == PUBLIC, Gather.key.IN(user.gathers_invited)))
         # 2) Gathers that aren't ignored
-        gather_query = gather_query.filter(Gather.key not in user.gathers_ignored)
+        # gather_query = gather_query.filter(Gather.key not in user.gathers_ignored)  # I wish
+        gathers = gather_query.fetch()
+        for gather in gathers:
+            if gather.key in user.gathers_ignored:
+                gathers.remove(gather)
 
         # Sort gathers by start time (sooner first)
-        gathers = gather_query.order(-Gather.time_start).fetch(400)
+        gathers = sorted(gathers, key=lambda k: k.start_time,reverse = False)
 
         # Create arrays to pass back
         names = []
@@ -147,17 +156,17 @@ class Search (webapp2.RequestHandler):
             names.append(gather.name)
             latitudes.append(gather.latitude)
             longitudes.append(gather.longitude)
-            start_times.append(str(gather.time_start))
-            end_times.append(str(gather.time_end))
+            start_times.append(str(gather.start_time))
+            end_times.append(str(gather.end_time))
             user_statuses.append(find_user_status(gather, user))
 
         dict_passed = {
-            'names': names,
-            'latitudes': latitudes,
-            'longitudes': longitudes,
-            'start_times': start_times,
-            'end_times': end_times,
-            'user_statuses': user_statuses,
+            NAME+'s': names,
+            LATITUDE+'s': latitudes,
+            LONGITUDE+'s': longitudes,
+            START_TIME+'s': start_times,
+            END_TIME+'s': end_times,
+            USER_STATUS+'es': user_statuses,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -168,36 +177,181 @@ class Search (webapp2.RequestHandler):
 class CreateGather (webapp2.RequestHandler):
     def post(self):
         # Get the name
-        name = self.request.params[NAME]  # If it's post, .get(NAME) for get
+        gather_name = self.request.params[NAME]  # If it's post, .get(NAME) for get
 
         # Make sure the name for the gather hasn't already been used
-        gather_query = Gather.query(Gather.name == name)
+        gather_query = Gather.query(Gather.name == gather_name)
         gathers = gather_query.fetch(400)
         if gathers:
             result = False  # Return that the gather couldn't be made
         else:
             # Aggregate the basic data
-            gather = Gather()
-            gather.name = name
+            gather = Gather(id=gather_name)
+            gather.name = gather_name
             gather.latitude = self.request.params[LATITUDE]
             gather.longitude = self.request.params[LONGITUDE]
             gather.description = self.request.params[DESCRIPTION]
             gather.visibility = self.request.params[VISIBILITY]
 
             # Format start & end times
+            gather.start_time = string_to_datetime(self.request.params[START_TIME])
+            gather.end_time = string_to_datetime(self.request.params[END_TIME])
 
             # Make current user an admin
+            user = identify_user(self.request.params[NUMBER])
+            admin = [user]
+            gather.admins = admin
 
-            # Put the gather in the database
-            gather.put()
+            # Still missing picture, invite_level
 
             # Add the gather to the list of gathers that the current user owns
+            owned = user.gathers_owned
+            owned.append(gather.key)
+            user.gathers_owned = owned
+
+            # Add the users that are invited to users_invited
+            users_invited_string = self.request.params[USERS_INVITED]
+            users_invited = users_invited_string.split('+')
+
+            for invited in users_invited:
+                user_invited = identify_user(invited)
+                # If they aren't a user, make them one
+                if user_invited is None:
+                    user_invited = User(id=invited, phone_number=invited)
+                    user_invited.put()
+                # Add the gather to the list of gathers they are invited to
+                user_gather_invited = user_invited.gathers_invited
+                user_gather_invited.append(gather.key)
+                user_invited.gathers_invited = user_gather_invited
+                user_invited.put()
+
+                # Add the user to the list of users that are invited
+                gather_invited = gather.users_invited
+                gather_invited.append(user_invited.key)
+                gather.users_invited = gather_invited
+
+            # Put everything in the database!
+            user.put()
+            gather.put()
 
             result = True  # Return that it was made successfully, yay
 
         # Return true or false (if the gather was successfully made)
         dict_passed = {
             'result': result,
+        }
+        json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
+        self.response.write(json_obj)
+
+
+# Pick the user list based on the status keyword
+def pick_user_list(user, status):
+    if status == 'going':
+        return user.gathers_going
+    elif status == 'invited':
+        return user.gathers_invited
+    elif status == 'interested':
+        return user.gathers_interested
+    elif status == 'ignored':
+        return user.gathers_ignored
+    else:
+        return None
+
+
+# Put the user list back into the user
+def set_user_list(user, user_list, status):
+    if status == 'going':
+        user.gathers_going = user_list
+    elif status == 'invited':
+        user.gathers_invited = user_list
+    elif status == 'interested':
+        user.gathers_interested = user_list
+    elif status == 'ignored':
+        user.gathers_ignored = user_list
+    else:
+        return None
+
+
+# Pick the user list based on the status keyword
+def pick_gather_list(gather, status):
+    if status == 'going':
+        return gather.users_going
+    elif status == 'invited':
+        return gather.users_invited
+    elif status == 'interested':
+        return gather.users_interested
+    elif status == 'ignored':
+        return gather.users_ignored
+    else:
+        return None
+
+
+# Put the user list back into the user
+def set_gather_list(gather, gather_list, status):
+    if status == 'going':
+        gather.users_going = gather_list
+    elif status == 'invited':
+        gather.users_invited = gather_list
+    elif status == 'interested':
+        gather.users_interested = gather_list
+    elif status == 'ignored':
+        gather.users_ignored = gather_list
+    else:
+        return None
+
+
+# Adds a user to gather list based on status and
+#  adds gather to user list based on status
+def add_to_list(user, gather, status):
+
+    gather_list = pick_gather_list(gather, status)
+    gather_list.append(user)
+    set_gather_list(gather, gather_list, status)
+
+    user_list = pick_user_list(user, status)
+    user_list.append(gather)
+    set_user_list(user, user_list, status)
+
+
+# Removes a user from gather list based on status and
+#  removes gather from user list based on status
+def remove_from_list(user, gather, status):
+
+    gather_list = pick_gather_list(gather, status)
+    gather_list.remove(user)
+    set_gather_list(gather, gather_list, status)
+
+    user_list = pick_user_list(user, status)
+    user_list.remove(gather)
+    set_user_list(user, user_list, status)
+
+
+# Changes a user's status with regards to a gather
+class ChangeStatus (webapp2.RequestHandler):
+    def get(self):
+        # Identify the user
+        user = identify_user(self.request.get(NUMBER))
+
+        # Identify the gather
+        gather = identify_gather(self.request.get(GATHER_ID))
+
+        # Get the new status
+        previous_status = self.request.get('prevstatus')
+        new_status = self.request.get('newstatus')
+
+        # Get the user and change the list the gather is on
+        # Get the gather and change the list the user is on
+        # Add it to new list
+        add_to_list(user, gather, new_status)
+
+        # Remove it from other list
+        remove_from_list(user, gather, previous_status)
+
+        # Put the user and the gather back into the database
+        user.put()
+        gather.put()
+
+        dict_passed = {
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -217,20 +371,34 @@ class ViewGather (webapp2.RequestHandler):
         name = gather.name
         latitude = gather.latitude
         longitude = gather.longitude
-        time_start = gather.time_start
-        time_end = gather.time_end
+        start_time = str(gather.start_time)
+        end_time = str(gather.end_time)
         description = gather.description
         visibility = gather.visibility
         invite_level = gather.invite_level
 
         # Extract the more complicated variables
         # If the current user is an admin
+        admin = False
+        if user.key in gather.admins:
+            admin = True
 
         # The picture url
 
         # The current user's status
+        user_status = find_user_status(gather, user)
 
         dict_passed = {
+            NAME: name,
+            LATITUDE: latitude,
+            LONGITUDE: longitude,
+            START_TIME: start_time,
+            END_TIME: end_time,
+            USER_STATUS: user_status,
+            DESCRIPTION: description,
+            VISIBILITY : visibility,
+            INVITE_LEVEL : invite_level,
+            'admin': admin,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -247,11 +415,29 @@ class WhatsHappening (webapp2.RequestHandler):
         current_longitude = self.request.get(LONGITUDE)
 
         # Get all the gathers that have, filtered in this order
-        #  1) already started
+        gather_query = Gather.query()
+        #  1) already started but not ended, time NOW > time 4 seconds ago: start < now < end
+        now = datetime.datetime.now()
+        gather_query = gather_query.filter(ndb.AND(Gather.start_time < now, Gather.end_time > now))
         #  2) public OR the user is invited
+        gather_query = gather_query.filter(ndb.OR(Gather.visibility == PUBLIC, Gather.key.IN(user.gathers_invited)))
         #  3) are not ignored
+        # gather_query = gather_query.filter(Gather.key not in user.gathers_ignored)  # I wish
+        gather_list = gather_query.fetch()
+        for gather in gather_list:
+            if gather.key in user.gathers_ignored:
+                gather_list.remove(gather)
+
+        gathers = []
+        # Give each gather a distance value
+        for gather in gather_list:
+            gather.distance = calc_dist(current_latitude, current_longitude,
+                                        gather.latitude, gather.longitude)
+            gather.put()
+            gathers.append(gather)
 
         # Sort gathers by distance from current location
+        gathers = sorted(gathers, key=lambda k: k.distance,reverse = False)
 
         # Make arrays to pass back
         names = []
@@ -260,12 +446,19 @@ class WhatsHappening (webapp2.RequestHandler):
         end_times = []
         user_statuses = []
 
+        for gather in gathers:
+            names.append(gather.name)
+            latitudes.append(gather.latitude)
+            longitudes.append(gather.longitude)
+            end_times.append(str(gather.end_time))
+            user_statuses.append(find_user_status(gather, user))
+
         dict_passed = {
-            'names': names,
-            'latitudes': latitudes,
-            'longitudes': longitudes,
-            'end_times': end_times,
-            'user_statuses': user_statuses,
+            NAME+'s': names,
+            LATITUDE+'s': latitudes,
+            LONGITUDE+'s': longitudes,
+            END_TIME+'s': end_times,
+            USER_STATUS+'es': user_statuses,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -315,7 +508,7 @@ class MyGathers (webapp2.RequestHandler):
             gathers.append(interested.get())
 
         # Sort gathers by start time
-        gathers = sorted(gathers, key=lambda k: k.time_start, reverse=True)
+        gathers = sorted(gathers, key=lambda k: k.start_time, reverse=True)
 
         # Create arrays to pass back
         names = []
@@ -329,17 +522,17 @@ class MyGathers (webapp2.RequestHandler):
             names.append(gather.name)
             latitudes.append(gather.latitude)
             longitudes.append(gather.longitude)
-            start_times.append(str(gather.time_start))
-            end_times.append(str(gather.time_end))
+            start_times.append(str(gather.start_time))
+            end_times.append(str(gather.end_time))
             user_statuses.append(find_user_status(gather, user))
 
         dict_passed = {
-            'names': names,
-            'latitudes': latitudes,
-            'longitudes': longitudes,
-            'start_times': start_times,
-            'end_times': end_times,
-            'user_statuses': user_statuses,
+            NAME+'s': names,
+            LATITUDE+'s': latitudes,
+            LONGITUDE+'s': longitudes,
+            START_TIME+'s': start_times,
+            END_TIME+'s': end_times,
+            USER_STATUS+'es': user_statuses,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -359,12 +552,16 @@ class Login (webapp2.RequestHandler):
             new_user.put()
             result = None
 
+        # They were invited to something but haven't used the app yet
+        elif user.name is None:
+            result = None
+
         # If they are in the database, return their name
         else:
             result = user.name
 
         dict_passed = {
-            'result': result,
+            'name': result,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -375,12 +572,19 @@ class SignUp (webapp2.RequestHandler):
     def get(self):
 
         # Identify the current user, we put them in there with Login
-        user = identify_user(self.request.get('number'))
+        number = self.request.get(NUMBER)
+        user = identify_user(number)
+
+        # If, for some reason, the user isn't already in the data base, add them
+        if user is None:
+            new_user = User(id=number, phone_number=number)
+            new_user.put()
+            user = new_user
 
         # Set the user's name
-        user.name = self.request.get('name')
+        user.name = self.request.get(NAME)
 
-        # Put the user back into the datastore
+        # Put the user back into the data store
         user.put()
 
         # Return true on success
@@ -422,7 +626,7 @@ class Purge(webapp2.RequestHandler):
             if len(users) > 0:
                 for result in users:
                     result.key.delete()
-                    index+=1
+                    index += 1
 
             hour = datetime.datetime.now().time().hour
             minute = datetime.datetime.now().time().minute
@@ -442,7 +646,7 @@ class Purge(webapp2.RequestHandler):
             if len(gathers) > 0:
                 for result in gathers:
                     result.key.delete()
-                    index+=1
+                    index += 1
 
             hour = datetime.datetime.now().time().hour
             minute = datetime.datetime.now().time().minute
@@ -462,7 +666,7 @@ class Purge(webapp2.RequestHandler):
             if len(squads) > 0:
                 for result in squads:
                     result.key.delete()
-                    index+=1
+                    index += 1
 
             hour = datetime.datetime.now().time().hour
             minute = datetime.datetime.now().time().minute
@@ -503,7 +707,7 @@ class Template (webapp2.RequestHandler):
 
 # Testing purposes!
 class Thing(ndb.Model):
-    time = ndb.DateTimeProperty(auto_now_add=True)
+    time = ndb.DateTimeProperty()
 
 
 class DateTimeTest (webapp2.RequestHandler):
@@ -512,24 +716,55 @@ class DateTimeTest (webapp2.RequestHandler):
         result = str(datetime.datetime.now())
         result2 = str(string_to_datetime(string_date))
         thing = Thing()
+        thing.time = datetime.datetime.now()
         thing.put()
         result3 = str(thing.time)
         thing.time = string_to_datetime(string_date)
         thing.put()
         result4 = str(thing.time)
+        time_s = 'Time'
         dict_passed = {
-            'result': result,
-            'result2': result2,
-            'result3': result3,
-            'result4': result4,
+            time_s + ' NOW': result,
+            time_s + ' from String': result2,
+            time_s + ' stored': result3,
+            time_s + ' stored string': result4,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
 
 
+class QueryTest(webapp2.RequestHandler):
+    def get(self):
+        # Have to put id in Gather constructor!
+        test1 = Gather(name="Test 1", id="Test 1")
+        test1.put()
+
+        test2 = Gather()
+        test2.name = "Test 2"
+        test2.id = "Test 2"
+        test2.put()
+
+        gather_query = Gather.query()
+        query_type = str(type(gather_query))
+        gathers = gather_query.fetch()
+        gathers_type = str(type(gathers))
+
+        names = []
+        for gather in gathers:
+            names.append(gather.name)
+
+        dict_passed = {
+            'query_type': query_type,
+            'gathers_type': gathers_type,
+            'names': names,
+        }
+        json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
+        self.response.write(json_obj)
+
 app = webapp2.WSGIApplication([
     ('/search', Search),
     ('/creategather', CreateGather),
+    ('/changestatus', ChangeStatus),
     ('/viewgather', ViewGather),
     ('/whatshappening', WhatsHappening),
     ('/mygathers', MyGathers),
@@ -538,4 +773,5 @@ app = webapp2.WSGIApplication([
     ('/purge', Purge),
     ('/', MainPage),
     ('/testdatetime', DateTimeTest),
+    ('/testquery', QueryTest),
     ], debug=True)
