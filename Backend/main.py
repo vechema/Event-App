@@ -244,6 +244,119 @@ class CreateGather (webapp2.RequestHandler):
         self.response.write(json_obj)
 
 
+# Pick the user list based on the status keyword
+def pick_user_list(user, status):
+    if status == 'going':
+        return user.gathers_going
+    elif status == 'invited':
+        return user.gathers_invited
+    elif status == 'interested':
+        return user.gathers_interested
+    elif status == 'ignored':
+        return user.gathers_ignored
+    else:
+        return None
+
+
+# Put the user list back into the user
+def set_user_list(user, user_list, status):
+    if status == 'going':
+        user.gathers_going = user_list
+    elif status == 'invited':
+        user.gathers_invited = user_list
+    elif status == 'interested':
+        user.gathers_interested = user_list
+    elif status == 'ignored':
+        user.gathers_ignored = user_list
+    else:
+        return None
+
+
+# Pick the user list based on the status keyword
+def pick_gather_list(gather, status):
+    if status == 'going':
+        return gather.users_going
+    elif status == 'invited':
+        return gather.users_invited
+    elif status == 'interested':
+        return gather.users_interested
+    elif status == 'ignored':
+        return gather.users_ignored
+    else:
+        return None
+
+
+# Put the user list back into the user
+def set_gather_list(gather, gather_list, status):
+    if status == 'going':
+        gather.users_going = gather_list
+    elif status == 'invited':
+        gather.users_invited = gather_list
+    elif status == 'interested':
+        gather.users_interested = gather_list
+    elif status == 'ignored':
+        gather.users_ignored = gather_list
+    else:
+        return None
+
+
+# Adds a user to gather list based on status and
+#  adds gather to user list based on status
+def add_to_list(user, gather, status):
+
+    gather_list = pick_gather_list(gather, status)
+    gather_list.append(user)
+    set_gather_list(gather, gather_list, status)
+    
+    user_list = pick_user_list(user, status)
+    user_list.append(gather)
+    set_user_list(user, user_list, status)
+
+
+# Removes a user from gather list based on status and
+#  removes gather from user list based on status
+def remove_from_list(user, gather, status):
+
+    gather_list = pick_gather_list(gather, status)
+    gather_list.remove(user)
+    set_gather_list(gather, gather_list, status)
+
+    user_list = pick_user_list(user, status)
+    user_list.remove(gather)
+    set_user_list(user, user_list, status)
+
+
+# Changes a user's status with regards to a gather
+class ChangeStatus (webapp2.RequestHandler):
+    def get(self):
+        # Identify the user
+        user = identify_user(self.request.get(NUMBER))
+
+        # Identify the gather
+        gather = identify_gather(self.request.get(GATHER_ID))
+
+        # Get the new status
+        previous_status = self.request.get('prevstatus')
+        new_status = self.request.get('newstatus')
+
+        # Get the user and change the list the gather is on
+        # Get the gather and change the list the user is on
+        # Add it to new list
+        add_to_list(user, gather, new_status)
+
+        # Remove it from other list
+        remove_from_list(user, gather, previous_status)
+
+        # Put the user and the gather back into the database
+        user.put()
+        gather.put()
+
+        dict_passed = {
+        }
+        json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
+        self.response.write(json_obj)
+
+
 # Give all the information about a gather back
 class ViewGather (webapp2.RequestHandler):
     def get(self):
@@ -644,6 +757,7 @@ class QueryTest(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/search', Search),
     ('/creategather', CreateGather),
+    ('/changestatus', ChangeStatus),
     ('/viewgather', ViewGather),
     ('/whatshappening', WhatsHappening),
     ('/mygathers', MyGathers),
