@@ -5,6 +5,8 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -27,6 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -45,6 +48,8 @@ public class CreateAGather extends FragmentActivity {
     static int endMinute;
     String title;
     String address;
+    double lat;
+    double lng;
     List<String> numbers;
 
     @Override
@@ -189,15 +194,51 @@ public class CreateAGather extends FragmentActivity {
 
     //Make the gather!
     public void makeGather(View v){
+        //get number(s) input
         EditText txtphoneNo = (EditText) findViewById(R.id.guests);
         String numberString = txtphoneNo.getText().toString();
         System.out.println("I AM DEBUGGING!!!!!");
-        System.out.println(numberString);
         numbers.add(numberString);
-        sendSMSMessage();
+
+        EditText txtAddress = (EditText) findViewById(R.id.gather_location);
+        address = txtAddress.getText().toString();
+        System.out.println(address);
+        GeoPoint gatherPoint = getLocationFromAddress(address);
+        lat = gatherPoint.lat;
+        lng = gatherPoint.lng;
+
+        System.out.println(lat);
+        System.out.println(lng);
+
+        //sendSMSMessage();
     }
 
-    //Pass the Gather information to the backend
+    //Get latitude and longitude from the address input
+    public GeoPoint getLocationFromAddress(String strAddress) {
+
+        Geocoder coder = new Geocoder(this);
+        List<Address> address;
+        GeoPoint p1 = null;
+
+        try {
+            address = coder.getFromLocationName(strAddress, 5);
+            if (address == null) {
+                return null;
+            }
+            Address location = address.get(0);
+            location.getLatitude();
+            location.getLongitude();
+
+            p1 = new GeoPoint(location.getLatitude(),location.getLongitude());
+
+            return p1;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+        //Pass the Gather information to the backend
     //Step 1, get the upload URL
     private void getUploadURL(){
         AsyncHttpClient httpClient = new AsyncHttpClient();
