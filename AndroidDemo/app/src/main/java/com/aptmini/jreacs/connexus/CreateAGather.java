@@ -51,6 +51,7 @@ public class CreateAGather extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_a_gather);
+        numbers = new ArrayList<String>();
     }
 
     //Define a fragment which will help us display a date picker dialog.
@@ -114,7 +115,10 @@ public class CreateAGather extends FragmentActivity {
     //Make the gather!
     public void makeGather(View v){
         EditText txtphoneNo = (EditText) findViewById(R.id.guests);
-        numbers.add(txtphoneNo.toString());
+        String numberString = txtphoneNo.getText().toString();
+        System.out.println("I AM DEBUGGING!!!!!");
+        System.out.println(numberString);
+        numbers.add(numberString);
         sendSMSMessage();
     }
 
