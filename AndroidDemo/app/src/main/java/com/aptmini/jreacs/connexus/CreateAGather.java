@@ -48,6 +48,8 @@ public class CreateAGather extends FragmentActivity {
     static int endMinute;
     String title;
     String address;
+    String startString;
+    String endString;
     double lat;
     double lng;
     List<String> numbers;
@@ -65,7 +67,7 @@ public class CreateAGather extends FragmentActivity {
         startMinute = c.get(Calendar.MINUTE);
     }
 
-    //Define a fragment which will help us display a date picker dialog.
+    //Start Date: Define a fragment which will help us display a start date picker dialog.
     //Default is current date
     public static class StartDatePickerFragment extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {
@@ -93,13 +95,13 @@ public class CreateAGather extends FragmentActivity {
         }
     }
 
-    //Show the start-date picker dialog when the button is pressed
+    //Start date: Show the start-date picker dialog when the button is pressed
     public void showStartDatePickerDialog(View v) {
         DialogFragment newFragment = new StartDatePickerFragment();
         newFragment.show(getFragmentManager(), "datePicker");
     }
 
-    //Define a fragment which will help us display a start time picker dialog.
+    //Start Time: Define a fragment which will help us display a start time picker dialog.
     public static class StartTimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
 
@@ -123,13 +125,13 @@ public class CreateAGather extends FragmentActivity {
         }
     }
 
-    //Show the start-time picker dialog when the button is pressed
+    //Start time: Show the start-time picker dialog when the button is pressed
     public void showStartTimePickerDialog(View v) {
         DialogFragment newFragment = new StartTimePickerFragment();
         newFragment.show(getFragmentManager(),"timePicker");
     }
 
-    //Define a fragment which will help us display a date picker dialog.
+    //End Date: Define a fragment which will help us display a end date picker dialog.
     //Default is start date
     public static class EndDatePickerFragment extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {
@@ -151,16 +153,19 @@ public class CreateAGather extends FragmentActivity {
             System.out.println(year);
             System.out.println(month);
             System.out.println(day);
+            endYear = year;
+            endDay = day;
+            endMonth = month;
         }
     }
 
-    //Show the start-date picker dialog when the button is pressed
+    //End date: Show the end-date picker dialog when the button is pressed
     public void showEndDatePickerDialog(View v) {
         DialogFragment newFragment = new EndDatePickerFragment();
         newFragment.show(getFragmentManager(), "datePicker");
     }
 
-    //Define a fragment which will help us display a start time picker dialog.
+    //End date: Define a fragment which will help us display a start time picker dialog.
     public static class EndTimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
 
@@ -182,10 +187,12 @@ public class CreateAGather extends FragmentActivity {
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             System.out.println(hourOfDay);
             System.out.println(minute);
+            endHour = hourOfDay;
+            endMinute = minute;
         }
     }
 
-    //Show the start-time picker dialog when the button is pressed
+    //End time: Show the end-time picker dialog when the button is pressed
     public void showEndTimePickerDialog(View v) {
         DialogFragment newFragment = new EndTimePickerFragment();
         newFragment.show(getFragmentManager(),"timePicker");
@@ -199,18 +206,48 @@ public class CreateAGather extends FragmentActivity {
         String numberString = txtphoneNo.getText().toString();
         System.out.println("I AM DEBUGGING!!!!!");
         numbers.add(numberString);
+        System.out.println(numbers);
 
+        //get address and convert it to lat/lng
         EditText txtAddress = (EditText) findViewById(R.id.gather_location);
         address = txtAddress.getText().toString();
         System.out.println(address);
         GeoPoint gatherPoint = getLocationFromAddress(address);
         lat = gatherPoint.lat;
         lng = gatherPoint.lng;
-
         System.out.println(lat);
         System.out.println(lng);
 
-        //sendSMSMessage();
+        //get title
+        EditText txtTitle = (EditText) findViewById(R.id.gather_title);
+        title = txtTitle.getText().toString();
+        System.out.println(title);
+
+        //convert date and time to proper format
+        //Date & Time format = 2015-11-18 01:34:23.360332. Manually add 0.00 for s and ms
+        appendZeros(startMonth,2);
+
+        startString = appendZeros(startYear,4)+"-"+appendZeros(startMonth,2)+"-"+appendZeros(startDay,2)+" "+appendZeros(startHour,2)+":"+appendZeros(startMinute,2)+":" + "0.00";
+        endString = appendZeros(endYear,4)+"-"+appendZeros(endMonth,2)+"-"+appendZeros(endDay,2)+" "+appendZeros(endHour,2)+":"+appendZeros(endMinute,2)+":" + "0.00";
+
+        System.out.println(startString);
+        System.out.println(endString);
+
+        System.out.println(User.getInstance().getName());
+        //Send the gather data to the backend, where a gather object will be created.
+        //getUploadURL();
+
+        //Update all the guests that they have been invited to the gather via text message.
+        sendSMSMessage();
+    }
+
+    //prefixes an input number with zeros if it does not meet the required format.
+    private String appendZeros(int myNum, int i) {
+        String stringNum = myNum + "";
+        while (stringNum.length()<i){
+            stringNum = "0" + stringNum;
+        }
+        return stringNum;
     }
 
     //Get latitude and longitude from the address input
@@ -238,11 +275,30 @@ public class CreateAGather extends FragmentActivity {
         return null;
     }
 
-        //Pass the Gather information to the backend
+    //Send the Gather information out as a text message
+    protected void sendSMSMessage() {
+        Log.i("Send SMS", "");
+        String phoneNo = numbers.get(0);
+        String message = "You're invited to " + title + " at " + address + "! It starts " + startString + " and ends " + endString +". -Gather";
+        System.out.println(message);
+
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phoneNo, null, message, null, null);
+            Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
+        }
+
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "SMS faild, please try again.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+    }
+
+    //Pass the Gather information to the backend
     //Step 1, get the upload URL
     private void getUploadURL(){
         AsyncHttpClient httpClient = new AsyncHttpClient();
-        String request_url="http://gather.appspot.com/CreateGather";
+        String request_url="apt2015final.appspot.com/creategather";
         System.out.println(request_url);
         httpClient.get(request_url, new AsyncHttpResponseHandler() {
             String upload_url;
@@ -268,41 +324,20 @@ public class CreateAGather extends FragmentActivity {
         });
     }
 
-    //Send the Gather information out as a text message
-    protected void sendSMSMessage() {
-        Log.i("Send SMS", "");
-        String phoneNo = numbers.get(0);
-        String message = "You have been invited to a gather!";
-
-        try {
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phoneNo, null, message, null, null);
-            Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
-        }
-
-        catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "SMS faild, please try again.", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
-    }
-
     //Pass the Gather information to the backend
     //Step 2, input the information into the request parameters and send it to the backend.
     private void postToServer(String upload_url){
         RequestParams params = new RequestParams();
-        params.put("startYear",startYear);
-        params.put("startMonth",startMonth);
-        params.put("startDay", startDay);
-        params.put("startHour", startHour);
-        params.put("startMinute", startMinute);
-        params.put("endYear",endYear);
-        params.put("endMonth",endMonth);
-        params.put("endDay", endDay);
-        params.put("endHour", endHour);
-        params.put("endMinute", endMinute);
-        params.put("title", title);
-        params.put("address", address);
-        params.put("numbers", numbers);
+        params.put("start_time",startString);
+        params.put("users_invited", numbers.get(0));
+        params.put("end_time",endString);
+        params.put("name", title);
+        params.put("gatherid", title);
+        params.put("latitude", lat);
+        params.put("longitude", lng);
+        params.put("number", User.getInstance().getNumber());
+        params.put("visibility", "private");
+        params.put("description", "");
         AsyncHttpClient client = new AsyncHttpClient();
         client.post(upload_url, params, new AsyncHttpResponseHandler() {
             @Override

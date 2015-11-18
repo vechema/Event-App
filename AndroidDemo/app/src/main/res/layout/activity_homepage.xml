@@ -50,7 +50,7 @@
             android:text="@string/status_signed_out" />
 
         <TextView
-            android:text="@string/welcome"
+            android:text="Welcome to Gather!"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
