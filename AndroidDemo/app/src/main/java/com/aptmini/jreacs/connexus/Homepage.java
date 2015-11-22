@@ -83,7 +83,7 @@ public class Homepage extends ActionBarActivity {
         System.out.println("Debugging start");
 
         //Get number of user
-        String number = "7137756017";
+        String number = "7137756018";
 
         //Set the user singleton's number
         User.getInstance().setNumber(number);
@@ -137,44 +137,52 @@ public class Homepage extends ActionBarActivity {
 
     public void submit(View v) {
         //get username input
+        System.out.println("submitted");
         EditText txtusername = (EditText) findViewById(R.id.username);
         String username = txtusername.getText().toString();
         System.out.println(username);
 
-        //store username to go with the user object whose ID is now this phone's number
-        //Store this both in datastore and in singleton
+        //Check to make sure username is not "null", "None", or empty
+        if (username.equals("None") || username.equals("null") || username.equals("")){
 
-        //Store in singleton
-        User.getInstance().setName(username);
+            Toast.makeText(context, "Sorry, but this name is invalid.", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            //store username to go with the user object whose ID is now this phone's number
+            //Store this both in datastore and in singleton
 
-        //Create the URL
-        final String request_url = "http://www.apt2015final.appspot.com/signup?number=" + User.getInstance().getNumber() + "&name=" + username;
-        System.out.println(request_url);
+            //Store in singleton
+            User.getInstance().setName(username);
 
-        AsyncHttpClient httpClient = new AsyncHttpClient();
-        httpClient.get(request_url, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
-                try {
-                    System.out.println("success");
-                    JSONObject jObject = new JSONObject(new String(response));
+            //Create the URL
+            final String request_url = "http://www.apt2015final.appspot.com/signup?number=" + User.getInstance().getNumber() + "&name=" + username;
+            System.out.println(request_url);
 
-                    String result = jObject.getString("result");
-                    System.out.println(result);
+            AsyncHttpClient httpClient = new AsyncHttpClient();
+            httpClient.get(request_url, new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] response) {
+                    try {
+                        System.out.println("success");
+                        JSONObject jObject = new JSONObject(new String(response));
 
-                } catch (JSONException j) {
-                    System.out.println("JSON Error");
+                        String result = jObject.getString("result");
+                        System.out.println(result);
+
+                    } catch (JSONException j) {
+                        System.out.println("JSON Error");
+                    }
+
+
                 }
 
-
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
-                System.out.println("failure");
-                Log.e(TAG, "There was a problem in retrieving the url : " + e.toString());
-            }
-        });
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                    System.out.println("failure");
+                    Log.e(TAG, "There was a problem in retrieving the url : " + e.toString());
+                }
+            });
+        }
     }
 }
 
