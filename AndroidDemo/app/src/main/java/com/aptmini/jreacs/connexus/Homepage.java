@@ -43,6 +43,9 @@ import org.json.JSONObject;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 
+import java.net.URL;
+import java.net.URLDecoder;
+
 public class Homepage extends ActionBarActivity {
 
     public static String email;
@@ -77,15 +80,18 @@ public class Homepage extends ActionBarActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        System.out.println("Debugging start");
+
         //Get number of user
-        String number = "7137756016";
+        String number = "7137756017";
 
         //Set the user singleton's number
         User.getInstance().setNumber(number);
 
         //Create the URL
-        final String request_url = "www.apt2015final.appspot.com/login?number=" + number;
+        final String request_url = "http://www.apt2015final.appspot.com/login?number=" + number;
         System.out.println(request_url);
+
 
         //Check to see if the user with this number already exists. If it does, redirect to My Gathers
         AsyncHttpClient httpClient = new AsyncHttpClient();
@@ -95,15 +101,18 @@ public class Homepage extends ActionBarActivity {
                 try {
                     System.out.println("success");
                     JSONObject jObject = new JSONObject(new String(response));
-
-                    JSONArray jsonName = jObject.getJSONArray("name");
-                    String user_name = jsonName.getString(0);
+                    System.out.println(jObject);
+                    String user_name = jObject.getString("name");
                     System.out.println(user_name);
 
                     if (!user_name.equals("null")) {
+                        System.out.println("user exists!");
                         User.getInstance().setName(user_name);
                         Intent intent = new Intent(context, CreateAGather.class);
                         startActivity(intent);
+                    }
+                    else{
+                        System.out.println("User does not exist.");
                     }
 
                 } catch (JSONException j) {
@@ -115,7 +124,7 @@ public class Homepage extends ActionBarActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
-                System.out.println(errorResponse);
+                System.out.println("did not succeed");
                 Log.e(TAG, "There was a problem in retrieving the url : " + e.toString());
             }
         });
@@ -139,7 +148,7 @@ public class Homepage extends ActionBarActivity {
         User.getInstance().setName(username);
 
         //Create the URL
-        final String request_url = "www.apt2015final.appspot.com/login?number=" + User.getInstance().getNumber() + "&name=" + username;
+        final String request_url = "http://www.apt2015final.appspot.com/signup?number=" + User.getInstance().getNumber() + "&name=" + username;
         System.out.println(request_url);
 
         AsyncHttpClient httpClient = new AsyncHttpClient();
@@ -149,16 +158,9 @@ public class Homepage extends ActionBarActivity {
                 try {
                     System.out.println("success");
                     JSONObject jObject = new JSONObject(new String(response));
-//
-//                    JSONArray jsonName = jObject.getJSONArray("name");
-//                    String user_name = jsonName.getString(0);
-//                    System.out.println(user_name);
-//
-//                    if (!user_name.equals("null")) {
-//                        User.getInstance().setName(user_name);
-//                        Intent intent = new Intent(context, CreateAGather.class);
-//                        startActivity(intent);
-//                    }
+
+                    String result = jObject.getString("result");
+                    System.out.println(result);
 
                 } catch (JSONException j) {
                     System.out.println("JSON Error");
