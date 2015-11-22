@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -42,7 +43,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 
-public class Homepage extends ActionBarActivity{
+public class Homepage extends ActionBarActivity {
 
     public static String email;
 
@@ -56,45 +57,16 @@ public class Homepage extends ActionBarActivity{
 
     private static final String SAVED_PROGRESS = "sign_in_progress";
 
-    // GoogleApiClient wraps our service connection to Google Play services and
-    // provides access to the users sign in state and Google's APIs.
     private GoogleApiClient mGoogleApiClient;
 
-    // We use mSignInProgress to track whether user has clicked sign in.
-    // mSignInProgress can be one of three values:
-    //
-    //       STATE_DEFAULT: The default state of the application before the user
-    //                      has clicked 'sign in', or after they have clicked
-    //                      'sign out'.  In this state we will not attempt to
-    //                      resolve sign in errors and so will display our
-    //                      Activity in a signed out state.
-    //       STATE_SIGN_IN: This state indicates that the user has clicked 'sign
-    //                      in', so resolve successive errors preventing sign in
-    //                      until the user has successfully authorized an account
-    //                      for our app.
-    //   STATE_IN_PROGRESS: This state indicates that we have started an intent to
-    //                      resolve an error, and so we should not start further
-    //                      intents until the current intent completes.
+
     private int mSignInProgress;
 
-    // Used to store the PendingIntent most recently returned by Google Play
-    // services until the user clicks 'sign in'.
+
     private PendingIntent mSignInIntent;
 
-    // Used to store the error code most recently returned by Google Play services
-    // until the user clicks 'sign in'.
     private int mSignInError;
 
-    // Used to determine if we should ask for a server auth code when connecting the
-    // GoogleApiClient.  False by default so that this sample can be used without configuring
-    // a WEB_CLIENT_ID and SERVER_BASE_URL.
-
-    // Used to mock the state of a server that would receive an auth code to exchange
-    // for a refresh token,  If true, the client will assume that the server has the
-    // permissions it wants and will not send an auth code on sign in.  If false,
-    // the client will request offline access on sign in and send and new auth code
-    // to the server.  True by default because this sample does not implement a server
-    // so there would be nowhere to send the code.
 
     private SignInButton mSignInButton;
     private Button mSignOutButton;
@@ -105,16 +77,21 @@ public class Homepage extends ActionBarActivity{
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
+        //Get number of user
         String number = "7137756016";
+
+        //Set the user singleton's number
         User.getInstance().setNumber(number);
-        final String request_url = "apt2015final.appspot.com/login?number=" + number;
+
+        //Create the URL
+        final String request_url = "www.apt2015final.appspot.com/login?number=" + number;
         System.out.println(request_url);
+
+        //Check to see if the user with this number already exists. If it does, redirect to My Gathers
         AsyncHttpClient httpClient = new AsyncHttpClient();
         httpClient.get(request_url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] response) {
-
                 try {
                     System.out.println("success");
                     JSONObject jObject = new JSONObject(new String(response));
@@ -138,16 +115,68 @@ public class Homepage extends ActionBarActivity{
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                System.out.println(errorResponse);
                 Log.e(TAG, "There was a problem in retrieving the url : " + e.toString());
             }
         });
 
-
+        //If the user does not already exist, create the new user page
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
 
     }
+
+    public void submit(View v) {
+        //get username input
+        EditText txtusername = (EditText) findViewById(R.id.username);
+        String username = txtusername.getText().toString();
+        System.out.println(username);
+
+        //store username to go with the user object whose ID is now this phone's number
+        //Store this both in datastore and in singleton
+
+        //Store in singleton
+        User.getInstance().setName(username);
+
+        //Create the URL
+        final String request_url = "www.apt2015final.appspot.com/login?number=" + User.getInstance().getNumber() + "&name=" + username;
+        System.out.println(request_url);
+
+        AsyncHttpClient httpClient = new AsyncHttpClient();
+        httpClient.get(request_url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
+                try {
+                    System.out.println("success");
+                    JSONObject jObject = new JSONObject(new String(response));
+//
+//                    JSONArray jsonName = jObject.getJSONArray("name");
+//                    String user_name = jsonName.getString(0);
+//                    System.out.println(user_name);
+//
+//                    if (!user_name.equals("null")) {
+//                        User.getInstance().setName(user_name);
+//                        Intent intent = new Intent(context, CreateAGather.class);
+//                        startActivity(intent);
+//                    }
+
+                } catch (JSONException j) {
+                    System.out.println("JSON Error");
+                }
+
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                System.out.println("failure");
+                Log.e(TAG, "There was a problem in retrieving the url : " + e.toString());
+            }
+        });
+    }
 }
+
+
 
 //    @Override
 //    public void onResume(){
