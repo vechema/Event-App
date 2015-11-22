@@ -83,7 +83,7 @@ public class Homepage extends ActionBarActivity {
         System.out.println("Debugging start");
 
         //Get number of user
-        String number = "7137756018";
+        String number = "7137756019";
 
         //Set the user singleton's number
         User.getInstance().setNumber(number);
@@ -163,11 +163,18 @@ public class Homepage extends ActionBarActivity {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] response) {
                     try {
+                        //Check that the username was added successfully
                         System.out.println("success");
                         JSONObject jObject = new JSONObject(new String(response));
 
                         String result = jObject.getString("result");
                         System.out.println(result);
+
+                        //If so, redirect to MyGathers
+                        if(result.equals("true")){
+                            Intent intent = new Intent(context, CreateAGather.class);
+                            startActivity(intent);
+                        }
 
                     } catch (JSONException j) {
                         System.out.println("JSON Error");
