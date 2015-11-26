@@ -47,6 +47,18 @@ import java.net.URL;
 import java.net.URLDecoder;
 
 public class Homepage extends ActionBarActivity {
+    public String NUMBER = "number";
+    public String LATITUDE = "latitude";
+    public String LONGITUDE = "longitude";
+    public String GATHER_ID = "gatherid";
+    public String NAME = "name";
+    public String START_TIME = "start_time";
+    public String END_TIME = "end_time";
+    public String DESCRIPTION = "description";
+    public String USER_STATUS = "user_status";
+    public String VISIBILITY = "visibility";
+    public String INVITE_LEVEL = "invite_level";
+    public String USERS_INVITED = "users_invited";
 
     public static String email;
 
@@ -83,7 +95,7 @@ public class Homepage extends ActionBarActivity {
         System.out.println("Debugging start");
 
         //Get number of user
-        String number = "7137756019";
+        String number = "7137756017";
 
         //Set the user singleton's number
         User.getInstance().setNumber(number);

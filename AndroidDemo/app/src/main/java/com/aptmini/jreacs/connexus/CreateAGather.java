@@ -52,13 +52,12 @@ public class CreateAGather extends FragmentActivity {
     String endString;
     double lat;
     double lng;
-    List<String> numbers;
+    String numbers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_a_gather);
-        numbers = new ArrayList<String>();
         final Calendar c = Calendar.getInstance();
         startYear = c.get(Calendar.YEAR);
         startMonth = c.get(Calendar.MONTH);
@@ -205,12 +204,14 @@ public class CreateAGather extends FragmentActivity {
         EditText txtphoneNo = (EditText) findViewById(R.id.guests);
         String numberString = txtphoneNo.getText().toString();
         System.out.println("I AM DEBUGGING!!!!!");
-        numbers.add(numberString);
+        //numbers = numberString;
+        numbers = "7137756018+7137756019";
         System.out.println(numbers);
 
         //get address and convert it to lat/lng
         EditText txtAddress = (EditText) findViewById(R.id.gather_location);
-        address = txtAddress.getText().toString();
+        //address = txtAddress.getText().toString();
+        address = "403 E 35th St. Austin, TX 78705";
         System.out.println(address);
         GeoPoint gatherPoint = getLocationFromAddress(address);
         lat = gatherPoint.lat;
@@ -235,10 +236,10 @@ public class CreateAGather extends FragmentActivity {
 
         System.out.println(User.getInstance().getName());
         //Send the gather data to the backend, where a gather object will be created.
-        //getUploadURL();
+        postToServer("http://www.apt2015final.appspot.com/creategather");
 
         //Update all the guests that they have been invited to the gather via text message.
-        sendSMSMessage();
+        //sendSMSMessage();
     }
 
     //prefixes an input number with zeros if it does not meet the required format.
@@ -278,7 +279,7 @@ public class CreateAGather extends FragmentActivity {
     //Send the Gather information out as a text message
     protected void sendSMSMessage() {
         Log.i("Send SMS", "");
-        String phoneNo = numbers.get(0);
+        String phoneNo = numbers;
         String message = "You're invited to " + title + " at " + address + "! It starts " + startString + " and ends " + endString +". -Gather";
         System.out.println(message);
 
@@ -296,45 +297,48 @@ public class CreateAGather extends FragmentActivity {
 
     //Pass the Gather information to the backend
     //Step 1, get the upload URL
-    private void getUploadURL(){
-        AsyncHttpClient httpClient = new AsyncHttpClient();
-        String request_url="apt2015final.appspot.com/creategather";
-        System.out.println(request_url);
-        httpClient.get(request_url, new AsyncHttpResponseHandler() {
-            String upload_url;
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
-
-                try {
-                    JSONObject jObject = new JSONObject(new String(response));
-
-                    upload_url = jObject.getString("upload_url");
-                    postToServer(upload_url);
-
-                } catch (JSONException j) {
-                    System.out.println("JSON Error");
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
-                Log.e("Get_serving_url", "There was a problem in retrieving the url : " + e.toString());
-            }
-        });
-    }
+//    private void getUploadURL(){
+//        AsyncHttpClient httpClient = new AsyncHttpClient();
+//        String request_url="http://www.apt2015final.appspot.com/creategather";
+//        System.out.println(request_url);
+//        httpClient.get(request_url, new AsyncHttpResponseHandler() {
+//            String upload_url;
+//
+//            @Override
+//            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
+//
+//                try {
+//                    JSONObject jObject = new JSONObject(new String(response));
+//
+//                    upload_url = jObject.getString("upload_url");
+//                    postToServer(upload_url);
+//
+//                } catch (JSONException j) {
+//                    System.out.println("JSON Error");
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+//                Log.e("Get_serving_url", "There was a problem in retrieving the url : " + e.toString());
+//            }
+//        });
+//    }
 
     //Pass the Gather information to the backend
     //Step 2, input the information into the request parameters and send it to the backend.
     private void postToServer(String upload_url){
         RequestParams params = new RequestParams();
+        System.out.println("Check parameters");
+        System.out.println(startString);
+
         params.put("start_time",startString);
-        params.put("users_invited", numbers.get(0));
+        params.put("users_invited", numbers);
         params.put("end_time",endString);
         params.put("name", title);
         params.put("gatherid", title);
-        params.put("latitude", lat);
-        params.put("longitude", lng);
+        params.put("latitude", "" + lat);
+        params.put("longitude", "" + lng);
         params.put("number", User.getInstance().getNumber());
         params.put("visibility", "private");
         params.put("description", "");
@@ -343,12 +347,14 @@ public class CreateAGather extends FragmentActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] response) {
                 Log.w("async", "success!!!!");
+                System.out.println("Create_Success");
                 Toast.makeText(context, "Gather Created Successfully!", Toast.LENGTH_SHORT).show();
 //                finish();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                System.out.println("Create_Failure");
                 Log.e("Posting_to_blob", "There was a problem in retrieving the url : " + e.toString());
             }
         });
