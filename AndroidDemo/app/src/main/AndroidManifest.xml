@@ -89,6 +89,14 @@
             android:name=".CreateAGather"
             android:label="@string/title_activity_create_agather" >
         </activity>
+        <activity
+            android:name=".MyGathers"
+            android:label="@string/title_activity_my_gathers"
+            android:parentActivityName=".Homepage" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="Homepage" />
+        </activity>
     </application>
 
 </manifest>
