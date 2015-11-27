@@ -47,18 +47,19 @@ import java.net.URL;
 import java.net.URLDecoder;
 
 public class Homepage extends ActionBarActivity {
-    public String NUMBER = "number";
-    public String LATITUDE = "latitude";
-    public String LONGITUDE = "longitude";
-    public String GATHER_ID = "gatherid";
-    public String NAME = "name";
-    public String START_TIME = "start_time";
-    public String END_TIME = "end_time";
-    public String DESCRIPTION = "description";
-    public String USER_STATUS = "user_status";
-    public String VISIBILITY = "visibility";
-    public String INVITE_LEVEL = "invite_level";
-    public String USERS_INVITED = "users_invited";
+    static public String NUMBER = "number";
+    static public String LATITUDE = "latitude";
+    static public String LONGITUDE = "longitude";
+    static public String GATHER_ID = "gatherid";
+    static public String NAME = "name";
+    static public String START_TIME = "start_time";
+    static public String END_TIME = "end_time";
+    static public String DESCRIPTION = "description";
+    static public String USER_STATUS = "user_status";
+    static public String VISIBILITY = "visibility";
+    static public String INVITE_LEVEL = "invite_level";
+    static public String USERS_INVITED = "users_invited";
+    static public String SITE = "apt2015final2";
 
     public static String email;
 
@@ -101,7 +102,7 @@ public class Homepage extends ActionBarActivity {
         User.getInstance().setNumber(number);
 
         //Create the URL
-        final String request_url = "http://www.apt2015final.appspot.com/login?number=" + number;
+        final String request_url = "http://www." + SITE +".appspot.com/login?number=" + number;
         System.out.println(request_url);
 
 
@@ -167,7 +168,7 @@ public class Homepage extends ActionBarActivity {
             User.getInstance().setName(username);
 
             //Create the URL
-            final String request_url = "http://www.apt2015final.appspot.com/signup?number=" + User.getInstance().getNumber() + "&name=" + username;
+            final String request_url = "http://www." + SITE + ".appspot.com/signup?number=" + User.getInstance().getNumber() + "&name=" + username;
             System.out.println(request_url);
 
             AsyncHttpClient httpClient = new AsyncHttpClient();

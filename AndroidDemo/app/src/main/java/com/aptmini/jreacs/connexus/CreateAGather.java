@@ -50,8 +50,8 @@ public class CreateAGather extends FragmentActivity {
     String address;
     String startString;
     String endString;
-    double lat;
-    double lng;
+    float lat;
+    float lng;
     String numbers;
 
     @Override
@@ -211,11 +211,12 @@ public class CreateAGather extends FragmentActivity {
         //get address and convert it to lat/lng
         EditText txtAddress = (EditText) findViewById(R.id.gather_location);
         //address = txtAddress.getText().toString();
-        address = "403 E 35th St. Austin, TX 78705";
+        address = "403 East 35th St. Austin, TX 78705";
         System.out.println(address);
         GeoPoint gatherPoint = getLocationFromAddress(address);
-        lat = gatherPoint.lat;
-        lng = gatherPoint.lng;
+        System.out.println(gatherPoint.lat);
+        lat = (float) gatherPoint.lat;
+        lng = (float) gatherPoint.lng;
         System.out.println(lat);
         System.out.println(lng);
 
@@ -236,7 +237,7 @@ public class CreateAGather extends FragmentActivity {
 
         System.out.println(User.getInstance().getName());
         //Send the gather data to the backend, where a gather object will be created.
-        postToServer("http://www.apt2015final.appspot.com/creategather");
+        postToServer();
 
         //Update all the guests that they have been invited to the gather via text message.
         //sendSMSMessage();
@@ -327,23 +328,40 @@ public class CreateAGather extends FragmentActivity {
 
     //Pass the Gather information to the backend
     //Step 2, input the information into the request parameters and send it to the backend.
-    private void postToServer(String upload_url){
+    private void postToServer(){
         RequestParams params = new RequestParams();
-        System.out.println("Check parameters");
-        System.out.println(startString);
+//        System.out.println("Check parameters");
+//        System.out.println(startString);
 
+        String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather";
         params.put("start_time",startString);
         params.put("users_invited", numbers);
         params.put("end_time",endString);
         params.put("name", title);
         params.put("gatherid", title);
-        params.put("latitude", "" + lat);
-        params.put("longitude", "" + lng);
+        params.put("latitude", lat);
+        params.put("longitude", lng);
         params.put("number", User.getInstance().getNumber());
         params.put("visibility", "private");
         params.put("description", "");
+
+//        String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather?";
+//        upload_url = upload_url + Homepage.NUMBER + "=" + User.getInstance().getNumber() +"&";
+//        upload_url = upload_url + Homepage.LATITUDE + "=" + lat +"&";
+//        upload_url = upload_url + Homepage.LONGITUDE + "=" + lng +"&";
+//        upload_url = upload_url + Homepage.NAME + "=" + title +"&";
+//        upload_url = upload_url + Homepage.START_TIME + "=" + startString +"&";
+//        upload_url = upload_url + Homepage.USERS_INVITED + "=" + numbers +"&";
+//        upload_url = upload_url + Homepage.END_TIME + "=" + endString +"&";
+//        upload_url = upload_url + Homepage.VISIBILITY + "=" + "private" +"&";
+//        upload_url = upload_url + Homepage.DESCRIPTION + "=" + "description";
+
+        System.out.println(upload_url);
+
         AsyncHttpClient client = new AsyncHttpClient();
+        //client.post(upload_url, new AsyncHttpResponseHandler() {
         client.post(upload_url, params, new AsyncHttpResponseHandler() {
+
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] response) {
                 Log.w("async", "success!!!!");

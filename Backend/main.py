@@ -188,8 +188,8 @@ class CreateGather (webapp2.RequestHandler):
             # Aggregate the basic data
             gather = Gather(id=gather_name)
             gather.name = gather_name
-            gather.latitude = self.request.params[LATITUDE]
-            gather.longitude = self.request.params[LONGITUDE]
+            gather.latitude = float(self.request.params[LATITUDE])
+            gather.longitude = float(self.request.params[LONGITUDE])
             gather.description = self.request.params[DESCRIPTION]
             gather.visibility = self.request.params[VISIBILITY]
 
@@ -200,7 +200,7 @@ class CreateGather (webapp2.RequestHandler):
             # Make current user an admin
             user = identify_user(self.request.params[NUMBER])
             admin = [user]
-            gather.admins = admin
+            gather.admins.append(user.key)
 
             # Still missing picture, invite_level
 
