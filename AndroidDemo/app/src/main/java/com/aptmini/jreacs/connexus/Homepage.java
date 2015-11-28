@@ -96,7 +96,7 @@ public class Homepage extends ActionBarActivity {
         System.out.println("Debugging start");
 
         //Get number of user
-        String number = "7137756017";
+        String number = "7137756018";
 
         //Set the user singleton's number
         User.getInstance().setNumber(number);
@@ -121,7 +121,7 @@ public class Homepage extends ActionBarActivity {
                     if (!user_name.equals("null")) {
                         System.out.println("user exists!");
                         User.getInstance().setName(user_name);
-                        Intent intent = new Intent(context, CreateAGather.class);
+                        Intent intent = new Intent(context, MyGathers.class);
                         startActivity(intent);
                     }
                     else{
@@ -185,7 +185,7 @@ public class Homepage extends ActionBarActivity {
 
                         //If so, redirect to MyGathers
                         if(result.equals("true")){
-                            Intent intent = new Intent(context, CreateAGather.class);
+                            Intent intent = new Intent(context, MyGathers.class);
                             startActivity(intent);
                         }
 
