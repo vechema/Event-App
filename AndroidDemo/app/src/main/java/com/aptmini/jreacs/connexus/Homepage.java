@@ -93,7 +93,7 @@ public class Homepage extends ActionBarActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        System.out.println("Debugging start");
+        s.o("Debugging start; Hey it works!");
 
         //Get number of user
         String number = "7137756018";

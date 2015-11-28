@@ -29,12 +29,13 @@ public class MyGathers extends ActionBarActivity {
         setContentView(R.layout.activity_my_gathers);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final String request_url = "http://www.apt2015final.appspot.com/mygathers?number=" + User.getInstance().getNumber();
+        final String request_url = "http://www." + Homepage.SITE + ".appspot.com/mygathers?number=" + User.getInstance().getNumber();
         System.out.println(request_url);
         AsyncHttpClient httpClient = new AsyncHttpClient();
         httpClient.get(request_url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] response) {
+                s.o("success");
                 final ArrayList<String> ends = new ArrayList<String>();
                 final ArrayList<String> lats = new ArrayList<String>();
                 final ArrayList<String> longs = new ArrayList<String>();
