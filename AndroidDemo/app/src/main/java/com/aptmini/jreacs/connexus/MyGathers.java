@@ -72,15 +72,12 @@ public class MyGathers extends ActionBarActivity {
                                                 int position, long id) {
 
                             //When clicked - open up a new activity - view a single stream
-                            Intent intent = new Intent(context, ViewAStream.class);
-//                            String stream_name = streamNames.get(position);
-//                            String owner_email = ownerEmails.get(position);
-//                            System.out.println("DisplayStreams, stream name: " + stream_name);
-//                            intent.putExtra(STREAM_NAME, stream_name);
-//                            intent.putExtra(OWNER_EMAIL, owner_email);
-//                            startActivity(intent);
+                            Intent intent = new Intent(context, ViewAGather.class);
 
-                            Toast.makeText(context, names.get(position), Toast.LENGTH_SHORT).show();
+                            intent.putExtra(Homepage.NAME, names.get(position));
+                            startActivity(intent);
+
+
 
                             /*Dialog imageDialog = new Dialog(context);
                             imageDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -104,5 +101,10 @@ public class MyGathers extends ActionBarActivity {
                 //Log.e(TAG, "There was a problem in retrieving the url : " + e.toString());
             }
         });
+    }
+
+    public void CreateAGather(View view) {
+        Intent intent = new Intent(context, CreateAGather.class);
+        startActivity(intent);
     }
 }

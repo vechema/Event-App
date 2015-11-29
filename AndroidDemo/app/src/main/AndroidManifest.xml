@@ -97,6 +97,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="Homepage" />
         </activity>
+        <activity
+            android:name=".ViewAGather"
+            android:label="@string/title_activity_view_agather"
+            android:parentActivityName=".MyGathers" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="MyGathers" />
+        </activity>
     </application>
 
 </manifest>

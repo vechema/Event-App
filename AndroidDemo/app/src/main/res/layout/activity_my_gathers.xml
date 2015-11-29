@@ -43,16 +43,10 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/viewNearby"
-            android:id="@+id/view_nearby"
-            android:onClick="viewNearbyPics"
+            android:text="Create a Gather"
+            android:id="@+id/create_gather"
+            android:onClick="CreateAGather"
             />
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/subscribedStreams"
-            android:id="@+id/subscribed"
-            android:onClick="viewSubscribed"
-            />
+
     </LinearLayout>
 </ScrollView>

@@ -61,6 +61,7 @@
     <string name="title_activity_offline_upload">OfflineUpload</string>
     <string name="title_activity_create_agather">CreateAGather</string>
     <string name="title_activity_my_gathers">MyGathers</string>
+    <string name="title_activity_view_agather">ViewAGather</string>
 
 
 
