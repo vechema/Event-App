@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -33,8 +34,38 @@ public class ViewAGather extends ActionBarActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] response) {
                 s.o("successfully accessed viewagather backend!");
+                final String name;
+                final String start;
+                final String end;
+                final String lat;
+                final String lng;
+                final String description;
+                final String use_status;
+                final String adStat;
+                final String visibility;
+
+
+
+
                 try {
                     JSONObject jObject = new JSONObject(new String(response));
+                    name = jObject.getString(Homepage.NAME);
+                    start = jObject.getString(Homepage.START_TIME);
+                    end = jObject.getString(Homepage.END_TIME);
+                    lat = jObject.getString(Homepage.LATITUDE);
+                    lng = jObject.getString(Homepage.LONGITUDE);
+                    description = jObject.getString(Homepage.DESCRIPTION);
+                    use_status = jObject.getString(Homepage.USER_STATUS);
+                    adStat = jObject.getString("admin");
+                    visibility = jObject.getString(Homepage.VISIBILITY);
+
+                    s.o(visibility);
+                    s.o(start);
+                    s.o(adStat);
+
+                    TextView myTextView= (TextView) findViewById(R.id.viewg_title);
+                    myTextView.setText(name);
+
                 } catch (JSONException j) {
                     System.out.println("JSON Error");
                 }
