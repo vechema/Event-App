@@ -63,8 +63,17 @@ public class ViewAGather extends ActionBarActivity {
                     s.o(start);
                     s.o(adStat);
 
-                    TextView myTextView= (TextView) findViewById(R.id.viewg_title);
-                    myTextView.setText(name);
+                    TextView titleTextView= (TextView) findViewById(R.id.viewg_title);
+                    titleTextView.setText(name);
+
+                    TextView timeTextView= (TextView) findViewById(R.id.viewg_time);
+                    timeTextView.setText(start + "to" + end);
+
+                    TextView placeTextView= (TextView) findViewById(R.id.viewg_place);
+                    placeTextView.setText(lat + " " + lng);
+
+                    TextView descriptionTextView= (TextView) findViewById(R.id.viewg_description);
+                    descriptionTextView.setText("Description: " + description);
 
                 } catch (JSONException j) {
                     System.out.println("JSON Error");

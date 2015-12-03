@@ -8,7 +8,7 @@
     tools:context="com.aptmini.jreacs.connexus.ViewAGather">
 
     <TextView
-        android:text=" - "
+        android:text="Title"
         android:layout_height="wrap_content"
         android:id="@+id/viewg_title"
         android:layout_width="wrap_content"
@@ -16,5 +16,46 @@
         android:textSize="25sp"
         android:layout_centerHorizontal="true">
     </TextView>
+
+    <TextView
+        android:text="Time"
+        android:layout_height="wrap_content"
+        android:id="@+id/viewg_time"
+        android:layout_below="@+id/viewg_title"
+        android:layout_width="wrap_content"
+        android:textSize="25sp"
+        >
+    </TextView>
+
+    <TextView
+        android:text="Place"
+        android:layout_height="wrap_content"
+        android:id="@+id/viewg_place"
+        android:layout_below="@+id/viewg_time"
+        android:layout_width="wrap_content"
+        android:textSize="25sp"
+        >
+    </TextView>
+
+    <TextView
+        android:text=" "
+        android:layout_height="wrap_content"
+        android:id="@+id/viewg_hosts"
+        android:layout_below="@+id/viewg_place"
+        android:layout_width="wrap_content"
+        android:textSize="18sp"
+        >
+    </TextView>
+
+    <TextView
+        android:text="Description"
+        android:layout_height="wrap_content"
+        android:id="@+id/viewg_description"
+        android:layout_below="@+id/viewg_hosts"
+        android:layout_width="wrap_content"
+        android:textSize="25sp"
+        >
+    </TextView>
+
 
 </RelativeLayout>
