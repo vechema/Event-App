@@ -36,7 +36,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class CreateAGather extends FragmentActivity {
     Context context = this;
@@ -203,11 +205,22 @@ public class CreateAGather extends FragmentActivity {
         newFragment.show(getFragmentManager(), "timePicker");
     }
 
+    //Pick the contacts by going to the contact picker page
     public void pickContacts(View view){
         Intent intent= new Intent(this, PickContacts.class);
         startActivityForResult(intent, PICK_CONTACTS);
     }
 
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_CONTACTS && data != null) {
+            System.out.println("PICK CONTACTS");
+            numbers = data.getStringArrayListExtra("numbers");
+            System.out.println(numbers);
+        }
+    }
+
+    //Manually add a contact to the list
     public void addAContact(View view){
         EditText txtphoneNo = (EditText) findViewById(R.id.guests);
         String numberString = txtphoneNo.getText().toString();

@@ -14,4 +14,12 @@
         android:onClick="addContact"
         />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Done"
+        android:onClick="sendBack"
+        android:layout_alignParentBottom="true"
+        />
+
 </RelativeLayout>
