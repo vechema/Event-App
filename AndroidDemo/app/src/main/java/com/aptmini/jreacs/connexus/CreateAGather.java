@@ -56,7 +56,8 @@ public class CreateAGather extends FragmentActivity {
     String endString;
     float lat;
     float lng;
-    String numbers;
+    String allNumbersString;
+    ArrayList<String> numbers =  new ArrayList<String>();
     int PICK_CONTACTS = 1;
 
     @Override
@@ -199,7 +200,7 @@ public class CreateAGather extends FragmentActivity {
     //End time: Show the end-time picker dialog when the button is pressed
     public void showEndTimePickerDialog(View v) {
         DialogFragment newFragment = new EndTimePickerFragment();
-        newFragment.show(getFragmentManager(),"timePicker");
+        newFragment.show(getFragmentManager(), "timePicker");
     }
 
     public void pickContacts(View view){
@@ -207,16 +208,22 @@ public class CreateAGather extends FragmentActivity {
         startActivityForResult(intent, PICK_CONTACTS);
     }
 
-
-    //Make the gather!
-    public void makeGather(View v){
-        //get number(s) input
+    public void addAContact(View view){
         EditText txtphoneNo = (EditText) findViewById(R.id.guests);
         String numberString = txtphoneNo.getText().toString();
         System.out.println("I AM DEBUGGING!!!!!");
         //numbers = numberString;
-        numbers = "7137756018+7137756019";
-        System.out.println(numbers);
+//        numbers = "7137756018+7137756019";
+        numbers.add(numberString);
+        System.out.println(numberString);
+    }
+
+    //Make the gather!
+    public void makeGather(View v){
+        //get number(s) input
+        for (String phoneNo : numbers) {
+            allNumbersString = allNumbersString + "+" + phoneNo;
+        }
 
         //get address and convert it to lat/lng
         EditText txtAddress = (EditText) findViewById(R.id.gather_location);
@@ -302,19 +309,18 @@ public class CreateAGather extends FragmentActivity {
     //Send the Gather information out as a text message
     protected void sendSMSMessage() {
         Log.i("Send SMS", "");
-        String phoneNo = numbers;
-        String message = "You're invited to " + title + " at " + address + "! It starts " + startString + " and ends " + endString +". -Gather";
-        System.out.println(message);
+        for (String phoneNo : numbers) {
+            String message = "You're invited to " + title + " at " + address + "! It starts " + startString + " and ends " + endString + ". -Gather";
+            System.out.println(message);
 
-        try {
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phoneNo, null, message, null, null);
-            Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
-        }
-
-        catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "SMS faild, please try again.", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
+            try {
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(phoneNo, null, message, null, null);
+                Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "SMS failed, please try again.", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
         }
     }
 
