@@ -105,6 +105,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MyGathers" />
         </activity>
+        <activity
+            android:name=".PickContacts"
+            android:label="@string/title_activity_pick_contacts"
+            android:parentActivityName=".CreateAGather" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="CreateAGather" />
+        </activity>
     </application>
 
 </manifest>

@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -30,8 +31,11 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class CreateAGather extends FragmentActivity {
@@ -53,6 +57,7 @@ public class CreateAGather extends FragmentActivity {
     float lat;
     float lng;
     String numbers;
+    int PICK_CONTACTS = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,6 +202,11 @@ public class CreateAGather extends FragmentActivity {
         newFragment.show(getFragmentManager(),"timePicker");
     }
 
+    public void pickContacts(View view){
+        Intent intent= new Intent(this, PickContacts.class);
+        startActivityForResult(intent, PICK_CONTACTS);
+    }
+
 
     //Make the gather!
     public void makeGather(View v){
@@ -231,6 +241,18 @@ public class CreateAGather extends FragmentActivity {
 
         startString = appendZeros(startYear,4)+"-"+appendZeros(startMonth,2)+"-"+appendZeros(startDay,2)+" "+appendZeros(startHour,2)+":"+appendZeros(startMinute,2)+":" + "0.00";
         endString = appendZeros(endYear,4)+"-"+appendZeros(endMonth,2)+"-"+appendZeros(endDay,2)+" "+appendZeros(endHour,2)+":"+appendZeros(endMinute,2)+":" + "0.00";
+
+
+        SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+        try {
+            Date date = format.parse(startString);
+            System.out.println(date);
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
 
         System.out.println(startString);
         System.out.println(endString);
