@@ -96,7 +96,7 @@ public class Homepage extends ActionBarActivity {
         s.o("Debugging start; Hey it works!");
 
         //Get number of user
-        String number = "7137756017";
+        String number = "7137756018";
 
         //Set the user singleton's number
         User.getInstance().setNumber(number);

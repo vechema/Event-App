@@ -283,6 +283,11 @@ public class CreateAGather extends FragmentActivity {
 
         //Update all the guests that they have been invited to the gather via text message.
         //sendSMSMessage();
+
+        Intent intent = new Intent(context, ViewAGather.class);
+
+        intent.putExtra(Homepage.NAME, title);
+        startActivity(intent);
     }
 
     //prefixes an input number with zeros if it does not meet the required format.
@@ -376,7 +381,7 @@ public class CreateAGather extends FragmentActivity {
 
         String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather";
         params.put("start_time",startString);
-        params.put("users_invited", numbers);
+        params.put("users_invited", allNumbersString);
         params.put("end_time",endString);
         params.put("name", title);
         params.put("gatherid", title);

@@ -1,5 +1,6 @@
 package com.aptmini.jreacs.connexus;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,6 +11,8 @@ import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ public class PickContacts extends ActionBarActivity {
     private static final int CONTACT_PICKER_RESULT = 1001;
     String DEBUG_TAG = "pick contacts debug";
     ArrayList<String> numbers = new ArrayList<String>();
+    Context context = this;
 
 
     @Override
@@ -63,6 +67,7 @@ public class PickContacts extends ActionBarActivity {
                         showSelectedNumber(type, number);
                         //add the number to the result arraylist
                         addSelectedNumber(number);
+                        updateNumberGrid();
                     }
                 } finally {
                     if (c != null) {
@@ -80,6 +85,33 @@ public class PickContacts extends ActionBarActivity {
     //Add the selected number to the result arraylist
     public void addSelectedNumber(String number) {
         numbers.add(number);
+    }
+
+    public void updateNumberGrid(){
+        GridView gridview = (GridView) findViewById(R.id.gridview_numbers);
+        //gridview.setAdapter(new ImageAdapter(context,coverURLs));
+        gridview.setAdapter(new NumbersTextAdapter(PickContacts.this, context, numbers));
+        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View v,
+                                    int position, long id) {
+
+                //When clicked - open up a new activity - view a single stream
+                numbers.remove(position);
+                updateNumberGrid();
+
+
+
+                            /*Dialog imageDialog = new Dialog(context);
+                            imageDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                            imageDialog.setContentView(R.layout.thumbnail);
+                            ImageView image = (ImageView) imageDialog.findViewById(R.id.thumbnail_IMAGEVIEW);
+
+                            Picasso.with(context).load(coverURLs.get(position)).into(image);
+
+                            imageDialog.show();*/
+            }
+        });
     }
 
     //Send set of numbers back to function that called it.
