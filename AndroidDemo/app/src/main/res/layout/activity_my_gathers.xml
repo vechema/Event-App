@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:text="@string/search"
             android:id="@+id/search_thing"
-            android:onClick="search"
+            android:onClick="GoSearch"
             />
         <Button
             android:layout_width="match_parent"

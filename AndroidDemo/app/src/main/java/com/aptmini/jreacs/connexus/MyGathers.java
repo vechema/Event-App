@@ -108,4 +108,9 @@ public class MyGathers extends ActionBarActivity {
         Intent intent = new Intent(context, CreateAGather.class);
         startActivity(intent);
     }
+
+    public void GoSearch(View view) {
+        Intent intent = new Intent(context, AutocompletePlace.class);
+        startActivity(intent);
+    }
 }
