@@ -26,6 +26,10 @@ public class MyGathers extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        s.o("In MyGathers: " + s.latLngtoAddr(30.2904, -97.7397));
+        s.o("In MyGathers2: " + s.location);
+
         setContentView(R.layout.activity_my_gathers);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

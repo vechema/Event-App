@@ -94,6 +94,7 @@ public class Homepage extends ActionBarActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         s.o("Debugging start; Hey it works!");
+        s.o(s.latLngtoAddr(30.2904, -97.7397));
 
         //Get number of user
         String number = "7137756018";
