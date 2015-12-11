@@ -44,10 +44,11 @@ public class s {
                     location = getAddr;
                     s.o("In s! " + getAddr);
 
-                    } catch (JSONException j) {
+                } catch (JSONException j) {
                     System.out.println("JSON Error");
                 }
             }
+
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
                 System.out.println("Failure, error code " + e.toString());
@@ -56,5 +57,36 @@ public class s {
         });
 
         return address.toString();
+    }
+
+    public static String formatLocation(String s)
+    {
+        return formatLocation(s, 0);
+    }
+
+    public static String formatLocation(String s, int level)
+    {
+        String[] location = s.split(",");
+        for (String t : location)
+        {
+            t = t.trim();
+            //System.out.print(t);
+        }
+        int index = level;
+        if(location.length == 5) {index+=1;}
+        String result = "";
+        if (index >= location.length)
+        {
+            return s;
+        }
+        for(int i = 0; i <= index; i++)
+        {
+            result+=location[i];
+            if( index >=1 && i < index)
+            {
+                result+=",";
+            }
+        }
+        return result;
     }
 }
