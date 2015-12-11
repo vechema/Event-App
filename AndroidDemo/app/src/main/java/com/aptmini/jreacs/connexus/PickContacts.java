@@ -65,6 +65,12 @@ public class PickContacts extends ActionBarActivity {
                         int type = c.getInt(1);
                         //show the number and the type
                         showSelectedNumber(type, number);
+                        //take out all special characters and spaces from number
+                        number = number.replaceAll("[^\\d]", "").trim();
+                        //If the number is 11 characters long make it ten
+                        if(number.length() ==  11){
+                            number = number.substring(1,11);
+                        }
                         //add the number to the result arraylist
                         addSelectedNumber(number);
                         updateNumberGrid();
