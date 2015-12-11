@@ -14,6 +14,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 /**
  * Created by Andrew on 11/28/2015.
@@ -88,5 +91,64 @@ public class s {
             }
         }
         return result;
+    }
+
+    public static Date stringToDate(String s)
+    {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println(s);
+        Date date = new Date();
+        try {
+            date = format.parse(s);
+            System.out.println(date.getHours());
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return date;
+    }
+
+    public static String timeRange(String start, String end)
+    {
+        return timeRange(stringToDate(start),stringToDate(end));
+    }
+
+    public static String timeRange(Date start, Date end)
+    {
+        String result = prettyDate(start);
+        if(isSameDay(start,end))
+        {
+            String prettyEnd = prettyDate(end);
+            result += " -" + prettyEnd.substring(prettyEnd.lastIndexOf(" "));
+        }
+        else
+        {
+            result += " - " + prettyDate(end);
+        }
+
+        return result;
+    }
+
+    public static String prettyDate(String s)
+    {
+        return prettyDate(stringToDate(s));
+    }
+
+    public static String prettyDate(Date d)
+    {
+        String[] t = d.toString().split(" ");
+        String temp = t[1] + " " + t[2] + " " + t[3].substring(0,t[3].lastIndexOf(":"));
+
+        return temp;
+    }
+
+    public static boolean isSameDay(Date one, Date two)
+    {
+        boolean isSameDay = false;
+        if(one.getDate() == two.getDate() && one.getMonth() == two.getMonth() && one.getYear() == two.getYear())
+        {
+            isSameDay = true;
+        }
+        return isSameDay;
     }
 }
