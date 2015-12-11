@@ -1,5 +1,6 @@
 package com.aptmini.jreacs.connexus;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -17,8 +18,11 @@ import java.util.ArrayList;
 
 public class ViewAGather extends ActionBarActivity {
 
+    Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        context = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_a_gather);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -67,10 +71,14 @@ public class ViewAGather extends ActionBarActivity {
                     titleTextView.setText(name);
 
                     TextView timeTextView= (TextView) findViewById(R.id.viewg_time);
-                    timeTextView.setText(start + "to" + end);
+                    String range = s.timeRange(start,end);
+                    timeTextView.setText(range);
+                    //timeTextView.setText(start + " to " + end);
 
                     TextView placeTextView= (TextView) findViewById(R.id.viewg_place);
-                    placeTextView.setText(lat + " " + lng);
+                    String location = s.latLngtoAddr(lat, lng, context);
+                    placeTextView.setText(location);
+                    //placeTextView.setText(lat + " " + lng);
 
                     TextView descriptionTextView= (TextView) findViewById(R.id.viewg_description);
                     descriptionTextView.setText("Description: " + description);

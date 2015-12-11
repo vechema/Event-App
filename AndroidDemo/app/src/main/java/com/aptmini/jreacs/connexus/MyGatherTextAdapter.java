@@ -84,8 +84,22 @@ public class MyGatherTextAdapter extends BaseAdapter {
         view.nameTxt.setText(names.get(position));
         //view.imgViewPic.setImageResource(imageURLs.get(position));
         //Picasso.with(mContext).load(imageURLs.get(position)).into(view.imgViewPic);
-        view.placeTxt.setText(lats.get(position)+ " " + longs.get(position));
-        view.timeTxt.setText(starts.get(position) + "to" + ends.get(position));
+
+        //Set the location
+        String lat = lats.get(position);
+        String lng = longs.get(position);
+        String location = s.latLngtoAddr(lat, lng, mContext);
+        view.placeTxt.setText(location);
+        s.o("Lat: " + lat + " lng: " + lng);
+        s.o("But location: " + location);
+        //view.placeTxt.setText(lats.get(position)+ " " + longs.get(position));
+
+        //Set the start to end time
+        String start_time = starts.get(position);
+        String end_time = ends.get(position);
+        String range = s.timeRange(start_time,end_time);
+        view.timeTxt.setText(range);
+        // view.timeTxt.setText(starts.get(position) + "to" + ends.get(position));
 
         return convertView;
     }

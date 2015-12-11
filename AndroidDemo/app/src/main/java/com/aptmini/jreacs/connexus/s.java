@@ -1,9 +1,12 @@
 package com.aptmini.jreacs.connexus;
 
+import android.content.Context;
 import android.content.Intent;
+import android.location.Geocoder;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.location.Address;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -13,6 +16,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 import java.text.ParseException;
@@ -29,68 +34,32 @@ public class s {
         System.out.println(string);
     }
 
-    public static String latLngtoAddr(double lat, double lng)
+    public static String latLngtoAddr(String lat, String lng, Context context)
     {
+        return latLngtoAddr(Double.parseDouble(lat), Double.parseDouble(lng), context);
+    }
+
+    public static String latLngtoAddr(double lat, double lng, Context context)
+    {
+        s.o("lat to lng");
         final StringBuilder address = new StringBuilder();
-        String request_url = "http://maps.google.com/maps/api/geocode/json?latlng="+lat+","+lng+"&sensor=false";
-        AsyncHttpClient httpClient = new AsyncHttpClient();
 
-        httpClient.get(request_url, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
-                s.o("success");
-                try {
-                    JSONObject jObject = new JSONObject(new String(response));
+        Geocoder geo = new Geocoder(context);
+        List<Address> addresses = new ArrayList<Address>();
+        try {
+            addresses = geo.getFromLocation(lat, lng, 5);
+        } catch (IOException e)
+        {
+            s.o("ERROR WITH: "+ lat + " "+ lng);
+        }
 
-                    String getAddr = jObject.getJSONArray("results").getJSONObject(0).getString("formatted_address");
-                    address.append(getAddr);
-                    location = getAddr;
-                    s.o("In s! " + getAddr);
-
-                } catch (JSONException j) {
-                    System.out.println("JSON Error");
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
-                System.out.println("Failure, error code " + e.toString());
-                //Log.e(TAG, "There was a problem in retrieving the url : " + e.toString());
-            }
-        });
+        for(Address addr : addresses)
+        {
+            s.o(addr.getAddressLine(0));
+        }
+        address.append("Lat/Lng return: " + addresses.get(0).getAddressLine(0));
 
         return address.toString();
-    }
-
-    public static String formatLocation(String s)
-    {
-        return formatLocation(s, 0);
-    }
-
-    public static String formatLocation(String s, int level)
-    {
-        String[] location = s.split(",");
-        for (String t : location)
-        {
-            t = t.trim();
-            //System.out.print(t);
-        }
-        int index = level;
-        if(location.length == 5) {index+=1;}
-        String result = "";
-        if (index >= location.length)
-        {
-            return s;
-        }
-        for(int i = 0; i <= index; i++)
-        {
-            result+=location[i];
-            if( index >=1 && i < index)
-            {
-                result+=",";
-            }
-        }
-        return result;
     }
 
     public static Date stringToDate(String s)
@@ -110,7 +79,7 @@ public class s {
 
     public static String timeRange(String start, String end)
     {
-        return timeRange(stringToDate(start),stringToDate(end));
+        return timeRange(stringToDate(start), stringToDate(end));
     }
 
     public static String timeRange(Date start, Date end)
