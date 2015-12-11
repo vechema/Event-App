@@ -328,7 +328,7 @@ public class CreateAGather extends FragmentActivity {
     protected void sendSMSMessage() {
         Log.i("Send SMS", "");
         for (String phoneNo : numbers) {
-            String message = "You're invited to " + title + " at " + address + "! It starts " + startString + " and ends " + endString + ". -Gather";
+            String message = "You're invited to " + title + " at " + startString +"! -Gather";
             System.out.println(message);
 
             try {

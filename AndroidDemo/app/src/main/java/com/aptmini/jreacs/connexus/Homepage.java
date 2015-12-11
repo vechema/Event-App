@@ -97,7 +97,7 @@ public class Homepage extends ActionBarActivity {
         s.o(s.latLngtoAddr(30.2904, -97.7397));
 
         //Get number of user
-        String number = "7137756018";
+        String number = "8475257403";
 
         //Set the user singleton's number
         User.getInstance().setNumber(number);
