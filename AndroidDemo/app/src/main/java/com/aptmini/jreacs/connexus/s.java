@@ -57,7 +57,9 @@ public class s {
         {
             s.o(addr.getAddressLine(0));
         }
-        address.append("Lat/Lng return: " + addresses.get(0).getAddressLine(0));
+        String addressLine = addresses.get(0).getAddressLine(0);
+        s.o("Lat/Lng return: " + addressLine);
+        address.append(addressLine);
 
         return address.toString();
     }
