@@ -63,26 +63,23 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true" >
         <Button
-            android:id="@+id/button_interested"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Interested"
-            android:onClick="selectInterested"/>
-        <Button
             android:id="@+id/button_going"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
             android:text="Going"
-            android:onClick="selectGoing"/>
+            android:onClick="selectGoing"
+            style="@style/RoundButton"
+            android:background="@drawable/going_button"/>
+        <Button
+            android:id="@+id/button_interested"
+            android:text="Interested"
+            android:onClick="selectInterested"
+            style="@style/RoundButton"
+            android:background="@drawable/interested_button"/>
         <Button
             android:id="@+id/button_ignore"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
             android:text="Ignore"
-            android:onClick="selectIgnore"/>
+            android:onClick="selectIgnore"
+            style="@style/RoundButton"
+            android:background="@drawable/ignore_button"/>
     </LinearLayout>
 
 

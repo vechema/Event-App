@@ -23,7 +23,9 @@ import java.util.ArrayList;
 public class ViewAGather extends ActionBarActivity {
 
     Context context;
-    Button button;
+    Button button_going;
+    Button button_interested;
+    Button button_ignore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,18 +103,41 @@ public class ViewAGather extends ActionBarActivity {
         });
     }
 
-    public void selectInterested(View view) {
-        s.o("I'm interested");
-
+    public void setUpButtons()
+    {
+        button_going = (Button) findViewById(R.id.button_going);
+        button_interested = (Button) findViewById(R.id.button_interested);
+        button_ignore = (Button) findViewById(R.id.button_ignore);
+        s.o("Buttons made!");
+        s.o(""+button_going);
     }
 
     public void selectGoing(View view) {
         s.o("I'm going!");
+        setUpButtons();
+        selectButton(button_going, button_interested, button_ignore);
+    }
 
+    public void selectInterested(View view) {
+        s.o("I'm interested");
+        setUpButtons();
+        selectButton(button_interested, button_ignore, button_going);
     }
 
     public void selectIgnore(View view) {
         s.o("IGNORE");
+        setUpButtons();
+        selectButton(button_ignore,button_going, button_interested);
+    }
 
+    public void selectButton(Button selected, Button not_selected_one, Button not_selected_two)
+    {
+        selected.setSelected(true);
+        not_selected_one.setSelected(false);
+        not_selected_two.setSelected(false);
+
+        selected.setActivated(false);
+        not_selected_one.setActivated(true);
+        not_selected_two.setActivated(true);
     }
 }
