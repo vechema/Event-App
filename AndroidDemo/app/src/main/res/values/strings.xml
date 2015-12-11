@@ -63,6 +63,7 @@
     <string name="title_activity_my_gathers">MyGathers</string>
     <string name="title_activity_view_agather">ViewAGather</string>
     <string name="title_activity_pick_contacts">PickContacts</string>
+    <string name="title_activity_autocomplete_place">AutocompletePlace</string>
 
 
 

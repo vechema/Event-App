@@ -13,6 +13,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -40,6 +42,9 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBofZT8qKti75Arol1g1Sf22D_bSkT4rtw" />
 
         <activity
             android:name=".DisplayStreams"
@@ -112,6 +117,10 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="CreateAGather" />
+        </activity>
+        <activity
+            android:name=".AutocompletePlace"
+            android:label="@string/title_activity_autocomplete_place" >
         </activity>
     </application>
 
