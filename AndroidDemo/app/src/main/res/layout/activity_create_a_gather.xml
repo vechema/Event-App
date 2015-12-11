@@ -26,24 +26,54 @@
              />
     </LinearLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        tools:context="com.aptmini.jreacs.connexus.CreateAGather">
+        android:paddingBottom="20dp"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="0dp"
+        tools:context=".MainActivity">
 
-        <TextView android:id="@+id/gather_location_text"
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="50dp"
+            android:hint="Enter Place Here"/>
+
+        <TextView
+            android:id="@+id/header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Location:" />
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/autoCompleteTextView"
+            android:layout_marginTop="20dp"
+            android:text="Selected Place:"
+            android:textStyle="bold"/>
 
-        <EditText android:id="@+id/gather_location"
+        <TextView
+            android:id="@+id/address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-           />/ android:text="Add Location"
-            />
-    </LinearLayout>
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/header"/>
+
+        <ImageView
+            android:id="@+id/poweredBy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/autoCompleteTextView"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/powered_by_google_light"/>
+
+
+    </RelativeLayout>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
@@ -99,32 +129,32 @@
             android:onClick="showEndTimePickerDialog" />
     </LinearLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        tools:context="com.aptmini.jreacs.connexus.CreateAGather">
+    <!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+        <!--xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal"-->
+        <!--tools:context="com.aptmini.jreacs.connexus.CreateAGather">-->
 
-        <TextView android:id="@+id/guests_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Phone # of guest:" />
+        <!--<TextView android:id="@+id/guests_text"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Phone # of guest:" />-->
 
-        <EditText android:id="@+id/guests"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            />
-    </LinearLayout>
+        <!--<EditText android:id="@+id/guests"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--/>-->
+    <!--</LinearLayout>-->
 
 
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add contact"
-        android:onClick="addAContact"
-        />
+    <!--<Button-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="Add contact"-->
+        <!--android:onClick="addAContact"-->
+        <!--/>-->
 
     <Button
         android:layout_width="wrap_content"

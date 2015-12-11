@@ -40,7 +40,48 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public class CreateAGather extends FragmentActivity {
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+
+import android.os.Bundle;
+//import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+
+public class CreateAGather extends FragmentActivity implements
+        GoogleApiClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks {
+    private static final String LOG_TAG = "MainActivity";
+
+    //Stuff to make the autocomplete work
+    private static final int GOOGLE_API_CLIENT_ID = 0;
+    private AutoCompleteTextView mAutocompleteTextView;
+    private GoogleApiClient mGoogleApiClient;
+    private PlaceArrayAdapter mPlaceArrayAdapter;
+    private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(
+            new LatLng(37.398160, -122.180831), new LatLng(37.430610, -121.972090));
+    private TextView mAddressTextView;
+
+    //Declare the variables for the gather
     Context context = this;
     static int startYear;
     static int startMonth;
@@ -72,6 +113,21 @@ public class CreateAGather extends FragmentActivity {
         startDay = c.get(Calendar.DAY_OF_MONTH);
         startHour = c.get(Calendar.HOUR_OF_DAY);
         startMinute = c.get(Calendar.MINUTE);
+        mAddressTextView = (TextView) findViewById(R.id.address);
+
+        //Set stuff up for place autocomplete
+        mGoogleApiClient = new GoogleApiClient.Builder(CreateAGather.this)
+                .addApi(Places.GEO_DATA_API)
+                .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this)
+                .addConnectionCallbacks(this)
+                .build();
+        mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id
+                .autoCompleteTextView);
+        mAutocompleteTextView.setThreshold(3);
+        mAutocompleteTextView.setOnItemClickListener(mAutocompleteClickListener);
+        mPlaceArrayAdapter = new PlaceArrayAdapter(this, android.R.layout.simple_list_item_1,
+                BOUNDS_MOUNTAIN_VIEW, null);
+        mAutocompleteTextView.setAdapter(mPlaceArrayAdapter);
     }
 
     //Start Date: Define a fragment which will help us display a start date picker dialog.
@@ -221,15 +277,15 @@ public class CreateAGather extends FragmentActivity {
     }
 
     //Manually add a contact to the list
-    public void addAContact(View view){
-        EditText txtphoneNo = (EditText) findViewById(R.id.guests);
-        String numberString = txtphoneNo.getText().toString();
-        System.out.println("I AM DEBUGGING!!!!!");
-        //numbers = numberString;
-//        numbers = "7137756018+7137756019";
-        numbers.add(numberString);
-        System.out.println(numberString);
-    }
+//    public void addAContact(View view){
+//        EditText txtphoneNo = (EditText) findViewById(R.id.guests);
+//        String numberString = txtphoneNo.getText().toString();
+//        System.out.println("I AM DEBUGGING!!!!!");
+//        //numbers = numberString;
+////        numbers = "7137756018+7137756019";
+//        numbers.add(numberString);
+//        System.out.println(numberString);
+//    }
 
     //Make the gather!
     public void makeGather(View v){
@@ -239,9 +295,9 @@ public class CreateAGather extends FragmentActivity {
         }
 
         //get address and convert it to lat/lng
-        EditText txtAddress = (EditText) findViewById(R.id.gather_location);
+        //EditText txtAddress = (EditText) findViewById(R.id.gather_location);
         //address = txtAddress.getText().toString();
-        address = "403 East 35th St. Austin, TX 78705";
+        //address = "403 East 35th St. Austin, TX 78705";
         System.out.println(address);
         GeoPoint gatherPoint = getLocationFromAddress(address);
         System.out.println(gatherPoint.lat);
@@ -422,6 +478,71 @@ public class CreateAGather extends FragmentActivity {
                 Log.e("Posting_to_blob", "There was a problem in retrieving the url : " + e.toString());
             }
         });
+    }
+
+    //Stuff for place autocomplete
+    private AdapterView.OnItemClickListener mAutocompleteClickListener
+            = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            final PlaceArrayAdapter.PlaceAutocomplete item = mPlaceArrayAdapter.getItem(position);
+            final String placeId = String.valueOf(item.placeId);
+            Log.i(LOG_TAG, "Selected: " + item.description);
+            PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
+                    .getPlaceById(mGoogleApiClient, placeId);
+            placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
+            Log.i(LOG_TAG, "Fetching details for ID: " + item.placeId);
+        }
+    };
+
+    private ResultCallback<PlaceBuffer> mUpdatePlaceDetailsCallback
+            = new ResultCallback<PlaceBuffer>() {
+        @Override
+        public void onResult(PlaceBuffer places) {
+            if (!places.getStatus().isSuccess()) {
+                Log.e(LOG_TAG, "Place query did not complete. Error: " +
+                        places.getStatus().toString());
+                return;
+            }
+            // Selecting the first object buffer.
+            final Place place = places.get(0);
+            //CharSequence attributions = place.getAttributions();
+
+//                mNameTextView.setText(Html.fromHtml(place.getName() + ""));
+                mAddressTextView.setText(Html.fromHtml(place.getAddress() + ""));
+//                mIdTextView.setText(Html.fromHtml(place.getId() + ""));
+//                mPhoneTextView.setText(Html.fromHtml(place.getPhoneNumber() + ""));
+//                mWebTextView.setText(place.getWebsiteUri() + "");
+//                if (attributions != null) {
+//                    mAttTextView.setText(Html.fromHtml(attributions.toString()));
+//                }
+            address = place.getAddress() + "";
+            s.o(address);
+        }
+    };
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        mPlaceArrayAdapter.setGoogleApiClient(mGoogleApiClient);
+        Log.i(LOG_TAG, "Google Places API connected.");
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.e(LOG_TAG, "Google Places API connection failed with error code: "
+                + connectionResult.getErrorCode());
+
+        Toast.makeText(this,
+                "Google Places API connection failed with error code:" +
+                        connectionResult.getErrorCode(),
+                Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        mPlaceArrayAdapter.setGoogleApiClient(null);
+        Log.e(LOG_TAG, "Google Places API connection suspended.");
     }
 }
 
