@@ -57,12 +57,12 @@ import com.google.android.gms.maps.model.LatLngBounds;
             mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id
                     .autoCompleteTextView);
             mAutocompleteTextView.setThreshold(3);
-            mNameTextView = (TextView) findViewById(R.id.name);
-            mAddressTextView = (TextView) findViewById(R.id.address);
-            mIdTextView = (TextView) findViewById(R.id.place_id);
-            mPhoneTextView = (TextView) findViewById(R.id.phone);
-            mWebTextView = (TextView) findViewById(R.id.web);
-            mAttTextView = (TextView) findViewById(R.id.att);
+//            mNameTextView = (TextView) findViewById(R.id.name);
+//            mAddressTextView = (TextView) findViewById(R.id.address);
+//            mIdTextView = (TextView) findViewById(R.id.place_id);
+//            mPhoneTextView = (TextView) findViewById(R.id.phone);
+//            mWebTextView = (TextView) findViewById(R.id.web);
+//            mAttTextView = (TextView) findViewById(R.id.att);
             mAutocompleteTextView.setOnItemClickListener(mAutocompleteClickListener);
             mPlaceArrayAdapter = new PlaceArrayAdapter(this, android.R.layout.simple_list_item_1,
                     BOUNDS_MOUNTAIN_VIEW, null);
