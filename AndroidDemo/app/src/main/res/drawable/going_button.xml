@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:state_pressed="true" > <!-- While the button is being pressed -->
+        <shape android:shape="rectangle"  >
+            <corners android:radius="3dip" />
+            <stroke android:width="1dip" android:color="#089800" /> <!-- Outline -->
+            <gradient android:angle="-90" android:startColor="#0BDA00" android:endColor="#045000"  />
+            <!--startColor = Top color & endColor = bottom color-->
+        </shape>
+    </item>
+    <item android:state_selected="true"> <!-- When the button is selected -->
+        <shape android:shape="rectangle"  >
+            <corners android:radius="3dip" />
+            <stroke android:width="1dip" android:color="#0BDA00" />
+            <gradient android:angle="-90" android:startColor="#39E230" android:endColor="#089800"  />
+        </shape>
+    </item>
+    <item android:state_activated="true"> <!-- Really for when it's not selected -->
+        <shape android:shape="rectangle"  >
+            <corners android:radius="3dip" />
+            <stroke android:width="1dip" android:color="#39E230" />
+            <solid android:color="#81ee7b" />
+        </shape>
+    </item>
+    <item >
+        <shape android:shape="rectangle"  > <!-- when no buttons have been pressed, neutral -->
+            <corners android:radius="3dip" />
+            <stroke android:width="1dip" android:color="#0BDA00" />
+            <gradient android:angle="-90" android:startColor="#39E230" android:endColor="#089800" />
+        </shape>
+    </item>
+</selector>
