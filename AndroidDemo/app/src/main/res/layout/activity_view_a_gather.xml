@@ -57,5 +57,33 @@
         >
     </TextView>
 
+    <LinearLayout
+        android:id="@+id/InnerRelativeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" >
+        <Button
+            android:id="@+id/button_interested"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Interested"
+            android:onClick="selectInterested"/>
+        <Button
+            android:id="@+id/button_going"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Going"
+            android:onClick="selectGoing"/>
+        <Button
+            android:id="@+id/button_ignore"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Ignore"
+            android:onClick="selectIgnore"/>
+    </LinearLayout>
+
 
 </RelativeLayout>

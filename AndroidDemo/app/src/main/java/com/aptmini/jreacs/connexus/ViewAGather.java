@@ -2,9 +2,13 @@ package com.aptmini.jreacs.connexus;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -19,6 +23,7 @@ import java.util.ArrayList;
 public class ViewAGather extends ActionBarActivity {
 
     Context context;
+    Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +54,6 @@ public class ViewAGather extends ActionBarActivity {
                 final String visibility;
 
 
-
-
                 try {
                     JSONObject jObject = new JSONObject(new String(response));
                     name = jObject.getString(Homepage.NAME);
@@ -67,20 +70,20 @@ public class ViewAGather extends ActionBarActivity {
                     s.o(start);
                     s.o(adStat);
 
-                    TextView titleTextView= (TextView) findViewById(R.id.viewg_title);
+                    TextView titleTextView = (TextView) findViewById(R.id.viewg_title);
                     titleTextView.setText(name);
 
-                    TextView timeTextView= (TextView) findViewById(R.id.viewg_time);
-                    String range = s.timeRange(start,end);
+                    TextView timeTextView = (TextView) findViewById(R.id.viewg_time);
+                    String range = s.timeRange(start, end);
                     timeTextView.setText(range);
                     //timeTextView.setText(start + " to " + end);
 
-                    TextView placeTextView= (TextView) findViewById(R.id.viewg_place);
+                    TextView placeTextView = (TextView) findViewById(R.id.viewg_place);
                     String location = s.latLngtoAddr(lat, lng, context);
                     placeTextView.setText(location);
                     //placeTextView.setText(lat + " " + lng);
 
-                    TextView descriptionTextView= (TextView) findViewById(R.id.viewg_description);
+                    TextView descriptionTextView = (TextView) findViewById(R.id.viewg_description);
                     descriptionTextView.setText("Description: " + description);
 
                 } catch (JSONException j) {
@@ -96,5 +99,20 @@ public class ViewAGather extends ActionBarActivity {
 
 
         });
+    }
+
+    public void selectInterested(View view) {
+        s.o("I'm interested");
+
+    }
+
+    public void selectGoing(View view) {
+        s.o("I'm going!");
+
+    }
+
+    public void selectIgnore(View view) {
+        s.o("IGNORE");
+
     }
 }
