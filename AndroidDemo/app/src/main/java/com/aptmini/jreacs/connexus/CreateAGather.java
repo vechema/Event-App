@@ -6,6 +6,8 @@ import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.SmsManager;
 import android.text.format.DateFormat;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -31,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -99,11 +103,15 @@ public class CreateAGather extends FragmentActivity implements
     String startString;
     String endString;
     String description;
+    String imageFilePath;
+    byte[] encodedImage;
     float lat;
     float lng;
     String allNumbersString;
     ArrayList<String> numbers =  new ArrayList<String>();
     int PICK_CONTACTS = 1;
+    int PICK_PICTURE = 2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -290,12 +298,23 @@ public class CreateAGather extends FragmentActivity implements
         startActivityForResult(intent, PICK_CONTACTS);
     }
 
+    //Pick the picture by going to the picture picker page
+    public void addPicture(View view){
+        Intent intent= new Intent(this, ImageUpload.class);
+        startActivityForResult(intent, PICK_PICTURE);
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_CONTACTS && data != null) {
             System.out.println("PICK CONTACTS");
             numbers = data.getStringArrayListExtra("numbers");
             System.out.println(numbers);
+        }
+        if (requestCode == PICK_PICTURE && data != null) {
+            System.out.println("PICK PICTURE");
+            imageFilePath = data.getStringExtra("file");
+            System.out.println(imageFilePath);
         }
     }
 
@@ -371,16 +390,21 @@ public class CreateAGather extends FragmentActivity implements
         System.out.println(startString);
         System.out.println(endString);
 
+        //Get the image from the filepath
+        final Bitmap bitmapImage = BitmapFactory.decodeFile(imageFilePath);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmapImage.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+        byte[] b = baos.toByteArray();
+        encodedImage = Base64.encode(b, Base64.DEFAULT);
+        String encodedImageStr = encodedImage.toString();
+
+
 
         //Update all the guests that they have been invited to the gather via text message.
         //sendSMSMessage();
 
         //Send the gather data to the backend, where a gather object will be created.
         postToServer();
-
-
-
-
     }
 
     //prefixes an input number with zeros if it does not meet the required format.
@@ -477,7 +501,7 @@ public class CreateAGather extends FragmentActivity implements
         params.put("start_time",startString);
         params.put("users_invited", allNumbersString);
         s.o(allNumbersString);
-        params.put("end_time",endString);
+        params.put("end_time", endString);
         params.put("name", title);
         params.put("gatherid", title);
         params.put("latitude", lat);
@@ -485,6 +509,7 @@ public class CreateAGather extends FragmentActivity implements
         params.put("number", User.getInstance().getNumber());
         params.put("visibility", "private");
         params.put("description", description);
+        params.put("file",new ByteArrayInputStream(encodedImage));
 
 //        String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather?";
 //        upload_url = upload_url + Homepage.NUMBER + "=" + User.getInstance().getNumber() +"&";
