@@ -87,6 +87,7 @@
             android:text="Start Time:" />
 
         <Button
+            android:id="@+id/start_date_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -94,6 +95,7 @@
             android:onClick="showStartDatePickerDialog" />
 
         <Button
+            android:id="@+id/start_time_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Pick Time"
@@ -115,6 +117,7 @@
             android:text="End Time:" />
 
         <Button
+            android:id="@+id/end_date_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -122,6 +125,7 @@
             android:onClick="showEndDatePickerDialog" />
 
         <Button
+            android:id="@+id/end_time_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Pick Time"

@@ -109,14 +109,30 @@ public class CreateAGather extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_a_gather);
 
-        //Set the default start time
+        //Set the default start end/time
         final Calendar c = Calendar.getInstance();
         startYear = c.get(Calendar.YEAR);
         startMonth = c.get(Calendar.MONTH);
         startDay = c.get(Calendar.DAY_OF_MONTH);
-        startHour = c.get(Calendar.HOUR_OF_DAY);
+        startHour = c.get(Calendar.HOUR_OF_DAY) + 1;
         startMinute = 0;
         mAddressTextView = (TextView) findViewById(R.id.address);
+
+        //display the default start time
+        displayStartDate();
+        displayStartTime();
+
+        //Set the default end/time
+        endYear = c.get(Calendar.YEAR);
+        endMonth = c.get(Calendar.MONTH);
+        endDay = c.get(Calendar.DAY_OF_MONTH);
+        endHour = c.get(Calendar.HOUR_OF_DAY) + 2;
+        endMinute = 0;
+
+        //display the default end time
+        displayEndDate();
+        displayEndTime();
+
 
         //Set stuff up for place autocomplete
         mGoogleApiClient = new GoogleApiClient.Builder(CreateAGather.this)
@@ -140,11 +156,11 @@ public class CreateAGather extends FragmentActivity implements
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the current date as the default date in the picker
+            // Use Gather's default date or last picked date as the default date in the picker
             final Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
+            int year = startYear;
+            int month = startMonth;
+            int day = startDay;
 
             // Create a new instance of DatePickerDialog and return it
             return new DatePickerDialog(getActivity(), this, year, month, day);
@@ -158,6 +174,7 @@ public class CreateAGather extends FragmentActivity implements
             startYear = year;
             startMonth = month;
             startDay = day;
+            ((CreateAGather)getActivity()).displayStartDate();
         }
     }
 
@@ -165,6 +182,7 @@ public class CreateAGather extends FragmentActivity implements
     public void showStartDatePickerDialog(View v) {
         DialogFragment newFragment = new StartDatePickerFragment();
         newFragment.show(getFragmentManager(), "datePicker");
+        displayStartDate();
     }
 
     //Start Time: Define a fragment which will help us display a start time picker dialog.
@@ -173,10 +191,10 @@ public class CreateAGather extends FragmentActivity implements
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the current time as the default values for the picker
+            // Use Gather's default time or last picked time as the default time in the picker
             final Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
+            int hour = startHour;
+            int minute = startMinute;
 
             // Create a new instance of TimePickerDialog and return it
             return new TimePickerDialog(getActivity(), this, hour, minute,
@@ -188,6 +206,7 @@ public class CreateAGather extends FragmentActivity implements
             System.out.println(minute);
             startHour = hourOfDay;
             startMinute = minute;
+            ((CreateAGather)getActivity()).displayStartTime();
         }
     }
 
@@ -204,11 +223,11 @@ public class CreateAGather extends FragmentActivity implements
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the start date as the default date in the picker
+            // Use Gather's default date or last picked date as the default date in the picker
             final Calendar c = Calendar.getInstance();
-            int year = startYear;
-            int month = startMonth;
-            int day = startDay;
+            int year = endYear;
+            int month = endMonth;
+            int day = endDay;
 
             // Create a new instance of DatePickerDialog and return it
             return new DatePickerDialog(getActivity(), this, year, month, day);
@@ -222,6 +241,7 @@ public class CreateAGather extends FragmentActivity implements
             endYear = year;
             endDay = day;
             endMonth = month;
+            ((CreateAGather)getActivity()).displayEndDate();
         }
     }
 
@@ -231,7 +251,7 @@ public class CreateAGather extends FragmentActivity implements
         newFragment.show(getFragmentManager(), "datePicker");
     }
 
-    //End date: Define a fragment which will help us display a start time picker dialog.
+    //End date: Define a fragment which will help us display an end time picker dialog.
     public static class EndTimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
 
@@ -239,11 +259,8 @@ public class CreateAGather extends FragmentActivity implements
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Use the current time as the default values for the picker
             final Calendar c = Calendar.getInstance();
-            int hour = startHour + 1;
-            if(hour == 24){
-                hour = 0;
-            }
-            int minute = startMinute;
+            int hour = endHour;
+            int minute = endMinute;
 
             // Create a new instance of TimePickerDialog and return it
             return new TimePickerDialog(getActivity(), this, hour, minute,
@@ -255,6 +272,7 @@ public class CreateAGather extends FragmentActivity implements
             System.out.println(minute);
             endHour = hourOfDay;
             endMinute = minute;
+            ((CreateAGather)getActivity()).displayEndTime();
         }
     }
 
@@ -326,10 +344,13 @@ public class CreateAGather extends FragmentActivity implements
 
         //convert date and time to proper format
         //Date & Time format = 2015-11-18 01:34:23.360332. Manually add 0.00 for s and ms
-        appendZeros(startMonth,2);
 
-        startString = appendZeros(startYear,4)+"-"+appendZeros(startMonth,2)+"-"+appendZeros(startDay,2)+" "+appendZeros(startHour,2)+":"+appendZeros(startMinute,2)+":" + "0.00";
-        endString = appendZeros(endYear,4)+"-"+appendZeros(endMonth,2)+"-"+appendZeros(endDay,2)+" "+appendZeros(endHour,2)+":"+appendZeros(endMinute,2)+":" + "0.00";
+        //picker increments Months at 0 so have to add 1 before it's passed back
+        int startDisplayMonth = startMonth + 1;
+        int endDisplayMonth = endMonth + 1;
+
+        startString = appendZeros(startYear,4)+"-"+appendZeros(startDisplayMonth,2)+"-"+appendZeros(startDay,2)+" "+appendZeros(startHour,2)+":"+appendZeros(startMinute,2)+":" + "0.00";
+        endString = appendZeros(endYear,4)+"-"+appendZeros(endDisplayMonth,2)+"-"+appendZeros(endDay,2)+" "+appendZeros(endHour,2)+":"+appendZeros(endMinute,2)+":" + "0.00";
 
 
         SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
@@ -346,7 +367,7 @@ public class CreateAGather extends FragmentActivity implements
         System.out.println(startString);
         System.out.println(endString);
 
-        System.out.println(User.getInstance().getName());
+        //System.out.println(User.getInstance().getName());
         //Send the gather data to the backend, where a gather object will be created.
 
         //Update all the guests that they have been invited to the gather via text message.
@@ -561,6 +582,34 @@ public class CreateAGather extends FragmentActivity implements
     public void onConnectionSuspended(int i) {
         mPlaceArrayAdapter.setGoogleApiClient(null);
         Log.e(LOG_TAG, "Google Places API connection suspended.");
+    }
+
+    public void displayStartDate() {
+        //Display the start date
+        //picker increments Months at 0 so have to add 1 before it's displayed
+        int displayMonth = startMonth + 1;
+        TextView startDate = (TextView) findViewById(R.id.start_date_button);
+        startDate.setText(displayMonth + "/" + startDay + "/" + startYear);
+    }
+
+    public void displayStartTime(){
+        //Display the start date
+        TextView startTime = (TextView) findViewById(R.id.start_time_button);
+        startTime.setText(startHour + ":" + appendZeros(startMinute,2));
+    }
+
+    public void displayEndDate(){
+        //Display the start date
+        //picker increments Months at 0 so have to add 1 before it's displayed
+        int displayMonth = endMonth + 1;
+        TextView endDate = (TextView) findViewById(R.id.end_date_button);
+        endDate.setText(displayMonth + "/" + endDay + "/" + endYear);
+    }
+
+    public void displayEndTime(){
+        //Display the end date
+        TextView endTime = (TextView) findViewById(R.id.end_time_button);
+        endTime.setText(endHour + ":" + appendZeros(endMinute,2));
     }
 }
 
