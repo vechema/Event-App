@@ -100,6 +100,13 @@ def identify_gather(gather_id):
     return gather_key.get()
 
 
+# Removes the duplicates in a list
+def remove_dups(sequence):
+    unique = []
+    [unique.append(item) for item in sequence if item not in unique]
+    return unique
+
+
 # Given a gather and a user, returns invited, ignored, interested, or going
 def find_user_status(gather, user):
     if gather.key in user.gathers_ignored:
@@ -306,10 +313,12 @@ def add_to_list(user, gather, status):
 
     gather_list = pick_gather_list(gather, status)
     gather_list.append(user.key)
+    gather_list = remove_dups(gather_list)
     set_gather_list(gather, gather_list, status)
 
     user_list = pick_user_list(user, status)
     user_list.append(gather.key)
+    user_list = remove_dups(user_list)
     set_user_list(user, user_list, status)
 
 
@@ -320,11 +329,13 @@ def remove_from_list(user, gather, status):
     gather_list = pick_gather_list(gather, status)
     if user.key in gather_list:
         gather_list.remove(user.key)
+    gather_list = remove_dups(gather_list)
     set_gather_list(gather, gather_list, status)
 
     user_list = pick_user_list(user, status)
     if gather.key in user_list:
         user_list.remove(gather.key)
+    user_list = remove_dups(user_list)
     set_user_list(user, user_list, status)
 
 
@@ -527,6 +538,8 @@ class MyGathers (webapp2.RequestHandler):
         start_times = []
         end_times = []
         user_statuses = []
+
+        gathers = remove_dups(gathers)
 
         for gather in gathers:
             names.append(gather.name)
