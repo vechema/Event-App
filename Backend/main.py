@@ -75,6 +75,7 @@ class Gather(ndb.Model):
     invite_level = ndb.StringProperty()
     picture = ndb.BlobKeyProperty()
     distance = ndb.FloatProperty()
+    pic_url = ndb.StringProperty()
 
 
 # For each squad, identified by name
@@ -186,6 +187,10 @@ class CreateGather (webapp2.RequestHandler):
         # Get the name
         gather_name = self.request.params[NAME]  # If it's post, .get(NAME) for get
 
+        #upload the image and get its URL
+        upload = self.get_uploads()[0]
+        img_url = get_serving_url(upload.key())
+
         # Make sure the name for the gather hasn't already been used
         gather_query = Gather.query(Gather.name == gather_name)
         gathers = gather_query.fetch(400)
@@ -199,6 +204,7 @@ class CreateGather (webapp2.RequestHandler):
             gather.longitude = float(self.request.params[LONGITUDE])
             gather.description = self.request.params[DESCRIPTION]
             gather.visibility = self.request.params[VISIBILITY]
+            gather.pic_url = img_url
 
             # Format start & end times
             gather.start_time = string_to_datetime(self.request.params[START_TIME])
@@ -784,6 +790,30 @@ class QueryTest(webapp2.RequestHandler):
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
 
+class mGetUploadURL(webapp2.RequestHandler):
+    def get(self):
+        upload_url = blobstore.create_upload_url('/creategather')
+        upload_url = str(upload_url)
+        dictPassed = {'upload_url':upload_url}
+        jsonObj = json.dumps(dictPassed, sort_keys=True,indent=4, separators=(',', ': '))
+        self.response.write(jsonObj)
+
+# class mUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
+#     def post(self):
+#         #upload the image and get its URL
+#         upload = self.get_uploads()[0]
+#         img_url = get_serving_url(upload.key())
+#
+#         #Retrieve the gather we are updating
+#         gatherToUpdateTitle = self.request.params[GATHER_ID]
+#         gather_key = ndb.Key(Gather, gatherToUpdateTitle)
+#         gatherToUpdate = gather_key.get()
+#
+#         #add the picture URL to the gather
+#         gatherToUpdate.pic_url = img_url
+#
+#         gatherToUpdate.put()
+
 app = webapp2.WSGIApplication([
     ('/search', Search),
     ('/creategather', CreateGather),
@@ -797,4 +827,5 @@ app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/testdatetime', DateTimeTest),
     ('/testquery', QueryTest),
+    ('/mgetUploadURL',mGetUploadURL),
     ], debug=True)

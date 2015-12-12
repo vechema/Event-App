@@ -242,27 +242,14 @@ public class ImageUpload extends ActionBarActivity {
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            //send image file path back
+                            Intent intent = new Intent();
+                            intent.putExtra("file", imageFilePath);
 
-                            // Get photo caption
-
-                            EditText text = (EditText) findViewById(R.id.upload_message);
-                            String photoCaption = text.getText().toString();
-
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-                            byte[] b = baos.toByteArray();
-                            byte[] encodedImage = Base64.encode(b, Base64.DEFAULT);
-                            String encodedImageStr = encodedImage.toString();
-
-                            double lat = Params.latitude;
-                            double lng = Params.longitude;
-                            System.out.println("**Sent a taken photo: ");
-                            System.out.println("\tlat: " + lat);
-                            System.out.println("\tlng: " + lng);
-                            System.out.println("\tname: " + streamName);
-
+                            setResult(RESULT_OK, intent);
+                            //clear imageFilePath for next time activity is called
                             imageFilePath = null;
-                            getUploadURL(b, photoCaption, lat, lng, streamName);
+                            finish();
                         }
                     }
             );

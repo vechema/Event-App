@@ -391,20 +391,49 @@ public class CreateAGather extends FragmentActivity implements
         System.out.println(endString);
 
         //Get the image from the filepath
-        final Bitmap bitmapImage = BitmapFactory.decodeFile(imageFilePath);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmapImage.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-        byte[] b = baos.toByteArray();
-        encodedImage = Base64.encode(b, Base64.DEFAULT);
-        String encodedImageStr = encodedImage.toString();
-
+        if(!imageFilePath.equals(null)) {
+            final Bitmap bitmapImage = BitmapFactory.decodeFile(imageFilePath);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+            byte[] b = baos.toByteArray();
+            encodedImage = Base64.encode(b, Base64.DEFAULT);
+            String encodedImageStr = encodedImage.toString();
+        }
 
 
         //Update all the guests that they have been invited to the gather via text message.
         //sendSMSMessage();
 
         //Send the gather data to the backend, where a gather object will be created.
-        postToServer();
+        getUploadURL();
+    }
+
+    private void getUploadURL(){
+        AsyncHttpClient httpClient = new AsyncHttpClient();
+        String request_url="http://" + Homepage.SITE + ".appspot.com/mgetUploadURL";
+        System.out.println(request_url);
+        httpClient.get(request_url, new AsyncHttpResponseHandler() {
+            String upload_url;
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
+
+                try {
+                    JSONObject jObject = new JSONObject(new String(response));
+
+                    upload_url = jObject.getString("upload_url");
+                    postToServer(upload_url);
+
+                } catch (JSONException j) {
+                    System.out.println("JSON Error");
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                Log.e("Get_serving_url", "There was a problem in retrieving the url : " + e.toString());
+            }
+        });
     }
 
     //prefixes an input number with zeros if it does not meet the required format.
@@ -491,13 +520,14 @@ public class CreateAGather extends FragmentActivity implements
 
     //Pass the Gather information to the backend
     //Step 2, input the information into the request parameters and send it to the backend.
-    private void postToServer(){
+    private void postToServer(String upload_url){
         s.o("POST TO SERVER ENTERED!!!");
         RequestParams params = new RequestParams();
 //        System.out.println("Check parameters");
 //        System.out.println(startString);
 
-        String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather";
+        //String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather";
+        params.put("file",new ByteArrayInputStream(encodedImage));
         params.put("start_time",startString);
         params.put("users_invited", allNumbersString);
         s.o(allNumbersString);
@@ -509,7 +539,7 @@ public class CreateAGather extends FragmentActivity implements
         params.put("number", User.getInstance().getNumber());
         params.put("visibility", "private");
         params.put("description", description);
-        params.put("file",new ByteArrayInputStream(encodedImage));
+
 
 //        String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather?";
 //        upload_url = upload_url + Homepage.NUMBER + "=" + User.getInstance().getNumber() +"&";
