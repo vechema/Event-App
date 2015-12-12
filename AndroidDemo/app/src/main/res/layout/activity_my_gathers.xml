@@ -22,6 +22,7 @@
         <GridView xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/gridview_gathers"
             android:layout_width="match_parent"
+            android:layout_margin="10dp"
             android:layout_height="400dp"
             android:numColumns="1"
             android:verticalSpacing="10dp"

@@ -66,19 +66,19 @@
             android:id="@+id/button_going"
             android:text="Going"
             android:onClick="selectGoing"
-            style="@style/RoundButton"
+            style="@style/StatusButton"
             android:background="@drawable/going_button"/>
         <Button
             android:id="@+id/button_interested"
             android:text="Interested"
             android:onClick="selectInterested"
-            style="@style/RoundButton"
+            style="@style/StatusButton"
             android:background="@drawable/interested_button"/>
         <Button
             android:id="@+id/button_ignore"
             android:text="Ignore"
             android:onClick="selectIgnore"
-            style="@style/RoundButton"
+            style="@style/StatusButton"
             android:background="@drawable/ignore_button"/>
     </LinearLayout>
 

@@ -149,6 +149,12 @@ class Search (webapp2.RequestHandler):
             if gather.key in user.gathers_ignored:
                 gathers.remove(gather)
 
+        # Remove gathers that the end time is already past
+        # Sooner times are < later times
+        # So if end_time < now, remove it
+        right_now = str(datetime.datetime.now())
+        gathers = [x for x in gathers if not str(x.end_time) < right_now]
+
         # Sort gathers by start time (sooner first)
         gathers = sorted(gathers, key=lambda k: k.start_time,reverse = False)
 
@@ -221,6 +227,9 @@ class CreateGather (webapp2.RequestHandler):
             owned = user.gathers_owned
             owned.append(gather.key)
             user.gathers_owned = owned
+
+            # Automatically set the owner to going
+            add_to_list(user, gather, "going")
 
             # Add the users that are invited to users_invited
             users_invited_string = self.request.params[USERS_INVITED]
@@ -368,9 +377,9 @@ class ChangeStatus (webapp2.RequestHandler):
         # Get the gather and change the list the user is on
         # Add it to new list
         add_to_list(user, gather, new_status)
-        other_stats = other_statuses(new_status)
 
         # Remove it from other list
+        other_stats = other_statuses(new_status)
         for stat in other_stats:
             remove_from_list(user, gather, stat)
 
@@ -463,6 +472,12 @@ class WhatsHappening (webapp2.RequestHandler):
             gather.put()
             gathers.append(gather)
 
+        # Remove gathers that the end time is already past
+        # Sooner times are < later times
+        # So if end_time < now, remove it
+        right_now = str(datetime.datetime.now())
+        gathers = [x for x in gathers if not str(x.end_time) < right_now]
+
         # Sort gathers by distance from current location
         gathers = sorted(gathers, key=lambda k: k.distance,reverse = False)
 
@@ -534,8 +549,17 @@ class MyGathers (webapp2.RequestHandler):
         for interested in user_interested:
             gathers.append(interested.get())
 
+        # Remove any duplicates
+        gathers = remove_dups(gathers)
+
+        # Remove gathers that the end time is already past
+        # Sooner times are < later times
+        # So if end_time < now, remove it
+        right_now = str(datetime.datetime.now())
+        gathers = [x for x in gathers if not str(x.end_time) < right_now]
+
         # Sort gathers by start time
-        gathers = sorted(gathers, key=lambda k: k.start_time, reverse=True)
+        gathers = sorted(gathers, key=lambda k: k.start_time, reverse=False)
 
         # Create arrays to pass back
         names = []
@@ -544,8 +568,6 @@ class MyGathers (webapp2.RequestHandler):
         start_times = []
         end_times = []
         user_statuses = []
-
-        gathers = remove_dups(gathers)
 
         for gather in gathers:
             names.append(gather.name)
