@@ -103,7 +103,7 @@ def identify_gather(gather_id):
 # Given a gather and a user, returns invited, ignored, interested, or going
 def find_user_status(gather, user):
     if gather.key in user.gathers_ignored:
-        return IGNORED
+        return IGNORE
     elif gather.key in user.gathers_invited:
         return INVITED
     elif gather.key in user.gathers_interested:
@@ -305,11 +305,11 @@ def set_gather_list(gather, gather_list, status):
 def add_to_list(user, gather, status):
 
     gather_list = pick_gather_list(gather, status)
-    gather_list.append(user)
+    gather_list.append(user.key)
     set_gather_list(gather, gather_list, status)
 
     user_list = pick_user_list(user, status)
-    user_list.append(gather)
+    user_list.append(gather.key)
     set_user_list(user, user_list, status)
 
 
@@ -318,13 +318,13 @@ def add_to_list(user, gather, status):
 def remove_from_list(user, gather, status):
 
     gather_list = pick_gather_list(gather, status)
-    if user in gather_list:
-        gather_list.remove(user)
+    if user.key in gather_list:
+        gather_list.remove(user.key)
     set_gather_list(gather, gather_list, status)
 
     user_list = pick_user_list(user, status)
-    if gather in user_list:
-        user_list.remove(gather)
+    if gather.key in user_list:
+        user_list.remove(gather.key)
     set_user_list(user, user_list, status)
 
 
