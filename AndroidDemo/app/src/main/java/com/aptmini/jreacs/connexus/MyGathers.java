@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -20,7 +23,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MyGathers extends ActionBarActivity {
+public class MyGathers extends BasicActivity {
     Context context = this;
 
     @Override

@@ -539,6 +539,8 @@ class MyGathers (webapp2.RequestHandler):
         end_times = []
         user_statuses = []
 
+        gathers = remove_dups(gathers)
+
         for gather in gathers:
             names.append(gather.name)
             latitudes.append(gather.latitude)
