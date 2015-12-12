@@ -16,6 +16,7 @@ import android.telephony.SmsManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
@@ -107,12 +108,14 @@ public class CreateAGather extends FragmentActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_a_gather);
+
+        //Set the default start time
         final Calendar c = Calendar.getInstance();
         startYear = c.get(Calendar.YEAR);
         startMonth = c.get(Calendar.MONTH);
         startDay = c.get(Calendar.DAY_OF_MONTH);
         startHour = c.get(Calendar.HOUR_OF_DAY);
-        startMinute = c.get(Calendar.MINUTE);
+        startMinute = 0;
         mAddressTextView = (TextView) findViewById(R.id.address);
 
         //Set stuff up for place autocomplete
@@ -264,6 +267,7 @@ public class CreateAGather extends FragmentActivity implements
     //Pick the contacts by going to the contact picker page
     public void pickContacts(View view){
         Intent intent= new Intent(this, PickContacts.class);
+        intent.putStringArrayListExtra(s.ALREADY_PICKED,numbers);
         startActivityForResult(intent, PICK_CONTACTS);
     }
 
@@ -289,15 +293,24 @@ public class CreateAGather extends FragmentActivity implements
 
     //Make the gather!
     public void makeGather(View v){
+//        Button myButton = (Button) findViewById(R.id.create_button);
+//        myButton.setEnabled(false);
+        s.o("MAKE GATHER PRESSED");
         //get number(s) input
+        int first = 0;
         for (String phoneNo : numbers) {
-            allNumbersString = allNumbersString + "+" + phoneNo;
+            if (!phoneNo.equals(User.getInstance().getNumber())) {
+                if (first == 0) {
+                    allNumbersString = phoneNo;
+                    first = 1;
+                } else {
+                    allNumbersString = allNumbersString + "+" + phoneNo;
+                }
+            }
         }
+        System.out.println("ALL NUMBERS IS: " + allNumbersString);
 
         //get address and convert it to lat/lng
-        //EditText txtAddress = (EditText) findViewById(R.id.gather_location);
-        //address = txtAddress.getText().toString();
-        //address = "403 East 35th St. Austin, TX 78705";
         System.out.println(address);
         GeoPoint gatherPoint = getLocationFromAddress(address);
         System.out.println(gatherPoint.lat);
@@ -335,15 +348,14 @@ public class CreateAGather extends FragmentActivity implements
 
         System.out.println(User.getInstance().getName());
         //Send the gather data to the backend, where a gather object will be created.
-        postToServer();
 
         //Update all the guests that they have been invited to the gather via text message.
         //sendSMSMessage();
+        postToServer();
 
-        Intent intent = new Intent(context, ViewAGather.class);
 
-        intent.putExtra(Homepage.NAME, title);
-        startActivity(intent);
+
+
     }
 
     //prefixes an input number with zeros if it does not meet the required format.
@@ -431,6 +443,7 @@ public class CreateAGather extends FragmentActivity implements
     //Pass the Gather information to the backend
     //Step 2, input the information into the request parameters and send it to the backend.
     private void postToServer(){
+        s.o("POST TO SERVER ENTERED!!!");
         RequestParams params = new RequestParams();
 //        System.out.println("Check parameters");
 //        System.out.println(startString);
@@ -438,6 +451,7 @@ public class CreateAGather extends FragmentActivity implements
         String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather";
         params.put("start_time",startString);
         params.put("users_invited", allNumbersString);
+        s.o(allNumbersString);
         params.put("end_time",endString);
         params.put("name", title);
         params.put("gatherid", title);
@@ -467,9 +481,13 @@ public class CreateAGather extends FragmentActivity implements
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] response) {
                 Log.w("async", "success!!!!");
-                System.out.println("Create_Success");
+                System.out.println("Create_Success! Andrew debugging tag");
                 Toast.makeText(context, "Gather Created Successfully!", Toast.LENGTH_SHORT).show();
 //                finish();
+                Intent intent = new Intent(context, MyGathers.class);
+
+                //intent.putExtra(Homepage.NAME, title);
+                startActivity(intent);
             }
 
             @Override

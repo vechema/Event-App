@@ -34,6 +34,9 @@ public class PickContacts extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pick_contacts);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Intent intent = getIntent();
+        numbers = intent.getStringArrayListExtra(s.ALREADY_PICKED);
+        updateNumberGrid();
     }
 
     //Go to the address book, where a contact will be picked.
@@ -90,7 +93,12 @@ public class PickContacts extends ActionBarActivity {
 
     //Add the selected number to the result arraylist
     public void addSelectedNumber(String number) {
-        numbers.add(number);
+        if(numbers.contains(number)) {
+            Toast.makeText(this, "This number has already been invited.", Toast.LENGTH_LONG).show();
+        }
+        else{
+            numbers.add(number);
+        }
     }
 
     public void updateNumberGrid(){

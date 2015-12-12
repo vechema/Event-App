@@ -29,6 +29,8 @@ import java.text.SimpleDateFormat;
 public class s {
 
     public static String location;
+    public static String ALREADY_PICKED = "already_picked";
+    public static String CANT_UNPICK = "can't unpick";
 
     public static void o(String string){
         System.out.println(string);
