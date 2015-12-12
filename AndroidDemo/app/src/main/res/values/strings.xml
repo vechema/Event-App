@@ -65,6 +65,10 @@
     <string name="title_activity_pick_contacts">PickContacts</string>
     <string name="title_activity_autocomplete_place">AutocompletePlace</string>
 
+    <string name="action_search">Search</string>
+    <string name="action_my_gathers">My Gathers</string>
+    <string name="action_my_squads">Squads</string>
+    <string name="action_whats_happening">What\'s Happening</string>
 
 
 </resources>
