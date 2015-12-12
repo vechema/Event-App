@@ -214,14 +214,14 @@ public class ViewAGather extends ActionBarActivity {
     }
 
     public void selectIgnore(View view) {
-        selectInterested(view, true);
+        selectIgnore(view, true);
     }
 
     public void selectIgnore(View view, boolean flag)
     {
         s.o("IGNORE!");
         setUpButtons();
-        selectButton(button_interested, button_ignore, button_going);
+        selectButton(button_ignore, button_interested, button_going);
         setStatus("ignore", flag);
 
     }
