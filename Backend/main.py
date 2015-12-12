@@ -148,6 +148,12 @@ class Search (webapp2.RequestHandler):
             if gather.key in user.gathers_ignored:
                 gathers.remove(gather)
 
+        # Remove gathers that the end time is already past
+        # Sooner times are < later times
+        # So if end_time < now, remove it
+        right_now = str(datetime.datetime.now())
+        gathers = [x for x in gathers if not str(x.end_time) < right_now]
+
         # Sort gathers by start time (sooner first)
         gathers = sorted(gathers, key=lambda k: k.start_time,reverse = False)
 
@@ -459,6 +465,12 @@ class WhatsHappening (webapp2.RequestHandler):
                                         gather.latitude, gather.longitude)
             gather.put()
             gathers.append(gather)
+
+        # Remove gathers that the end time is already past
+        # Sooner times are < later times
+        # So if end_time < now, remove it
+        right_now = str(datetime.datetime.now())
+        gathers = [x for x in gathers if not str(x.end_time) < right_now]
 
         # Sort gathers by distance from current location
         gathers = sorted(gathers, key=lambda k: k.distance,reverse = False)
