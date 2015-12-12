@@ -38,7 +38,7 @@ TERMS = 'terms'
 PUBLIC = 'public'
 PRIVATE = 'private'
 
-IGNORED = 'ignored'
+IGNORE = 'ignore'
 GOING = 'going'
 INVITED = 'invited'
 INTERESTED = 'interested'
@@ -246,13 +246,13 @@ class CreateGather (webapp2.RequestHandler):
 
 # Pick the user list based on the status keyword
 def pick_user_list(user, status):
-    if status == 'going':
+    if status == GOING:
         return user.gathers_going
-    elif status == 'invited':
+    elif status == INVITED:
         return user.gathers_invited
-    elif status == 'interested':
+    elif status == INTERESTED:
         return user.gathers_interested
-    elif status == 'ignored':
+    elif status == IGNORE:
         return user.gathers_ignored
     else:
         return None
@@ -260,13 +260,13 @@ def pick_user_list(user, status):
 
 # Put the user list back into the user
 def set_user_list(user, user_list, status):
-    if status == 'going':
+    if status == GOING:
         user.gathers_going = user_list
-    elif status == 'invited':
+    elif status == INVITED:
         user.gathers_invited = user_list
-    elif status == 'interested':
+    elif status == INTERESTED:
         user.gathers_interested = user_list
-    elif status == 'ignored':
+    elif status == IGNORE:
         user.gathers_ignored = user_list
     else:
         return None
@@ -274,13 +274,13 @@ def set_user_list(user, user_list, status):
 
 # Pick the user list based on the status keyword
 def pick_gather_list(gather, status):
-    if status == 'going':
+    if status == GOING:
         return gather.users_going
-    elif status == 'invited':
+    elif status == INVITED:
         return gather.users_invited
-    elif status == 'interested':
+    elif status == INTERESTED:
         return gather.users_interested
-    elif status == 'ignored':
+    elif status == IGNORE:
         return gather.users_ignored
     else:
         return None
@@ -288,13 +288,13 @@ def pick_gather_list(gather, status):
 
 # Put the user list back into the user
 def set_gather_list(gather, gather_list, status):
-    if status == 'going':
+    if status == GOING:
         gather.users_going = gather_list
-    elif status == 'invited':
+    elif status == INVITED:
         gather.users_invited = gather_list
-    elif status == 'interested':
+    elif status == INTERESTED:
         gather.users_interested = gather_list
-    elif status == 'ignored':
+    elif status == IGNORE:
         gather.users_ignored = gather_list
     else:
         return None
@@ -318,12 +318,21 @@ def add_to_list(user, gather, status):
 def remove_from_list(user, gather, status):
 
     gather_list = pick_gather_list(gather, status)
-    gather_list.remove(user)
+    if user in gather_list:
+        gather_list.remove(user)
     set_gather_list(gather, gather_list, status)
 
     user_list = pick_user_list(user, status)
-    user_list.remove(gather)
+    if gather in user_list:
+        user_list.remove(gather)
     set_user_list(user, user_list, status)
+
+
+# Gets the other three statuses when given one
+def other_statuses(status):
+    list_stats = [GOING, INVITED, INTERESTED, IGNORE]
+    list_stats.remove(status)
+    return list_stats
 
 
 # Changes a user's status with regards to a gather
@@ -336,16 +345,17 @@ class ChangeStatus (webapp2.RequestHandler):
         gather = identify_gather(self.request.get(GATHER_ID))
 
         # Get the new status
-        previous_status = self.request.get('prevstatus')
-        new_status = self.request.get('newstatus')
+        new_status = self.request.get('status')
 
         # Get the user and change the list the gather is on
         # Get the gather and change the list the user is on
         # Add it to new list
         add_to_list(user, gather, new_status)
+        other_stats = other_statuses(new_status)
 
         # Remove it from other list
-        remove_from_list(user, gather, previous_status)
+        for stat in other_stats:
+            remove_from_list(user, gather, stat)
 
         # Put the user and the gather back into the database
         user.put()
