@@ -27,6 +27,7 @@ import java.util.ArrayList;
 public class ViewAGather extends ActionBarActivity {
 
     Context context;
+    View mView;
     Button button_going;
     Button button_interested;
     Button button_ignore;
@@ -39,6 +40,7 @@ public class ViewAGather extends ActionBarActivity {
         context = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_a_gather);
+        mView = this.findViewById(android.R.id.content);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Get the name of the Gather from which this was called.
@@ -80,6 +82,32 @@ public class ViewAGather extends ActionBarActivity {
                     s.o(visibility);
                     s.o(start);
                     s.o(adStat);
+
+                    s.o("User status: "+use_status);
+                    if(use_status.equals("going"))
+                    {
+                        s.o(use_status + " picked");
+                        selectGoing(mView, false);
+                    }
+                    else if (use_status.equals("interested"))
+                    {
+                        s.o(use_status + "picked");
+                        selectInterested(mView, false);
+                    }
+                    else if (use_status.equals("ignore"))
+                    {
+                        s.o(use_status + "picked");
+                        selectIgnore(mView, false);
+                    }
+                    else if (use_status.equals("invited"))
+                    {
+                        s.o(use_status + "picked");
+
+                    }
+                    else
+                    {
+                        s.o("SOMETING WEIRD WITH USER STATUS: " + use_status);
+                    }
 
                     TextView titleTextView = (TextView) findViewById(R.id.viewg_title);
                     titleTextView.setText(name);
@@ -161,24 +189,41 @@ public class ViewAGather extends ActionBarActivity {
     }
 
     public void selectGoing(View view) {
+        selectGoing(view, true);
+    }
+
+    public void selectGoing(View view, boolean flag)
+    {
         s.o("I'm going!");
         setUpButtons();
         selectButton(button_going, button_interested, button_ignore);
-        setStatus("going");
+        setStatus("going", flag);
     }
 
     public void selectInterested(View view) {
+        selectInterested(view, true);
+    }
+
+    public void selectInterested(View view, boolean flag)
+    {
         s.o("I'm interested");
         setUpButtons();
         selectButton(button_interested, button_ignore, button_going);
-        setStatus("interested");
+        setStatus("interested", flag);
+
     }
 
     public void selectIgnore(View view) {
-        s.o("IGNORE");
+        selectInterested(view, true);
+    }
+
+    public void selectIgnore(View view, boolean flag)
+    {
+        s.o("IGNORE!");
         setUpButtons();
-        selectButton(button_ignore, button_going, button_interested);
-        setStatus("ignore");
+        selectButton(button_interested, button_ignore, button_going);
+        setStatus("ignore", flag);
+
     }
 
     public void selectButton(Button selected, Button not_selected_one, Button not_selected_two)
@@ -192,7 +237,8 @@ public class ViewAGather extends ActionBarActivity {
         not_selected_two.setActivated(true);
     }
 
-    private void setStatus(String status) {
+    private void setStatus(String status, boolean flag) {
+        final boolean fromStart = flag;
         //make async http request - gatherid
         String request_url = "http://www." + Homepage.SITE + ".appspot.com/changestatus?number="
                 + number + "&gatherid=" + gatherTitle + "&status=" + status;
@@ -204,12 +250,15 @@ public class ViewAGather extends ActionBarActivity {
             public void onSuccess(int statusCode, Header[] headers, byte[] response) {
                 s.o("successfully accessed change status backend!");
 
-                Context context = getApplicationContext();
-                CharSequence text = "Successfully set as " + status_final;
-                int duration = Toast.LENGTH_LONG;
+                if(fromStart)
+                {
+                    Context context = getApplicationContext();
+                    CharSequence text = "Successfully set as " + status_final;
+                    int duration = Toast.LENGTH_SHORT;
 
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
             }
 
             @Override
