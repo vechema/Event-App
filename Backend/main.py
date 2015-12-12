@@ -216,6 +216,9 @@ class CreateGather (webapp2.RequestHandler):
             owned.append(gather.key)
             user.gathers_owned = owned
 
+            # Automatically set the owner to going
+            add_to_list(user, gather, "going")
+
             # Add the users that are invited to users_invited
             users_invited_string = self.request.params[USERS_INVITED]
             users_invited = users_invited_string.split('+')
@@ -362,9 +365,9 @@ class ChangeStatus (webapp2.RequestHandler):
         # Get the gather and change the list the user is on
         # Add it to new list
         add_to_list(user, gather, new_status)
-        other_stats = other_statuses(new_status)
 
         # Remove it from other list
+        other_stats = other_statuses(new_status)
         for stat in other_stats:
             remove_from_list(user, gather, stat)
 

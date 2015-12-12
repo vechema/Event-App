@@ -9,10 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -57,6 +54,7 @@ public class MyGatherTextAdapter extends BaseAdapter {
         public TextView nameTxt;
         public TextView placeTxt;
         public TextView timeTxt;
+        public TextView nameAndPlaceTxt;
     }
 
     @Override
@@ -70,9 +68,14 @@ public class MyGatherTextAdapter extends BaseAdapter {
             view = new ViewHolder();
             convertView = inflator.inflate(R.layout.layout_gather_text, null);
 
-            view.nameTxt = (TextView) convertView.findViewById(R.id.gather_name);
-            view.placeTxt = (TextView) convertView.findViewById(R.id.gather_place);
+            String status = statuses.get(position);
+            convertView.setBackgroundResource(statusToColor(status));
+            //convertView.setBackgroundResource(R.drawable.grid_going);
+
+            //view.nameTxt = (TextView) convertView.findViewById(R.id.gather_name);
+            //view.placeTxt = (TextView) convertView.findViewById(R.id.gather_place);
             view.timeTxt = (TextView) convertView.findViewById(R.id.gather_time);
+            view.nameAndPlaceTxt = (TextView) convertView.findViewById(R.id.gather_space);
 
             convertView.setTag(view);
         }
@@ -81,7 +84,12 @@ public class MyGatherTextAdapter extends BaseAdapter {
             view = (ViewHolder) convertView.getTag();
         }
 
-        view.nameTxt.setText(names.get(position));
+        String nameAndPlace = "";
+
+        //Get the gather name
+        String name = names.get(position);
+        nameAndPlace += name;
+        //view.nameTxt.setText(name);
         //view.imgViewPic.setImageResource(imageURLs.get(position));
         //Picasso.with(mContext).load(imageURLs.get(position)).into(view.imgViewPic);
 
@@ -89,7 +97,8 @@ public class MyGatherTextAdapter extends BaseAdapter {
         String lat = lats.get(position);
         String lng = longs.get(position);
         String location = s.latLngtoAddr(lat, lng, mContext);
-        view.placeTxt.setText(location);
+        nameAndPlace+= " - " + location;
+        //view.placeTxt.setText(location);
         s.o("Lat: " + lat + " lng: " + lng);
         s.o("But location: " + location);
         //view.placeTxt.setText(lats.get(position)+ " " + longs.get(position));
@@ -101,6 +110,36 @@ public class MyGatherTextAdapter extends BaseAdapter {
         view.timeTxt.setText(range);
         // view.timeTxt.setText(starts.get(position) + "to" + ends.get(position));
 
+        //Set name and location
+        view.nameAndPlaceTxt.setText(nameAndPlace);
+
+
         return convertView;
+    }
+
+    public int statusToColor(String status)
+    {
+        int result = 0x00000000;
+        if(status.equals("going"))
+        {
+            //Green
+            result = R.drawable.grid_going;
+        } else if (status.equals("interested"))
+        {
+            //Yellow
+            result = R.drawable.grid_interested;
+
+        } else if (status.equals("ignore")) {
+            //Red
+            result = R.drawable.grid_ignore;
+
+        } else if (status.equals("invited")) {
+            //Blue OR nothing
+            result = R.drawable.grid_invited;
+        } else {
+            //Something wacky going on!
+            s.o("Doesn't have a normal status: " + status);
+        }
+        return result;
     }
 }

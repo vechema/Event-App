@@ -4,10 +4,11 @@
     android:id="@+id/relativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/grid_going">
 
     <TextView
-        android:text=" - "
+        android:text="Gather Info"
         android:layout_height="wrap_content"
         android:id="@+id/gather_space"
         android:layout_width="wrap_content"
@@ -16,7 +17,7 @@
         android:layout_centerHorizontal="true">
     </TextView>
 
-    <TextView
+    <!--<TextView
         android:text="Gather Title"
         android:layout_height="wrap_content"
         android:id="@+id/gather_name"
@@ -36,14 +37,14 @@
         android:layout_toRightOf="@+id/gather_space"
         android:layout_centerHorizontal="true">
 
-    </TextView>
+    </TextView>-->
 
     <TextView
         android:text="Time and Place"
         android:layout_height="wrap_content"
         android:id="@+id/gather_time"
         android:layout_width="wrap_content"
-        android:layout_below="@+id/gather_name"
+        android:layout_below="@+id/gather_space"
         android:layout_marginTop="2dp"
         android:layout_centerHorizontal="true"
         android:textSize="20sp"
