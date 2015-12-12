@@ -35,6 +35,7 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.util.Random;
 
 
@@ -68,34 +69,19 @@ public class ImageUpload extends ActionBarActivity {
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            //send image file path back
+                            Intent intent = new Intent();
+                            intent.putExtra("file", imageFilePath);
 
-                            // Get photo caption
-
-                            EditText text = (EditText) findViewById(R.id.upload_message);
-                            String photoCaption = text.getText().toString();
-
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-                            byte[] b = baos.toByteArray();
-                            byte[] encodedImage = Base64.encode(b, Base64.DEFAULT);
-                            String encodedImageStr = encodedImage.toString();
-
-                            double lat = Params.latitude;
-                            double lng = Params.longitude;
-                            System.out.println("**Sent a taken photo: ");
-                            System.out.println("\tlat: " + lat);
-                            System.out.println("\tlng: " + lng);
-                            System.out.println("\tname: " + streamName);
-
+                            setResult(RESULT_OK, intent);
+                            //clear imageFilePath for next time activity is called
                             imageFilePath = null;
-                            getUploadURL(b, photoCaption, lat, lng, streamName);
+                            finish();
                         }
                     }
             );
         }
 
-        TextView myTextView= (TextView) findViewById(R.id.stream_name_upload);
-        myTextView.setText("Stream: " + streamName);
 
         // Choose image from library
         Button chooseFromLibraryButton = (Button) findViewById(R.id.choose_from_library);
@@ -195,6 +181,8 @@ public class ImageUpload extends ActionBarActivity {
             // User had pick an image.
 
             String[] filePathColumn = {MediaStore.Images.ImageColumns.DATA};
+            s.o("ANDREW'S DEBUGGING TAG");
+            System.out.println(filePathColumn);
             Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
             cursor.moveToFirst();
 
@@ -222,23 +210,14 @@ public class ImageUpload extends ActionBarActivity {
                         @Override
                         public void onClick(View v) {
 
-                            // Get photo caption
+                            //send image file path back
+                            Intent intent = new Intent();
+                            intent.putExtra("file", imageFilePath);
 
-                            EditText text = (EditText) findViewById(R.id.upload_message);
-                            String photoCaption = text.getText().toString();
-
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-                            byte[] b = baos.toByteArray();
-                            byte[] encodedImage = Base64.encode(b, Base64.DEFAULT);
-                            String encodedImageStr = encodedImage.toString();
-
-                            float[] latlng = getLatLong(imageFilePath);
-                            float lat = latlng[0];
-                            float lng = latlng[1];
-
+                            setResult(RESULT_OK, intent);
+                            //clear imageFilePath for next time activity is called
                             imageFilePath = null;
-                            getUploadURL(b, photoCaption, lat, lng, streamName);
+                            finish();
 
                         }
                     }
