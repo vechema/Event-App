@@ -98,6 +98,7 @@ public class CreateAGather extends FragmentActivity implements
     String address;
     String startString;
     String endString;
+    String description;
     float lat;
     float lng;
     String allNumbersString;
@@ -342,6 +343,11 @@ public class CreateAGather extends FragmentActivity implements
         title = txtTitle.getText().toString();
         System.out.println(title);
 
+        //get description
+        EditText txtDescription = (EditText) findViewById(R.id.gather_description);
+        description = txtDescription.getText().toString();
+        System.out.println(description);
+
         //convert date and time to proper format
         //Date & Time format = 2015-11-18 01:34:23.360332. Manually add 0.00 for s and ms
 
@@ -352,7 +358,7 @@ public class CreateAGather extends FragmentActivity implements
         startString = appendZeros(startYear,4)+"-"+appendZeros(startDisplayMonth,2)+"-"+appendZeros(startDay,2)+" "+appendZeros(startHour,2)+":"+appendZeros(startMinute,2)+":" + "0.00";
         endString = appendZeros(endYear,4)+"-"+appendZeros(endDisplayMonth,2)+"-"+appendZeros(endDay,2)+" "+appendZeros(endHour,2)+":"+appendZeros(endMinute,2)+":" + "0.00";
 
-
+        //Check that dates are valid (not yet complete)
         SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
         try {
             Date date = format.parse(startString);
@@ -362,16 +368,14 @@ public class CreateAGather extends FragmentActivity implements
             e.printStackTrace();
         }
 
-
-
         System.out.println(startString);
         System.out.println(endString);
 
-        //System.out.println(User.getInstance().getName());
-        //Send the gather data to the backend, where a gather object will be created.
 
         //Update all the guests that they have been invited to the gather via text message.
         //sendSMSMessage();
+
+        //Send the gather data to the backend, where a gather object will be created.
         postToServer();
 
 
@@ -480,7 +484,7 @@ public class CreateAGather extends FragmentActivity implements
         params.put("longitude", lng);
         params.put("number", User.getInstance().getNumber());
         params.put("visibility", "private");
-        params.put("description", "");
+        params.put("description", description);
 
 //        String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather?";
 //        upload_url = upload_url + Homepage.NUMBER + "=" + User.getInstance().getNumber() +"&";
