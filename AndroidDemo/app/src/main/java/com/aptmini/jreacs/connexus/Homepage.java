@@ -58,6 +58,7 @@ public class Homepage extends ActionBarActivity {
     static public String USER_STATUS = "user_status";
     static public String VISIBILITY = "visibility";
     static public String PIC_URL = "pic_url";
+    static public String HAS_PIC = "has_pic";
     static public String INVITE_LEVEL = "invite_level";
     static public String USERS_INVITED = "users_invited";
     static public String SITE = "apt2015final2";

@@ -111,6 +111,7 @@ public class CreateAGather extends FragmentActivity implements
     ArrayList<String> numbers =  new ArrayList<String>();
     int PICK_CONTACTS = 1;
     int PICK_PICTURE = 2;
+    boolean has_pic;
 
 
     @Override
@@ -404,12 +405,11 @@ public class CreateAGather extends FragmentActivity implements
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmapImage.compress(Bitmap.CompressFormat.JPEG, 50, baos);
             encodedImage = baos.toByteArray();
-//            byte[] b = baos.toByteArray();
-//            encodedImage = Base64.encode(b, Base64.DEFAULT);
-//            String encodedImageStr = encodedImage.toString();
+            has_pic = true;
         }
         else{
             encodedImage = new byte[0];
+            has_pic = false;
         }
 
 
@@ -420,33 +420,7 @@ public class CreateAGather extends FragmentActivity implements
         getUploadURL();
     }
 
-    private void getUploadURL(){
-        AsyncHttpClient httpClient = new AsyncHttpClient();
-        String request_url="http://" + Homepage.SITE + ".appspot.com/mgetUploadURL";
-        System.out.println(request_url);
-        httpClient.get(request_url, new AsyncHttpResponseHandler() {
-            String upload_url;
 
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
-
-                try {
-                    JSONObject jObject = new JSONObject(new String(response));
-
-                    upload_url = jObject.getString("upload_url");
-                    postToServer(upload_url);
-
-                } catch (JSONException j) {
-                    System.out.println("JSON Error");
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
-                Log.e("Get_serving_url", "There was a problem in retrieving the url : " + e.toString());
-            }
-        });
-    }
 
     //prefixes an input number with zeros if it does not meet the required format.
     private String appendZeros(int myNum, int i) {
@@ -502,33 +476,33 @@ public class CreateAGather extends FragmentActivity implements
 
     //Pass the Gather information to the backend
     //Step 1, get the upload URL
-//    private void getUploadURL(){
-//        AsyncHttpClient httpClient = new AsyncHttpClient();
-//        String request_url="http://www.apt2015final.appspot.com/creategather";
-//        System.out.println(request_url);
-//        httpClient.get(request_url, new AsyncHttpResponseHandler() {
-//            String upload_url;
-//
-//            @Override
-//            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
-//
-//                try {
-//                    JSONObject jObject = new JSONObject(new String(response));
-//
-//                    upload_url = jObject.getString("upload_url");
-//                    postToServer(upload_url);
-//
-//                } catch (JSONException j) {
-//                    System.out.println("JSON Error");
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
-//                Log.e("Get_serving_url", "There was a problem in retrieving the url : " + e.toString());
-//            }
-//        });
-//    }
+    private void getUploadURL(){
+        AsyncHttpClient httpClient = new AsyncHttpClient();
+        String request_url="http://" + Homepage.SITE + ".appspot.com/mgetUploadURL";
+        System.out.println(request_url);
+        httpClient.get(request_url, new AsyncHttpResponseHandler() {
+            String upload_url;
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
+
+                try {
+                    JSONObject jObject = new JSONObject(new String(response));
+
+                    upload_url = jObject.getString("upload_url");
+                    postToServer(upload_url);
+
+                } catch (JSONException j) {
+                    System.out.println("JSON Error");
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                Log.e("Get_serving_url", "There was a problem in retrieving the url : " + e.toString());
+            }
+        });
+    }
 
     //Pass the Gather information to the backend
     //Step 2, input the information into the request parameters and send it to the backend.
@@ -552,6 +526,7 @@ public class CreateAGather extends FragmentActivity implements
         params.put("number", User.getInstance().getNumber());
         params.put("visibility", "private");
         params.put("description", description);
+        params.put("has_pic",has_pic);
 
 
 //        String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather?";
@@ -591,7 +566,7 @@ public class CreateAGather extends FragmentActivity implements
         });
     }
 
-    //Stuff for place autocomplete
+    //Code for place autocomplete
     private AdapterView.OnItemClickListener mAutocompleteClickListener
             = new AdapterView.OnItemClickListener() {
         @Override

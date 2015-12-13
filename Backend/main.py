@@ -33,6 +33,7 @@ VISIBILITY = 'visibility'
 INVITE_LEVEL = 'invite_level'
 USERS_INVITED = 'users_invited'
 PIC_URL = 'pic_url'
+HAS_PIC = 'has_pic'
 
 TERMS = 'terms'
 
@@ -76,6 +77,7 @@ class Gather(ndb.Model):
     invite_level = ndb.StringProperty()
     picture = ndb.BlobKeyProperty()
     distance = ndb.FloatProperty()
+    has_pic = ndb.BooleanProperty()
 
 
 # For each squad, identified by name
@@ -208,6 +210,7 @@ class CreateGather (blobstore_handlers.BlobstoreUploadHandler):
             gather.longitude = float(self.request.params[LONGITUDE])
             gather.description = self.request.params[DESCRIPTION]
             gather.visibility = self.request.params[VISIBILITY]
+            gather.has_pic = self.request.params[HAS_PIC] == "TRUE"
             gather.picture = upload.key()
 
             # Format start & end times
@@ -410,9 +413,10 @@ class ViewGather (webapp2.RequestHandler):
         description = gather.description
         visibility = gather.visibility
         invite_level = gather.invite_level
+        has_pic = gather.has_pic
 
         pic_url = ""
-        if gather.picture != None:
+        if has_pic:
             pic_url = get_serving_url(gather.picture)
 
         # Extract the more complicated variables
@@ -437,6 +441,7 @@ class ViewGather (webapp2.RequestHandler):
             VISIBILITY : visibility,
             INVITE_LEVEL : invite_level,
             PIC_URL : pic_url,
+            HAS_PIC : has_pic,
             'admin': admin,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))

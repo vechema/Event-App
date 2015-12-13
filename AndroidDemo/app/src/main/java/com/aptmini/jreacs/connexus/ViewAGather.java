@@ -75,6 +75,7 @@ public class ViewAGather extends BasicActivity {
                 final String adStat;
                 final String visibility;
                 final String pic_url;
+                final boolean has_pic;
 
 
                 try {
@@ -89,6 +90,7 @@ public class ViewAGather extends BasicActivity {
                     adStat = jObject.getString("admin");
                     visibility = jObject.getString(Homepage.VISIBILITY);
                     pic_url = jObject.getString(Homepage.PIC_URL);
+                    has_pic = jObject.getString(Homepage.HAS_PIC).equals("True");
 
                     s.o(visibility);
                     s.o(start);
@@ -142,9 +144,12 @@ public class ViewAGather extends BasicActivity {
                     placeTextView.setText(location);
                     //placeTextView.setText(lat + " " + lng);
 
-                    //add image to gather
-                    ImageView imgViewPic = (ImageView) findViewById(R.id.viewg_pic);
-                    Picasso.with(context).load(pic_url).into(imgViewPic);
+
+                    //add image to gather if it exists
+                    if(has_pic) {
+                        ImageView imgViewPic = (ImageView) findViewById(R.id.viewg_pic);
+                        Picasso.with(context).load(pic_url).into(imgViewPic);
+                    }
 
 
                     TextView descriptionTextView = (TextView) findViewById(R.id.viewg_description);
