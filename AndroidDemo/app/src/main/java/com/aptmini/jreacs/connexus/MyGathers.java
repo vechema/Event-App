@@ -3,6 +3,8 @@ package com.aptmini.jreacs.connexus;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -23,8 +25,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MyGathers extends BasicActivity {
+public class MyGathers extends BasicActivity implements SwipeRefreshLayout.OnRefreshListener{
     Context context = this;
+    SwipeRefreshLayout swipeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,17 @@ public class MyGathers extends BasicActivity {
         setContentView(R.layout.activity_my_gathers);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(this);
+        swipeLayout.setColorScheme(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
+        getGathers();
+    }
+
+    private void getGathers() {
         final String request_url = "http://www." + Homepage.SITE + ".appspot.com/mygathers?number=" + User.getInstance().getNumber();
         System.out.println(request_url);
         AsyncHttpClient httpClient = new AsyncHttpClient();
@@ -115,5 +129,11 @@ public class MyGathers extends BasicActivity {
     public void GoSearch(View view) {
         Intent intent = new Intent(context, AutocompletePlace.class);
         startActivity(intent);
+    }
+
+
+    @Override
+    public void onRefresh() {
+        getGathers();
     }
 }
