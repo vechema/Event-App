@@ -39,6 +39,7 @@ public class BasicActivity extends ActionBarActivity {
                 return true;
             case R.id.action_whats_happening:
                 s.o("Clicked whats happening");
+                whatsHappening();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -48,6 +49,12 @@ public class BasicActivity extends ActionBarActivity {
     public void myGathers()
     {
         Intent i = new Intent(this, MyGathers.class);
+        startActivity(i);
+    }
+
+    public void whatsHappening()
+    {
+        Intent i = new Intent(this, WhatsHappening.class);
         startActivity(i);
     }
 
