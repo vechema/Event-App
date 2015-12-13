@@ -138,4 +138,11 @@ public class MyGathers extends BasicActivity implements SwipeRefreshLayout.OnRef
         getGathers();
         swipeLayout.setRefreshing(false);
     }
+
+    @Override
+    public void onRestart()
+    {
+        super.onRestart();
+        onRefresh();
+    }
 }

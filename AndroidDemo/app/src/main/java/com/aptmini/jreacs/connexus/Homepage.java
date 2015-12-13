@@ -205,6 +205,17 @@ public class Homepage extends ActionBarActivity {
             });
         }
     }
+
+    @Override
+    public void onRestart()
+    {
+        super.onRestart();
+        if(User.getInstance().getName() != null)
+        {
+            Intent i = new Intent(this, MyGathers.class);
+            startActivity(i);
+        }
+    }
 }
 
 
