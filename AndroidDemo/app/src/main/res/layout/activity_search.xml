@@ -24,7 +24,7 @@
                 android:textSize="40sp"
                 android:paddingBottom = "40sp"
                 />
-            <EditText android:id="@+id/search_message"
+            <AutoCompleteTextView android:id="@+id/search_message"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/search_message" />

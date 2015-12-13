@@ -7,6 +7,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -24,16 +26,61 @@ import java.util.ArrayList;
 public class Search extends BasicActivity {
     Context context = this;
     String search_terms;
-    EditText mEdit;
+    AutoCompleteTextView mEdit;
+    String[] suggestions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getSuggestions();
+
         setContentView(R.layout.activity_search);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mEdit   = (EditText)findViewById(R.id.search_message);
+        mEdit = (AutoCompleteTextView)findViewById(R.id.search_message);
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, suggestions);
+        mEdit.setAdapter(adapter);
+
+    }
+
+    public void getSuggestions() {
+        final String request_url = "http://www." + Homepage.SITE + ".appspot.com/searchsuggest?number=" + User.getInstance().getNumber();
+        System.out.println(request_url);
+        AsyncHttpClient httpClient = new AsyncHttpClient();
+        httpClient.get(request_url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
+                s.o("success");
+                final ArrayList<String> names = new ArrayList<String>();
+                try {
+                    JSONObject jObject = new JSONObject(new String(response));
+
+                    JSONArray displayNames = jObject.getJSONArray(Homepage.NAME + "s");
+                    suggestions = new String[displayNames.length()];
+
+                    for (int i = 0; i < displayNames.length(); i++) {
+                        names.add(displayNames.getString(i));
+                        suggestions[i] = displayNames.getString(i);
+
+                        System.out.println(displayNames.getString(i));
+                    }
+
+                } catch (JSONException j) {
+                    System.out.println("JSON Error");
+                }
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                System.out.println("Failure, error code " + e.toString());
+                //Log.e(TAG, "There was a problem in retrieving the url : " + e.toString());
+            }
+        });
+
     }
 
     public void goSearch(View view)
