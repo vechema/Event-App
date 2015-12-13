@@ -230,7 +230,7 @@ class Search (webapp2.RequestHandler):
         gathers = []
         for term in query_list:
             for gather in gather_poss:
-                if gather.name == term:
+                if term in gather.name:
                     gathers.append(gather)
 
         # Remove gathers that the end time is already past
