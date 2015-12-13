@@ -100,7 +100,7 @@ public class Search extends BasicActivity {
 
     public void getResults(String terms)
     {
-        final String request_url = "http://www." + Homepage.SITE + ".appspot.com/mygathers?number=" + User.getInstance().getNumber()
+        final String request_url = "http://www." + Homepage.SITE + ".appspot.com/search?number=" + User.getInstance().getNumber()
                 + "&terms=" + terms;
         System.out.println(request_url);
         AsyncHttpClient httpClient = new AsyncHttpClient();
@@ -133,7 +133,7 @@ public class Search extends BasicActivity {
                         starts.add(displayStarts.getString(i));
                         statuses.add(displayStatuses.getString(i));
 
-                        System.out.println(displayNames.getString(i));
+                        System.out.println("Search result " + i + " :" + displayNames.getString(i));
                     }
                     GridView gridview = (GridView) findViewById(R.id.gridview_gathers);
                     //gridview.setAdapter(new ImageAdapter(context,coverURLs));
