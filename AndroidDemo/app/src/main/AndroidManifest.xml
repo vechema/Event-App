@@ -44,8 +44,9 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCyUfGL26OlXmxY6teRA-3K-RNUagUwjXI"/> <!-- Jo key -->
-            <!--android:value="AIzaSyBofZT8qKti75Arol1g1Sf22D_bSkT4rtw" --> <!-- Andrew key-->
+            android:value="AIzaSyCyUfGL26OlXmxY6teRA-3K-RNUagUwjXI" /> <!-- Jo key -->
+        <!-- android:value="AIzaSyBofZT8qKti75Arol1g1Sf22D_bSkT4rtw" -->
+        <!-- Andrew key -->
 
         <activity
             android:name=".DisplayStreams"
@@ -122,6 +123,10 @@
         <activity
             android:name=".AutocompletePlace"
             android:label="@string/title_activity_autocomplete_place" >
+        </activity>
+        <activity
+            android:name=".WhatsHappening"
+            android:label="@string/title_activity_whats_happening" >
         </activity>
     </application>
 
