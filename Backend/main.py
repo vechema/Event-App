@@ -295,7 +295,7 @@ class CreateGather (blobstore_handlers.BlobstoreUploadHandler):
             gather.longitude = float(self.request.params[LONGITUDE])
             gather.description = self.request.params[DESCRIPTION]
             gather.visibility = self.request.params[VISIBILITY]
-            gather.has_pic = self.request.params[HAS_PIC] == "TRUE"
+            gather.has_pic = self.request.params[HAS_PIC] == "true"
             gather.picture = upload.key()
 
             # Format start & end times
