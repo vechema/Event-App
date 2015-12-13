@@ -748,6 +748,23 @@ class Purge(webapp2.RequestHandler):
 class DeleteGather(webapp2.RequestHandler):
     def get(self):
         gather = identify_gather(self.request.get(GATHER_ID))
+
+        # Need to delete it from every user that has it as an event
+        user_query = User.query()
+        users = user_query.fetch(400)
+        for user in users:
+            if gather.key in user.gathers_going:
+                user.gathers_going.remove(gather.key)
+            if gather.key in user.gathers_interested:
+                user.gathers_interested.remove(gather.key)
+            if gather.key in user.gathers_owned:
+                user.gathers_owned.remove(gather.key)
+            if gather.key in user.gathers_ignored:
+                user.gathers_ignored.remove(gather.key)
+            if gather.key in user.gathers_invited:
+                user.gathers_invited.remove(gather.key)
+
+        # And finally get rid of the gather
         gather.key.delete()
 
 
