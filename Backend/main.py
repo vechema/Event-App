@@ -75,7 +75,6 @@ class Gather(ndb.Model):
     invite_level = ndb.StringProperty()
     picture = ndb.BlobKeyProperty()
     distance = ndb.FloatProperty()
-    pic_url = ndb.StringProperty()
 
 
 # For each squad, identified by name
@@ -188,14 +187,14 @@ class Search (webapp2.RequestHandler):
 
 # For when a gather is created, put the info in the database
 # SMS invites/notifications are done with Android
-class CreateGather (webapp2.RequestHandler):
+class CreateGather (blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
         # Get the name
         gather_name = self.request.params[NAME]  # If it's post, .get(NAME) for get
 
         #upload the image and get its URL
         upload = self.get_uploads()[0]
-        img_url = get_serving_url(upload.key())
+        #img_url = get_serving_url(upload.key())
 
         # Make sure the name for the gather hasn't already been used
         gather_query = Gather.query(Gather.name == gather_name)
@@ -210,7 +209,7 @@ class CreateGather (webapp2.RequestHandler):
             gather.longitude = float(self.request.params[LONGITUDE])
             gather.description = self.request.params[DESCRIPTION]
             gather.visibility = self.request.params[VISIBILITY]
-            gather.pic_url = img_url
+            gather.picture = upload.key()
 
             # Format start & end times
             gather.start_time = string_to_datetime(self.request.params[START_TIME])

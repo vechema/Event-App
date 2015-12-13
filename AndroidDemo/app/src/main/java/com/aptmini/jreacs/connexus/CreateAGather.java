@@ -380,8 +380,16 @@ public class CreateAGather extends FragmentActivity implements
         //Check that dates are valid (not yet complete)
         SimpleDateFormat  format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
         try {
-            Date date = format.parse(startString);
-            System.out.println(date);
+            Date startDate = format.parse(startString);
+            System.out.println(startDate);
+            Date endDate = format.parse(endString);
+            System.out.println(endDate);
+
+            if(startDate.after(endDate)){
+                s.o("start date after end date");
+                Toast.makeText(getApplicationContext(), "Error: start date is after end date.", Toast.LENGTH_LONG).show();
+                return;
+            }
         } catch (ParseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
