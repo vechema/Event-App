@@ -103,7 +103,7 @@ public class CreateAGather extends FragmentActivity implements
     String startString;
     String endString;
     String description;
-    String imageFilePath;
+    String imageFilePath = "";
     byte[] encodedImage;
     float lat;
     float lng;
@@ -399,7 +399,7 @@ public class CreateAGather extends FragmentActivity implements
         System.out.println(endString);
 
         //Get the image from the filepath
-        if(!imageFilePath.equals(null)) {
+        if(!imageFilePath.equals("")) {
             final Bitmap bitmapImage = BitmapFactory.decodeFile(imageFilePath);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmapImage.compress(Bitmap.CompressFormat.JPEG, 50, baos);
@@ -535,13 +535,13 @@ public class CreateAGather extends FragmentActivity implements
 //        System.out.println(startString);
 
         //String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather";
-        if(!imageFilePath.equals(null)) {
+        if(!imageFilePath.equals("")) {
             params.put("file", new ByteArrayInputStream(encodedImage));
         }
         
         params.put("start_time",startString);
         params.put("users_invited", allNumbersString);
-        s.o(allNumbersString);
+        s.o(""+allNumbersString);
         params.put("end_time", endString);
         params.put("name", title);
         params.put("gatherid", title);
