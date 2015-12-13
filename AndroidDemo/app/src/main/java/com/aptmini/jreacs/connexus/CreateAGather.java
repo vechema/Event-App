@@ -535,7 +535,10 @@ public class CreateAGather extends FragmentActivity implements
 //        System.out.println(startString);
 
         //String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather";
-        params.put("file",new ByteArrayInputStream(encodedImage));
+        if(!imageFilePath.equals(null)) {
+            params.put("file", new ByteArrayInputStream(encodedImage));
+        }
+        
         params.put("start_time",startString);
         params.put("users_invited", allNumbersString);
         s.o(allNumbersString);
