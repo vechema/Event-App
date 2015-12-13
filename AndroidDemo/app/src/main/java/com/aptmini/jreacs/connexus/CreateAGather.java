@@ -408,6 +408,9 @@ public class CreateAGather extends FragmentActivity implements
 //            encodedImage = Base64.encode(b, Base64.DEFAULT);
 //            String encodedImageStr = encodedImage.toString();
         }
+        else{
+            encodedImage = new byte[0];
+        }
 
 
         //Update all the guests that they have been invited to the gather via text message.
@@ -536,9 +539,7 @@ public class CreateAGather extends FragmentActivity implements
 //        System.out.println(startString);
 
         //String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather";
-        if(!imageFilePath.equals("")) {
-            params.put("file", new ByteArrayInputStream(encodedImage));
-        }
+        params.put("file", new ByteArrayInputStream(encodedImage));
 
         params.put("start_time",startString);
         params.put("users_invited", allNumbersString);
