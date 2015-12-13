@@ -121,16 +121,10 @@ public class MyGathers extends BasicActivity implements SwipeRefreshLayout.OnRef
         });
     }
 
-    public void CreateAGather(View view) {
+    public void createAGather(View view) {
         Intent intent = new Intent(context, CreateAGather.class);
         startActivity(intent);
     }
-
-    public void GoSearch(View view) {
-        Intent intent = new Intent(context, AutocompletePlace.class);
-        startActivity(intent);
-    }
-
 
     @Override
     public void onRefresh() {
