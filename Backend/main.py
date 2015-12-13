@@ -174,6 +174,12 @@ def my_gathers_public(user):
     return gathers
 
 
+# Filters gathers that have already happend out
+def filter_past_gathers(gathers):
+    right_now = str(datetime.datetime.now() - datetime.timedelta(hours = 6))
+    gathers = [x for x in gathers if not str(x.end_time) < right_now]
+    return gathers
+
 # Search suggestions based on the person
 class SearchSuggest(webapp2.RequestHandler):
     def get(self):
@@ -187,8 +193,7 @@ class SearchSuggest(webapp2.RequestHandler):
         # Remove gathers that the end time is already past
         # Sooner times are < later times
         # So if end_time < now, remove it
-        right_now = str(datetime.datetime.now())
-        gathers = [x for x in gathers if not str(x.end_time) < right_now]
+        gathers = filter_past_gathers(gathers)
 
         # Sort gathers by start time (sooner first)
         gathers = sorted(gathers, key=lambda k: k.start_time,reverse = False)
@@ -231,8 +236,7 @@ class Search (webapp2.RequestHandler):
         # Remove gathers that the end time is already past
         # Sooner times are < later times
         # So if end_time < now, remove it
-        right_now = str(datetime.datetime.now())
-        gathers = [x for x in gathers if not str(x.end_time) < right_now]
+        gathers = filter_past_gathers(gathers)
 
         # Sort gathers by start time (sooner first)
         gathers = sorted(gathers, key=lambda k: k.start_time,reverse = False)
@@ -542,7 +546,7 @@ class WhatsHappening (webapp2.RequestHandler):
 
         # Select ones that the start time < now & end time > now
         #
-        right_now = str(datetime.datetime.now())
+        right_now = str(datetime.datetime.now() - datetime.timedelta(hours = 6))
         gather_list = [x for x in gather_list if str(x.start_time) < right_now < str(x.end_time) ]
 
         gathers = []
@@ -616,8 +620,7 @@ class MyGathers (webapp2.RequestHandler):
         # Remove gathers that the end time is already past
         # Sooner times are < later times
         # So if end_time < now, remove it
-        right_now = str(datetime.datetime.now())
-        gathers = [x for x in gathers if not str(x.end_time) < right_now]
+        gathers = filter_past_gathers(gathers)
 
         # Sort gathers by start time
         gathers = sorted(gathers, key=lambda k: k.start_time, reverse=False)
