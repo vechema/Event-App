@@ -56,6 +56,9 @@
         android:textSize="25sp"
         >
     </TextView>
+    <Button
+        style="@style/StatusButton"
+        android:layout_alignParentRight="true" />
 
     <LinearLayout
         android:id="@+id/InnerRelativeLayout"
