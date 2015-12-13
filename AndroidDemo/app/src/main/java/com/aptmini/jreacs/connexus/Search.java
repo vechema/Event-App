@@ -40,10 +40,6 @@ public class Search extends BasicActivity {
 
         mEdit = (AutoCompleteTextView)findViewById(R.id.search_message);
 
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, suggestions);
-        mEdit.setAdapter(adapter);
-
     }
 
     public void getSuggestions() {
@@ -66,6 +62,13 @@ public class Search extends BasicActivity {
                         suggestions[i] = displayNames.getString(i);
 
                         System.out.println(displayNames.getString(i));
+                    }
+
+                    if(suggestions.length > 0)
+                    {
+                        ArrayAdapter<String> adapter =
+                                new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, suggestions);
+                        mEdit.setAdapter(adapter);
                     }
 
                 } catch (JSONException j) {

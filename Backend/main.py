@@ -103,10 +103,11 @@ def identify_gather(gather_id):
     return gather_key.get()
 
 
-# Removes the duplicates in a list
+# Removes the duplicates in a list and None
 def remove_dups(sequence):
     unique = []
     [unique.append(item) for item in sequence if item not in unique]
+    unique = [x for x in unique if x is not None]
     return unique
 
 
@@ -127,6 +128,52 @@ def string_to_datetime(string_date):
     return datetime.datetime.strptime(string_date, PARSE_PATTERN)
 
 
+def my_gathers(user):
+    # Get all the gathers the person is apart of, no need for ignored here
+    # Aggregate them all into one list
+    gathers = []
+    # Owned
+    user_owned = user.gathers_owned
+    for owned in user_owned:
+        gathers.append(owned.get())
+    # Going
+    user_going = user.gathers_going
+    for going in user_going:
+        gathers.append(going.get())
+    # Invited
+    user_invited = user.gathers_invited
+    for invited in user_invited:
+        gathers.append(invited.get())
+    # Interested
+    user_interested = user.gathers_interested
+    for interested in user_interested:
+        gathers.append(interested.get())
+
+    gathers = remove_dups(gathers)
+
+    return gathers
+
+
+def my_gathers_public(user):
+    gathers = my_gathers(user)
+
+    # Now add the public gathers
+    gather_query = Gather.query()
+    gather_query = gather_query.filter(Gather.visibility == PUBLIC)
+
+    gathers_from_query = gather_query.fetch()
+
+    for gather in gathers_from_query:
+        gathers.append(gather)
+
+    #Then remove the gathers that are ignored
+    gathers = [x for x in gathers if x.key not in user.gathers_ignored]
+
+    gathers = remove_dups(gathers)
+
+    return gathers
+
+
 # Search suggestions based on the person
 class SearchSuggest(webapp2.RequestHandler):
     def get(self):
@@ -134,15 +181,8 @@ class SearchSuggest(webapp2.RequestHandler):
         # Identify the user
         user = identify_user(self.request.get(NUMBER))
 
-        # Get all the gathers
-        gather_query = Gather.query()
-
-        # 1) Gathers that are public OR they are invited to
-        gather_query = gather_query.filter(ndb.OR(Gather.visibility == PUBLIC, Gather.key.IN(user.gathers_invited)))
-        # 2) Gathers that aren't ignored
-        # gather_query = gather_query.filter(Gather.key not in user.gathers_ignored)  # I wish
-        gathers = gather_query.fetch()
-        gathers = [x for x in gathers if x.key not in user.gathers_ignored]
+        # Get the gathers that are public + personal - ignored
+        gathers = my_gathers_public(user)
 
         # Remove gathers that the end time is already past
         # Sooner times are < later times
@@ -165,6 +205,7 @@ class SearchSuggest(webapp2.RequestHandler):
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
 
+
 # viewagather by viewagather terms
 class Search (webapp2.RequestHandler):
     def get(self):
@@ -174,18 +215,18 @@ class Search (webapp2.RequestHandler):
         # Identify the user
         user = identify_user(self.request.get(NUMBER))
 
-        # Search appropriately for gathers by name in this order
+        # Get the list of terms
         query_list = terms.replace(',', '').split(" ")
-        gather_query = Gather.query()
-        for query in query_list:
-            if query != '':
-                gather_query = gather_query.filter(Gather.name == query)
-        # 1) Gathers that are public OR they are invited to
-        gather_query = gather_query.filter(ndb.OR(Gather.visibility == PUBLIC, Gather.key.IN(user.gathers_invited)))
-        # 2) Gathers that aren't ignored
-        # gather_query = gather_query.filter(Gather.key not in user.gathers_ignored)  # I wish
-        gathers = gather_query.fetch()
-        gathers = [x for x in gathers if x.key not in user.gathers_ignored]
+
+        # Get the gathers that are public + personal - ignored
+        gather_poss = my_gathers_public(user)
+
+        # Select for only the gathers that have a name as one of the terms
+        gathers = []
+        for term in query_list:
+            for gather in gather_poss:
+                if gather.name == term:
+                    gathers.append(gather)
 
         # Remove gathers that the end time is already past
         # Sooner times are < later times
@@ -496,17 +537,13 @@ class WhatsHappening (webapp2.RequestHandler):
         current_latitude = self.request.get(LATITUDE)
         current_longitude = self.request.get(LONGITUDE)
 
-        # Get all the gathers that have, filtered in this order
-        gather_query = Gather.query()
-        #  1) already started but not ended, time NOW > time 4 seconds ago: start < now < end
-        now = datetime.datetime.now()
-        gather_query = gather_query.filter(ndb.AND(Gather.start_time < now, Gather.end_time > now))
-        #  2) public OR the user is invited
-        gather_query = gather_query.filter(ndb.OR(Gather.visibility == PUBLIC, Gather.key.IN(user.gathers_invited)))
-        #  3) are not ignored
-        # gather_query = gather_query.filter(Gather.key not in user.gathers_ignored)  # I wish
-        gather_list = gather_query.fetch()
-        gather_list = [x for x in gather_list if x.key not in user.gathers_ignored]
+        # Get the gathers that are public + personal - ignored
+        gather_list = my_gathers_public(user)
+
+        # Select ones that the start time < now & end time > now
+        #
+        right_now = str(datetime.datetime.now())
+        gather_list = [x for x in gather_list if str(x.start_time) < right_now < str(x.end_time) ]
 
         gathers = []
         # Give each gather a distance value
@@ -516,12 +553,6 @@ class WhatsHappening (webapp2.RequestHandler):
             gather.put()
             gathers.append(gather)
 
-        # Remove gathers that the end time is already past
-        # Sooner times are < later times
-        # So if end_time < now, remove it
-        right_now = str(datetime.datetime.now())
-        gathers = [x for x in gathers if not str(x.end_time) < right_now]
-
         # Sort gathers by distance from current location
         gathers = sorted(gathers, key=lambda k: k.distance,reverse = False)
 
@@ -529,6 +560,7 @@ class WhatsHappening (webapp2.RequestHandler):
         names = []
         latitudes = []
         longitudes = []
+        start_times = []
         end_times = []
         user_statuses = []
 
@@ -536,6 +568,7 @@ class WhatsHappening (webapp2.RequestHandler):
             names.append(gather.name)
             latitudes.append(gather.latitude)
             longitudes.append(gather.longitude)
+            start_times.append(str(gather.start_time))
             end_times.append(str(gather.end_time))
             user_statuses.append(find_user_status(gather, user))
 
@@ -543,6 +576,7 @@ class WhatsHappening (webapp2.RequestHandler):
             NAME+'s': names,
             LATITUDE+'s': latitudes,
             LONGITUDE+'s': longitudes,
+            START_TIME+'s': start_times,
             END_TIME+'s': end_times,
             USER_STATUS+'es': user_statuses,
         }
@@ -574,26 +608,9 @@ class MyGathers (webapp2.RequestHandler):
         user = identify_user(self.request.get(NUMBER))
 
         # Get all the gathers the person is apart of, no need for ignored here
-        # Aggregate them all into one list
-        gathers = []
-        # Owned
-        user_owned = user.gathers_owned
-        for owned in user_owned:
-            gathers.append(owned.get())
-        # Going
-        user_going = user.gathers_going
-        for going in user_going:
-            gathers.append(going.get())
-        # Invited
-        user_invited = user.gathers_invited
-        for invited in user_invited:
-            gathers.append(invited.get())
-        # Interested
-        user_interested = user.gathers_interested
-        for interested in user_interested:
-            gathers.append(interested.get())
+        gathers = my_gathers(user)
 
-        # Remove any duplicates
+        # Remove any duplicates or nones
         gathers = remove_dups(gathers)
 
         # Remove gathers that the end time is already past
