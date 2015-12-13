@@ -28,6 +28,7 @@ public class BasicActivity extends ActionBarActivity {
         switch (item.getItemId()) {
             case R.id.action_search:
                 s.o("Clicked search");
+                search();
                 return true;
             case R.id.action_my_gathers:
                 myGathers();
@@ -47,6 +48,12 @@ public class BasicActivity extends ActionBarActivity {
     public void myGathers()
     {
         Intent i = new Intent(this, MyGathers.class);
+        startActivity(i);
+    }
+
+    public void search()
+    {
+        Intent i = new Intent(this, Search.class);
         startActivity(i);
     }
 }
