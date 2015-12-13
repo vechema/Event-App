@@ -83,6 +83,9 @@ public class ViewAGather extends BasicActivity {
                     s.o(start);
                     s.o(adStat);
 
+                    //Make the delete button show up
+                    boolean isAdmin = Boolean.parseBoolean(adStat);
+
                     s.o("User status: "+use_status);
                     if(use_status.equals("going"))
                     {
