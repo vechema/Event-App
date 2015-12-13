@@ -228,7 +228,7 @@ public class Homepage extends ActionBarActivity {
         s.o(result);
         if (result == null)
         {
-            result = "7137756016";
+            result = Installation.id(this);
         }
         return result;
     }
