@@ -176,9 +176,10 @@ def my_gathers_public(user):
 
 # Filters gathers that have already happend out
 def filter_past_gathers(gathers):
-    right_now = str(datetime.datetime.now() - datetime.timedelta(hours = 6))
+    right_now = str(datetime.datetime.now() - datetime.timedelta(hours=6))
     gathers = [x for x in gathers if not str(x.end_time) < right_now]
     return gathers
+
 
 # Search suggestions based on the person
 class SearchSuggest(webapp2.RequestHandler):
@@ -196,7 +197,7 @@ class SearchSuggest(webapp2.RequestHandler):
         gathers = filter_past_gathers(gathers)
 
         # Sort gathers by start time (sooner first)
-        gathers = sorted(gathers, key=lambda k: k.start_time,reverse = False)
+        gathers = sorted(gathers, key=lambda k: k.start_time, reverse=False)
 
         # Create arrays to pass back
         names = []
@@ -240,7 +241,7 @@ class Search (webapp2.RequestHandler):
         gathers = filter_past_gathers(gathers)
 
         # Sort gathers by start time (sooner first)
-        gathers = sorted(gathers, key=lambda k: k.start_time,reverse = False)
+        gathers = sorted(gathers, key=lambda k: k.start_time, reverse=False)
 
         # Create arrays to pass back
         names = []
@@ -522,10 +523,10 @@ class ViewGather (webapp2.RequestHandler):
             END_TIME: end_time,
             USER_STATUS: user_status,
             DESCRIPTION: description,
-            VISIBILITY : visibility,
-            INVITE_LEVEL : invite_level,
-            PIC_URL : pic_url,
-            HAS_PIC : has_pic,
+            VISIBILITY: visibility,
+            INVITE_LEVEL: invite_level,
+            PIC_URL: pic_url,
+            HAS_PIC: has_pic,
             'admin': admin,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
@@ -547,8 +548,8 @@ class WhatsHappening (webapp2.RequestHandler):
 
         # Select ones that the start time < now & end time > now
         #
-        right_now = str(datetime.datetime.now() - datetime.timedelta(hours = 6))
-        gather_list = [x for x in gather_list if str(x.start_time) < right_now < str(x.end_time) ]
+        right_now = str(datetime.datetime.now() - datetime.timedelta(hours=6))
+        gather_list = [x for x in gather_list if str(x.start_time) < right_now < str(x.end_time)]
 
         gathers = []
         # Give each gather a distance value
@@ -559,7 +560,7 @@ class WhatsHappening (webapp2.RequestHandler):
             gathers.append(gather)
 
         # Sort gathers by distance from current location
-        gathers = sorted(gathers, key=lambda k: k.distance,reverse = False)
+        gathers = sorted(gathers, key=lambda k: k.distance, reverse=False)
 
         # Make arrays to pass back
         names = []
@@ -797,7 +798,7 @@ class Purge(webapp2.RequestHandler):
             # self.response.out.write('Error is: ' + repr(e) + '\n')
             pass
 
-        dict_passed ={
+        dict_passed = {
             'blob_message': blob_message,
             'user_message': user_message,
             'gather_message': gather_message,
@@ -898,13 +899,14 @@ class QueryTest(webapp2.RequestHandler):
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
 
+
 class mGetUploadURL(webapp2.RequestHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/creategather')
         upload_url = str(upload_url)
-        dictPassed = {'upload_url':upload_url}
-        jsonObj = json.dumps(dictPassed, sort_keys=True,indent=4, separators=(',', ': '))
-        self.response.write(jsonObj)
+        dict_passed = {'upload_url': upload_url}
+        json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
+        self.response.write(json_obj)
 
 # class mUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 #     def post(self):
