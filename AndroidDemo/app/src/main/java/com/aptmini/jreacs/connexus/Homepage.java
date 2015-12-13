@@ -226,6 +226,10 @@ public class Homepage extends ActionBarActivity {
         TelephonyManager tMgr =(TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
         result = tMgr.getLine1Number();
         s.o(result);
+        if (result == null)
+        {
+            result = "7137756016";
+        }
         return result;
     }
 
