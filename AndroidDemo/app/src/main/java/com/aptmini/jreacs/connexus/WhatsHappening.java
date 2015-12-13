@@ -39,6 +39,7 @@ public class WhatsHappening extends BasicActivity implements SwipeRefreshLayout.
     public void onConnected(Bundle connectionHint) {
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
+        getGathers();
 
     }
 
@@ -60,7 +61,7 @@ public class WhatsHappening extends BasicActivity implements SwipeRefreshLayout.
                     .build();
         }
 
-        setContentView(R.layout.activity_my_gathers);
+        setContentView(R.layout.activity_whats_happening);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
@@ -70,7 +71,7 @@ public class WhatsHappening extends BasicActivity implements SwipeRefreshLayout.
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
 
-        getGathers();
+
     }
 
     private void getGathers() {
