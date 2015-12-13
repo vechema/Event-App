@@ -620,6 +620,8 @@ class MyGathers (webapp2.RequestHandler):
         # Remove gathers that the end time is already past
         # Sooner times are < later times
         # So if end_time < now, remove it
+        # gathers = filter_past_gathers(gathers)
+
         gathers = filter_past_gathers(gathers)
 
         # Sort gathers by start time
@@ -812,16 +814,12 @@ class DeleteGather(webapp2.RequestHandler):
         user_query = User.query()
         users = user_query.fetch(400)
         for user in users:
-            if gather.key in user.gathers_going:
-                user.gathers_going.remove(gather.key)
-            if gather.key in user.gathers_interested:
-                user.gathers_interested.remove(gather.key)
-            if gather.key in user.gathers_owned:
-                user.gathers_owned.remove(gather.key)
-            if gather.key in user.gathers_ignored:
-                user.gathers_ignored.remove(gather.key)
-            if gather.key in user.gathers_invited:
-                user.gathers_invited.remove(gather.key)
+            user.gathers_going = [x for x in user.gathers_going if x != gather.key]
+            user.gathers_interested = [x for x in user.gathers_interested if x != gather.key]
+            user.gathers_invited = [x for x in user.gathers_invited if x != gather.key]
+            user.gathers_owned = [x for x in user.gathers_owned if x != gather.key]
+            user.gathers_ignored = [x for x in user.gathers_ignored if x != gather.key]
+            user.put()
 
         # And finally get rid of the gather
         gather.key.delete()
