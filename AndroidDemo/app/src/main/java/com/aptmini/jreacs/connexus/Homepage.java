@@ -23,6 +23,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -98,7 +99,7 @@ public class Homepage extends ActionBarActivity {
         s.o("Debugging start; Hey it works!");
 
         //Get number of user
-        String number = "7137756016";
+        String number = getNumber();
 
         //Set the user singleton's number
         User.getInstance().setNumber(number);
@@ -218,4 +219,18 @@ public class Homepage extends ActionBarActivity {
             startActivity(i);
         }
     }
+
+    public String getNumber()
+    {
+        String result = "";
+        TelephonyManager tMgr =(TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
+        result = tMgr.getLine1Number();
+        s.o(result);
+        if (result == null)
+        {
+            result = Installation.id(this);
+        }
+        return result;
+    }
+
 }
