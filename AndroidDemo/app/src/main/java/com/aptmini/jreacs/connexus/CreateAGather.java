@@ -403,9 +403,10 @@ public class CreateAGather extends FragmentActivity implements
             final Bitmap bitmapImage = BitmapFactory.decodeFile(imageFilePath);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmapImage.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-            byte[] b = baos.toByteArray();
-            encodedImage = Base64.encode(b, Base64.DEFAULT);
-            String encodedImageStr = encodedImage.toString();
+            encodedImage = baos.toByteArray();
+//            byte[] b = baos.toByteArray();
+//            encodedImage = Base64.encode(b, Base64.DEFAULT);
+//            String encodedImageStr = encodedImage.toString();
         }
 
 
@@ -538,7 +539,7 @@ public class CreateAGather extends FragmentActivity implements
         if(!imageFilePath.equals(null)) {
             params.put("file", new ByteArrayInputStream(encodedImage));
         }
-        
+
         params.put("start_time",startString);
         params.put("users_invited", allNumbersString);
         s.o(allNumbersString);
