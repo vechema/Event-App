@@ -412,7 +412,10 @@ class ViewGather (webapp2.RequestHandler):
         description = gather.description
         visibility = gather.visibility
         invite_level = gather.invite_level
-        pic_url = get_serving_url(gather.picture)
+
+        pic_url = ""
+        if gather.picture != None:
+            pic_url = get_serving_url(gather.picture)
 
         # Extract the more complicated variables
         # If the current user is an admin
