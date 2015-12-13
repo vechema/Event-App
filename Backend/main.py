@@ -32,6 +32,7 @@ USER_STATUS = 'user_status'
 VISIBILITY = 'visibility'
 INVITE_LEVEL = 'invite_level'
 USERS_INVITED = 'users_invited'
+PIC_URL = 'pic_url'
 
 TERMS = 'terms'
 
@@ -124,7 +125,7 @@ def string_to_datetime(string_date):
     return datetime.datetime.strptime(string_date, PARSE_PATTERN)
 
 
-# Search by search terms
+# viewagather by viewagather terms
 class Search (webapp2.RequestHandler):
     def get(self):
         # Get the search terms
@@ -411,6 +412,7 @@ class ViewGather (webapp2.RequestHandler):
         description = gather.description
         visibility = gather.visibility
         invite_level = gather.invite_level
+        pic_url = get_serving_url(gather.picture)
 
         # Extract the more complicated variables
         # If the current user is an admin
@@ -433,6 +435,7 @@ class ViewGather (webapp2.RequestHandler):
             DESCRIPTION: description,
             VISIBILITY : visibility,
             INVITE_LEVEL : invite_level,
+            PIC_URL : pic_url,
             'admin': admin,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
