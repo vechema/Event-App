@@ -47,6 +47,13 @@
         >
     </TextView>
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/viewg_pic"
+        android:layout_below="@+id/viewg_hosts"
+        />
+
     <TextView
         android:text="Description"
         android:layout_height="wrap_content"

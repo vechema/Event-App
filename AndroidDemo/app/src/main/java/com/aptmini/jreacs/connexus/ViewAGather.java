@@ -12,11 +12,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
 import org.json.JSONException;
@@ -65,6 +67,7 @@ public class ViewAGather extends BasicActivity {
                 final String use_status;
                 final String adStat;
                 final String visibility;
+                final String pic_url;
 
 
                 try {
@@ -78,6 +81,7 @@ public class ViewAGather extends BasicActivity {
                     use_status = jObject.getString(Homepage.USER_STATUS);
                     adStat = jObject.getString("admin");
                     visibility = jObject.getString(Homepage.VISIBILITY);
+                    pic_url = jObject.getString(Homepage.PIC_URL);
 
                     s.o(visibility);
                     s.o(start);
@@ -124,6 +128,11 @@ public class ViewAGather extends BasicActivity {
                     String location = s.latLngtoAddr(lat, lng, context);
                     placeTextView.setText(location);
                     //placeTextView.setText(lat + " " + lng);
+
+                    //add image to gather
+                    ImageView imgViewPic = (ImageView) findViewById(R.id.viewg_pic);
+                    Picasso.with(context).load(pic_url).into(imgViewPic);
+
 
                     TextView descriptionTextView = (TextView) findViewById(R.id.viewg_description);
                     descriptionTextView.setText("Description: " + description);
