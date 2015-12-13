@@ -12,14 +12,10 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBarActivity;
 import android.telephony.SmsManager;
 import android.text.format.DateFormat;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
@@ -41,28 +37,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-
-import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 
-import android.os.Bundle;
 //import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
-import android.util.Log;
-import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -82,8 +66,8 @@ public class CreateAGather extends FragmentActivity implements
     private AutoCompleteTextView mAutocompleteTextView;
     private GoogleApiClient mGoogleApiClient;
     private PlaceArrayAdapter mPlaceArrayAdapter;
-    private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(
-            new LatLng(37.398160, -122.180831), new LatLng(37.430610, -121.972090));
+    private static final LatLngBounds BOUNDS_AUSTIN_TX = new LatLngBounds(
+            new LatLng(30.256151, -97.782698), new LatLng(30.298994, -97.703218));
     private TextView mAddressTextView;
 
     //Declare the variables for the gather
@@ -124,7 +108,7 @@ public class CreateAGather extends FragmentActivity implements
         startYear = c.get(Calendar.YEAR);
         startMonth = c.get(Calendar.MONTH);
         startDay = c.get(Calendar.DAY_OF_MONTH);
-        startHour = c.get(Calendar.HOUR_OF_DAY) + 1;
+        startHour = (c.get(Calendar.HOUR_OF_DAY) + 1) % 24;
         startMinute = 0;
         mAddressTextView = (TextView) findViewById(R.id.address);
 
@@ -136,7 +120,7 @@ public class CreateAGather extends FragmentActivity implements
         endYear = c.get(Calendar.YEAR);
         endMonth = c.get(Calendar.MONTH);
         endDay = c.get(Calendar.DAY_OF_MONTH);
-        endHour = c.get(Calendar.HOUR_OF_DAY) + 2;
+        endHour = (c.get(Calendar.HOUR_OF_DAY) + 2) % 24;
         endMinute = 0;
 
         //display the default end time
@@ -155,7 +139,7 @@ public class CreateAGather extends FragmentActivity implements
         mAutocompleteTextView.setThreshold(3);
         mAutocompleteTextView.setOnItemClickListener(mAutocompleteClickListener);
         mPlaceArrayAdapter = new PlaceArrayAdapter(this, android.R.layout.simple_list_item_1,
-                BOUNDS_MOUNTAIN_VIEW, null);
+                BOUNDS_AUSTIN_TX, null);
         mAutocompleteTextView.setAdapter(mPlaceArrayAdapter);
     }
 

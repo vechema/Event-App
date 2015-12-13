@@ -161,13 +161,13 @@ def my_gathers_public(user):
     gather_query = Gather.query()
     gather_query = gather_query.filter(Gather.visibility == PUBLIC)
 
-    gathers_from_query = gather_query.fetch()
+    public_gathers = gather_query.fetch()
 
-    for gather in gathers_from_query:
+    # Then remove the public gathers that are ignored
+    public_gathers = [x for x in public_gathers if x.key not in user.gathers_ignored]
+
+    for gather in public_gathers:
         gathers.append(gather)
-
-    #Then remove the gathers that are ignored
-    gathers = [x for x in gathers if x.key not in user.gathers_ignored]
 
     gathers = remove_dups(gathers)
 
