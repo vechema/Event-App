@@ -511,7 +511,7 @@ public class CreateAGather extends FragmentActivity implements
         params.put("number", User.getInstance().getNumber());
         params.put("visibility", "private");
         params.put("description", description);
-        params.put("has_pic",has_pic);
+        params.put("has_pic",String.valueOf(has_pic));
 
 
 //        String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather?";
