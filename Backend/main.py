@@ -745,6 +745,12 @@ class Purge(webapp2.RequestHandler):
         self.response.write(json_obj)
 
 
+class DeleteGather(webapp2.RequestHandler):
+    def get(self):
+        gather = identify_gather(self.request.get(GATHER_ID))
+        gather.key.delete()
+
+
 class MainPage(webapp2.RequestHandler):
     def get(self):
         self.response.headers['Content-Type'] = 'text/plain'
@@ -851,6 +857,7 @@ app = webapp2.WSGIApplication([
     ('/login', Login),
     ('/signup', SignUp),
     ('/purge', Purge),
+    ('/deletegather', DeleteGather),
     ('/', MainPage),
     ('/testdatetime', DateTimeTest),
     ('/testquery', QueryTest),

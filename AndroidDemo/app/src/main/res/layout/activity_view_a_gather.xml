@@ -64,8 +64,13 @@
         >
     </TextView>
     <Button
-        style="@style/StatusButton"
-        android:layout_alignParentRight="true" />
+        android:id="@+id/button_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete"
+        android:onClick="deleteButton"
+        android:visibility="gone"
+        android:layout_below="@+id/viewg_description"/>
 
     <LinearLayout
         android:id="@+id/InnerRelativeLayout"
