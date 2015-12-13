@@ -145,9 +145,7 @@ class Search (webapp2.RequestHandler):
         # 2) Gathers that aren't ignored
         # gather_query = gather_query.filter(Gather.key not in user.gathers_ignored)  # I wish
         gathers = gather_query.fetch()
-        for gather in gathers:
-            if gather.key in user.gathers_ignored:
-                gathers.remove(gather)
+        gathers = [x for x in gathers if x.key not in user.gathers_ignored]
 
         # Remove gathers that the end time is already past
         # Sooner times are < later times
@@ -465,9 +463,7 @@ class WhatsHappening (webapp2.RequestHandler):
         #  3) are not ignored
         # gather_query = gather_query.filter(Gather.key not in user.gathers_ignored)  # I wish
         gather_list = gather_query.fetch()
-        for gather in gather_list:
-            if gather.key in user.gathers_ignored:
-                gather_list.remove(gather)
+        gather_list = [x for x in gather_list if x.key not in user.gathers_ignored]
 
         gathers = []
         # Give each gather a distance value
