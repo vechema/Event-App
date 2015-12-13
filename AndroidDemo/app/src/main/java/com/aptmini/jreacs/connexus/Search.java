@@ -40,10 +40,6 @@ public class Search extends BasicActivity {
 
         mEdit = (AutoCompleteTextView)findViewById(R.id.search_message);
 
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, suggestions);
-        mEdit.setAdapter(adapter);
-
     }
 
     public void getSuggestions() {
@@ -66,6 +62,13 @@ public class Search extends BasicActivity {
                         suggestions[i] = displayNames.getString(i);
 
                         System.out.println(displayNames.getString(i));
+                    }
+
+                    if(suggestions.length > 0)
+                    {
+                        ArrayAdapter<String> adapter =
+                                new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, suggestions);
+                        mEdit.setAdapter(adapter);
                     }
 
                 } catch (JSONException j) {
@@ -97,7 +100,7 @@ public class Search extends BasicActivity {
 
     public void getResults(String terms)
     {
-        final String request_url = "http://www." + Homepage.SITE + ".appspot.com/mygathers?number=" + User.getInstance().getNumber()
+        final String request_url = "http://www." + Homepage.SITE + ".appspot.com/search?number=" + User.getInstance().getNumber()
                 + "&terms=" + terms;
         System.out.println(request_url);
         AsyncHttpClient httpClient = new AsyncHttpClient();
@@ -130,7 +133,7 @@ public class Search extends BasicActivity {
                         starts.add(displayStarts.getString(i));
                         statuses.add(displayStatuses.getString(i));
 
-                        System.out.println(displayNames.getString(i));
+                        System.out.println("Search result " + i + " :" + displayNames.getString(i));
                     }
                     GridView gridview = (GridView) findViewById(R.id.gridview_gathers);
                     //gridview.setAdapter(new ImageAdapter(context,coverURLs));
