@@ -1,6 +1,9 @@
 package com.aptmini.jreacs.connexus;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,6 +34,7 @@ public class ViewAGather extends BasicActivity {
     Button button_going;
     Button button_interested;
     Button button_ignore;
+    Button button_delete;
 
     String number;
     String gatherTitle;
@@ -46,6 +50,9 @@ public class ViewAGather extends BasicActivity {
         //Get the name of the Gather from which this was called.
         Intent intent = getIntent();
         String gatherTitle = intent.getStringExtra(Homepage.NAME);
+
+        //Grab the delete button
+        button_delete = (Button) findViewById(R.id.button_delete);
 
         this.number = User.getInstance().getNumber();
         this.gatherTitle = gatherTitle;
@@ -85,6 +92,12 @@ public class ViewAGather extends BasicActivity {
 
                     //Make the delete button show up
                     boolean isAdmin = Boolean.parseBoolean(adStat);
+                    if (isAdmin)
+                    {
+                        s.o("YOU ARE THE FATHER/ADMIN");
+                        //make button visible
+                        button_delete.setVisibility(View.VISIBLE);
+                    }
 
                     s.o("User status: "+use_status);
                     if(use_status.equals("going"))
@@ -214,8 +227,7 @@ public class ViewAGather extends BasicActivity {
             public void onSuccess(int statusCode, Header[] headers, byte[] response) {
                 s.o("successfully accessed change status backend!");
 
-                if(fromStart)
-                {
+                if (fromStart) {
                     Context context = getApplicationContext();
                     CharSequence text = "Successfully set as " + status_final;
                     int duration = Toast.LENGTH_SHORT;
@@ -223,6 +235,69 @@ public class ViewAGather extends BasicActivity {
                     Toast toast = Toast.makeText(context, text, duration);
                     toast.show();
                 }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                s.o("There was a problem in retrieving the url : " + e.toString());
+            }
+        });
+    }
+
+    public void deleteButton(View view)
+    {
+        s.o("Going into delete gather");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Confirm Deletion");
+        builder.setMessage("Are you sure you want to delete this gather?");
+
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int which) {
+                // Do nothing but close the dialog
+                s.o("I CLICKED DELETE");
+                deleteGather();
+                dialog.dismiss();
+            }
+
+        });
+
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Do nothing
+                s.o("I clicked DON'T DELTE PELASE!");
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog alert = builder.create();
+        alert.show();
+
+    }
+
+    public void deleteGather()
+    {
+        String request_url = "http://www." + Homepage.SITE + ".appspot.com/deletegather?number="
+                + number + "&gatherid=" + gatherTitle;
+        s.o(request_url);
+        AsyncHttpClient httpClient = new AsyncHttpClient();
+        httpClient.get(request_url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
+                s.o("successfully accessed delete gather!");
+
+                Context context = getApplicationContext();
+                CharSequence text = "Gather deleted";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+
+                Intent i = new Intent(context, MyGathers.class);
+                startActivity(i);
             }
 
             @Override
