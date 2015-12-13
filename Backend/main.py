@@ -125,6 +125,44 @@ def string_to_datetime(string_date):
     return datetime.datetime.strptime(string_date, PARSE_PATTERN)
 
 
+# Search suggestions based on the person
+class SearchSuggest(webapp2.RequestHandler):
+    def get(self):
+
+        # Identify the user
+        user = identify_user(self.request.get(NUMBER))
+
+        # Get all the gathers
+        gather_query = Gather.query()
+
+        # 1) Gathers that are public OR they are invited to
+        gather_query = gather_query.filter(ndb.OR(Gather.visibility == PUBLIC, Gather.key.IN(user.gathers_invited)))
+        # 2) Gathers that aren't ignored
+        # gather_query = gather_query.filter(Gather.key not in user.gathers_ignored)  # I wish
+        gathers = gather_query.fetch()
+        gathers = [x for x in gathers if x.key not in user.gathers_ignored]
+
+        # Remove gathers that the end time is already past
+        # Sooner times are < later times
+        # So if end_time < now, remove it
+        right_now = str(datetime.datetime.now())
+        gathers = [x for x in gathers if not str(x.end_time) < right_now]
+
+        # Sort gathers by start time (sooner first)
+        gathers = sorted(gathers, key=lambda k: k.start_time,reverse = False)
+
+        # Create arrays to pass back
+        names = []
+
+        for gather in gathers:
+            names.append(gather.name)
+
+        dict_passed = {
+            NAME+'s': names,
+        }
+        json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
+        self.response.write(json_obj)
+
 # viewagather by viewagather terms
 class Search (webapp2.RequestHandler):
     def get(self):
@@ -861,6 +899,7 @@ class mGetUploadURL(webapp2.RequestHandler):
 #         gatherToUpdate.put()
 
 app = webapp2.WSGIApplication([
+    ('/searchsuggest', SearchSuggest),
     ('/search', Search),
     ('/creategather', CreateGather),
     ('/changestatus', ChangeStatus),
