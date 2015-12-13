@@ -92,6 +92,8 @@ public class ViewAGather extends BasicActivity {
                     pic_url = jObject.getString(Homepage.PIC_URL);
                     has_pic = jObject.getString(Homepage.HAS_PIC).equals("True");
 
+                    s.o("ANDREW DEBUG TAG");
+                    s.o(String.valueOf(has_pic));
                     s.o(visibility);
                     s.o(start);
                     s.o(adStat);
