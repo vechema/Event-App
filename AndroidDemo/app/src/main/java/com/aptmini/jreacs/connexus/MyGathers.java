@@ -109,6 +109,7 @@ public class MyGathers extends BasicActivity implements SwipeRefreshLayout.OnRef
                     });
                 } catch (JSONException j) {
                     System.out.println("JSON Error");
+                    j.printStackTrace();
                 }
 
             }

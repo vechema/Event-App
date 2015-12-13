@@ -173,6 +173,13 @@ public class Search extends BasicActivity {
         });
     }
 
+    @Override
+    public void onRestart()
+    {
+        super.onRestart();
+        getResults(search_terms);
+    }
+
 }
 
 
