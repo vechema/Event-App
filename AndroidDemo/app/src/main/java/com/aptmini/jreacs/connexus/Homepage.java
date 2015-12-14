@@ -23,6 +23,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
@@ -46,6 +47,7 @@ import java.util.ArrayList;
 
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Random;
 
 public class Homepage extends ActionBarActivity {
     static public String NUMBER = "number";
@@ -64,7 +66,9 @@ public class Homepage extends ActionBarActivity {
     static public String USERS_INVITED = "users_invited";
     static public String SITE = "apt2015final2";
 
-    public static String email;
+    public static int randNum;
+    String temp_phone_number;
+    String weird_id;
 
     private static final String TAG = "android-demo-login";
 
@@ -77,7 +81,7 @@ public class Homepage extends ActionBarActivity {
     private static final String SAVED_PROGRESS = "sign_in_progress";
 
     private GoogleApiClient mGoogleApiClient;
-
+    public static String email = "";
 
     private int mSignInProgress;
 
@@ -98,16 +102,22 @@ public class Homepage extends ActionBarActivity {
     public void onCreate(Bundle savedInstanceState) {
         s.o("Debugging start; Hey it works!");
 
-        //Get number of user
-        String number = getNumber();
+        //Get id of user
+        this.weird_id = getWeirdId();
 
-        //Set the user singleton's number
-        User.getInstance().setNumber(number);
+        //See if they are already a user
+        seeIfUser(weird_id);
 
+        //If the user does not already exist, create the new user page
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_homepage);
+
+    }
+
+    private void seeIfUser(String id) {
         //Create the URL
-        final String request_url = "http://www." + SITE +".appspot.com/login?number=" + number;
+        final String request_url = "http://www." + SITE +".appspot.com/login?id=" + id;
         System.out.println(request_url);
-
 
         //Check to see if the user with this number already exists. If it does, redirect to My Gathers
         AsyncHttpClient httpClient = new AsyncHttpClient();
@@ -120,14 +130,15 @@ public class Homepage extends ActionBarActivity {
                     System.out.println(jObject);
                     String user_name = jObject.getString("name");
                     System.out.println(user_name);
+                    String user_number = jObject.getString("number");
 
                     if (!user_name.equals("null")) {
                         System.out.println("user exists!");
                         User.getInstance().setName(user_name);
+                        User.getInstance().setNumber(user_number);
                         Intent intent = new Intent(context, MyGathers.class);
                         startActivity(intent);
-                    }
-                    else{
+                    } else {
                         System.out.println("User does not exist.");
                     }
 
@@ -144,68 +155,125 @@ public class Homepage extends ActionBarActivity {
                 Log.e(TAG, "There was a problem in retrieving the url : " + e.toString());
             }
         });
-
-        //If the user does not already exist, create the new user page
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_homepage);
-
     }
 
     public void submit(View v) {
         //get username input
         System.out.println("submitted");
-        EditText txtusername = (EditText) findViewById(R.id.username);
-        String username = txtusername.getText().toString();
-        System.out.println(username);
+        EditText txt_phone_number = (EditText) findViewById(R.id.phone_number);
+        String phone_number = txt_phone_number.getText().toString();
+        temp_phone_number = phone_number;
+        System.out.println(phone_number);
 
-        //Check to make sure username is not "null", "None", or empty
-        if (username.equals("None") || username.equals("null") || username.equals("")){
+        //Check to make sure phone_number is not "null", "None", or empty
+        if (phone_number.equals("None") || phone_number.equals("null") || phone_number.equals("") ){
 
-            Toast.makeText(context, "Sorry, but this name is invalid.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Sorry, but this number isn't invalid.", Toast.LENGTH_SHORT).show();
         }
         else {
-            //store username to go with the user object whose ID is now this phone's number
-            //Store this both in datastore and in singleton
+            //We need to text them a "random number"
 
-            //Store in singleton
-            User.getInstance().setName(username);
+            //Set the "random number"
+            randNum = randInt(0, 10000);
 
-            //Create the URL
-            final String request_url = "http://www." + SITE + ".appspot.com/signup?number=" + User.getInstance().getNumber() + "&name=" + username;
-            System.out.println(request_url);
+            //Send text
+            String message = "Your code for Gather login is: " + randNum;
+            System.out.println(message);
 
-            AsyncHttpClient httpClient = new AsyncHttpClient();
-            httpClient.get(request_url, new AsyncHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] response) {
-                    try {
-                        //Check that the username was added successfully
-                        System.out.println("success");
-                        JSONObject jObject = new JSONObject(new String(response));
+            try {
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(phone_number, null, message, null, null);
+                //Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
+                s.o("SMS sent for login");
+                setContentView(R.layout.activity_homepage2);
 
-                        String result = jObject.getString("result");
-                        System.out.println(result);
+            } catch (Exception e) {
+                //Toast.makeText(getApplicationContext(), "SMS failed, please try again.", Toast.LENGTH_LONG).show();
+                s.o("SMS NOT sent for login");
+                e.printStackTrace();
+            }
+        }
+    }
 
-                        //If so, redirect to MyGathers
-                        if(result.equals("true")){
-                            Intent intent = new Intent(context, MyGathers.class);
-                            startActivity(intent);
-                        }
+    public void submit2(View v)
+    {
+        EditText txt_phone_code = (EditText) findViewById(R.id.phone_code);
+        String phone_code = txt_phone_code.getText().toString();
+        String given_code = "" + randNum;
+        if(!phone_code.equals(given_code))
+        {
+            Toast.makeText(getApplicationContext(), "Wrong code", Toast.LENGTH_SHORT).show();
+        } else {
+            EditText txt_user_name = (EditText) findViewById(R.id.user_name);
+            String user_name = txt_user_name.getText().toString();
 
-                    } catch (JSONException j) {
-                        System.out.println("JSON Error");
+            //Now I have the user name (user_name), the phone number (temp_phone_number), AND the weird id (weird_id)
+            signUpUser(user_name, temp_phone_number, weird_id);
+
+        }
+    }
+
+    public void signUpUser(String user, String phone_number, String id)
+    {
+        final String user_name_final = user;
+        final String phone_final = phone_number;
+        final String weird_id_final = id;
+        //Create the URL
+        final String request_url = "http://www." + SITE + ".appspot.com/signup?number=" + phone_number
+                + "&name=" + user + "&id=" + id;
+        System.out.println(request_url);
+
+        AsyncHttpClient httpClient = new AsyncHttpClient();
+        httpClient.get(request_url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
+                try {
+                    //Check that the username was added successfully
+                    System.out.println("success");
+                    JSONObject jObject = new JSONObject(new String(response));
+
+                    String result = jObject.getString("result");
+                    System.out.println(result);
+                    User.getInstance().setName(user_name_final);
+                    User.getInstance().setNumber(phone_final);
+                    User.getInstance().addId(weird_id_final);
+
+                    //If so, redirect to MyGathers
+                    if(result.equals("true")){
+                        Intent intent = new Intent(context, MyGathers.class);
+                        startActivity(intent);
                     }
 
-
+                } catch (JSONException j) {
+                    System.out.println("JSON Error");
                 }
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
-                    System.out.println("failure");
-                    Log.e(TAG, "There was a problem in retrieving the url : " + e.toString());
-                }
-            });
-        }
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                System.out.println("failure");
+                Log.e(TAG, "There was a problem in retrieving the url : " + e.toString());
+            }
+        });
+    }
+
+    public static int randInt(int min, int max) {
+
+        // NOTE: This will (intentionally) not run as written so that folks
+        // copy-pasting have to think about how to initialize their
+        // Random instance.  Initialization of the Random instance is outside
+        // the main scope of the question, but some decent options are to have
+        // a field that is initialized once and then re-used as needed or to
+        // use ThreadLocalRandom (if using at least Java 1.7).
+        Random rand = new Random();
+
+        // nextInt is normally exclusive of the top value,
+        // so add 1 to make it inclusive
+        int randomNum = rand.nextInt((max - min) + 1) + min;
+
+        return randomNum;
     }
 
     @Override
@@ -220,17 +288,9 @@ public class Homepage extends ActionBarActivity {
         }
     }
 
-    public String getNumber()
+    public String getWeirdId()
     {
-        String result = "";
-        TelephonyManager tMgr =(TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
-        result = tMgr.getLine1Number();
-        s.o(result);
-        if (result == null)
-        {
-            result = Installation.id(this);
-        }
-        return result;
+        return Installation.id(this);
     }
 
 }

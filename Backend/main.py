@@ -20,6 +20,7 @@ from google.appengine.api import files, images
 
 
 # Constants for parameters passed
+ID = 'id'
 NUMBER = 'number'
 LATITUDE = 'latitude'
 LONGITUDE = 'longitude'
@@ -51,6 +52,7 @@ PARSE_PATTERN = "%Y-%m-%d %H:%M:%S.%f"
 # For each user, identified by their phone_number
 class User(ndb.Model):
     name = ndb.StringProperty()
+    weird_id = ndb.StringProperty(repeated=True)
     phone_number = ndb.StringProperty()  # This is the key
     squads = ndb.KeyProperty(repeated=True)
     gathers_owned = ndb.KeyProperty(repeated=True)
@@ -239,6 +241,8 @@ class Search (webapp2.RequestHandler):
         # Sooner times are < later times
         # So if end_time < now, remove it
         gathers = filter_past_gathers(gathers)
+
+        gathers = remove_dups(gathers)
 
         # Sort gathers by start time (sooner first)
         gathers = sorted(gathers, key=lambda k: k.start_time, reverse=False)
@@ -657,30 +661,35 @@ class MyGathers (webapp2.RequestHandler):
         self.response.write(json_obj)
 
 
+# find the user by weird_id
+def find_user(weird_id):
+    user_query = User.query(User.weird_id == weird_id)
+    users = user_query.fetch(400)
+    if len(users) > 0:
+        return users[0]
+    return None
+
+
 # See if a person is a user already	
 class Login (webapp2.RequestHandler):
     def get(self):
 
         # See if the current user is in the datastore
-        number = self.request.get(NUMBER)
-        user = identify_user(number)
+        user_id = self.request.get(ID)
+        user = find_user(user_id)
 
-        # If they are not in the database, add them by number and return None
-        if user is None:
-            new_user = User(id=number, phone_number=number)
-            new_user.put()
-            result = None
-
-        # They were invited to something but haven't used the app yet
-        elif user.name is None:
-            result = None
-
-        # If they are in the database, return their name
+        # If they are not in the database, return none and start the SMS song and dance
+        if user is not None:
+            user_name = user.name
+            user_number = user.phone_number
         else:
-            result = user.name
+            user_name = None
+            user_number = None
 
         dict_passed = {
-            'name': result,
+            NAME: user_name,
+            NUMBER: user_number,
+            ID: user_id,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -690,27 +699,30 @@ class Login (webapp2.RequestHandler):
 class SignUp (webapp2.RequestHandler):
     def get(self):
 
-        # Identify the current user, we put them in there with Login
+        # Identify the current user's phone number, weird id, and name
         number = self.request.get(NUMBER)
-        user = identify_user(number)
+        name = self.request.get(NAME)
+        weird_id = self.request.get(ID)
 
-        # If, for some reason, the user isn't already in the data base, add them
-        if user is None:
-            new_user = User(id=number, phone_number=number)
-            new_user.put()
-            user = new_user
+        # Add them to datastore
+        new_user = User(id=number, phone_number=number)
+        new_user.weird_id.append(weird_id)
+        new_user.put()
 
         # Set the user's name
-        user.name = self.request.get(NAME)
+        new_user.name = name
 
         # Put the user back into the data store
-        user.put()
+        new_user.put()
 
         # Return true on success
         result = True
 
         dict_passed = {
             'result': result,
+            NAME : name,
+            NUMBER : number,
+            ID : weird_id,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)
@@ -843,63 +855,6 @@ class Template (webapp2.RequestHandler):
         self.response.write(json_obj)
 
 
-# Testing purposes!
-class Thing(ndb.Model):
-    time = ndb.DateTimeProperty()
-
-
-class DateTimeTest (webapp2.RequestHandler):
-    def get(self):
-        string_date = '2015-11-18 01:34:00.0'
-        result = str(datetime.datetime.now())
-        result2 = str(string_to_datetime(string_date))
-        thing = Thing()
-        thing.time = datetime.datetime.now()
-        thing.put()
-        result3 = str(thing.time)
-        thing.time = string_to_datetime(string_date)
-        thing.put()
-        result4 = str(thing.time)
-        time_s = 'Time'
-        dict_passed = {
-            time_s + ' NOW': result,
-            time_s + ' from String': result2,
-            time_s + ' stored': result3,
-            time_s + ' stored string': result4,
-        }
-        json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
-        self.response.write(json_obj)
-
-
-class QueryTest(webapp2.RequestHandler):
-    def get(self):
-        # Have to put id in Gather constructor!
-        test1 = Gather(name="Test 1", id="Test 1")
-        test1.put()
-
-        test2 = Gather()
-        test2.name = "Test 2"
-        test2.id = "Test 2"
-        test2.put()
-
-        gather_query = Gather.query()
-        query_type = str(type(gather_query))
-        gathers = gather_query.fetch()
-        gathers_type = str(type(gathers))
-
-        names = []
-        for gather in gathers:
-            names.append(gather.name)
-
-        dict_passed = {
-            'query_type': query_type,
-            'gathers_type': gathers_type,
-            'names': names,
-        }
-        json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
-        self.response.write(json_obj)
-
-
 class mGetUploadURL(webapp2.RequestHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/creategather')
@@ -937,7 +892,5 @@ app = webapp2.WSGIApplication([
     ('/purge', Purge),
     ('/deletegather', DeleteGather),
     ('/', MainPage),
-    ('/testdatetime', DateTimeTest),
-    ('/testquery', QueryTest),
     ('/mgetUploadURL',mGetUploadURL),
     ], debug=True)

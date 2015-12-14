@@ -23,7 +23,7 @@
             />
 
         <TextView
-            android:text="Please enter phone number, we will text you a code"
+            android:text="Please enter code"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -37,7 +37,25 @@
             android:gravity="center"
             android:textSize="20sp"
             android:paddingBottom = "20sp"
-            android:id="@+id/phone_number"
+            android:id="@+id/phone_code"
+            />
+
+        <TextView
+            android:text="Please enter username"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:paddingBottom = "20sp"
+            />
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:paddingBottom = "20sp"
+            android:id="@+id/user_name"
             />
 
         <Button
@@ -45,7 +63,7 @@
             android:layout_height="wrap_content"
             android:text="Submit"
             android:id="@+id/submit_button"
-            android:onClick="submit"
+            android:onClick="submit2"
             />
 
 
