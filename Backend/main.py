@@ -512,22 +512,22 @@ class ViewGather (webapp2.RequestHandler):
         going_keys = gather.users_going
         going = []
         for key in going_keys:
-            going.add(key.get().phone_number)
+            going.append(key.get().phone_number)
 
         invited_keys = gather.users_invited
         invited = []
         for key in invited_keys:
-            invited.add(key.get().phone_number)
+            invited.append(key.get().phone_number)
 
         ignored_keys = gather.users_ignored
         ignored = []
         for key in ignored_keys:
-            ignored.add(key.get().phone_number)
+            ignored.append(key.get().phone_number)
 
         interested_keys = gather.users_interested
         interested = []
         for key in interested_keys:
-            interested.add(key.get().phone_number)
+            interested.append(key.get().phone_number)
 
         #get pic url if it exists
         pic_url = ""
