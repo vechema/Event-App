@@ -68,7 +68,7 @@
             android:layout_width="fill_parent"
             android:textSize="25sp"
             android:background="@drawable/background"
-            android:minHeight="40dp"
+            android:minHeight="100dp"
             >
         </TextView>
         <Button
@@ -78,56 +78,59 @@
             android:text="Delete"
             android:onClick="deleteButton"
             android:visibility="gone"
-            android:layout_below="@+id/viewg_description"/>
+            android:layout_below="@+id/InnerRelativeLayout"/>
 
-        <Button
-            android:id="@+id/guests_going"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/InnerButtonLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Guests Going"
-            android:onClick="displayGoing"
-            android:background="@null"
-            android:layout_below="@+id/button_delete"/>
+            android:layout_below="@+id/viewg_description">
+            <Button
+                android:id="@+id/guests_going"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Guests Going"
+                android:onClick="displayGoing"
+                android:background="@null"
+                />
 
-        <Button
-            android:id="@+id/guests_interested"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Guests Interested"
-            android:onClick="displayInterested"
-            android:background="@null"
-            android:layout_below="@+id/guests_going"/>
+            <Button
+                android:id="@+id/guests_interested"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Guests Interested"
+                android:onClick="displayInterested"
+                android:background="@null"
+                />
 
-        <Button
-            android:id="@+id/guests_invited"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Guests Invited"
-            android:onClick="displayInvited"
-            android:background="@null"
-            android:layout_below="@+id/guests_interested"/>
-
-        <Button
-            android:id="@+id/invite_friends"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Invite Friends"
-            android:onClick="inviteFriends"
-            android:layout_below="@+id/guests_invited"/>
+            <Button
+                android:id="@+id/guests_invited"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Guests Invited"
+                android:onClick="displayInvited"
+                android:background="@null"
+               />
+        </LinearLayout>
 
 
-    <!--<View android:id="@+id/separator"-->
-        <!--android:background="#ffffff"-->
-        <!--android:layout_width = "fill_parent"-->
-        <!--android:layout_height="1dp"-->
-        <!--android:layout_centerVertical ="true"-->
-        <!--android:layout_above="@+id/InnerRelativeLayout"/>-->
+
+        <!--<Button-->
+            <!--android:id="@+id/invite_friends"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Invite Friends"-->
+            <!--android:onClick="inviteFriends"-->
+            <!--android:layout_below="@+id/guests_invited"/>-->
+
 
     <LinearLayout
         android:id="@+id/InnerRelativeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/invite_friends">
+        android:layout_below="@+id/InnerButtonLayout">
         <Button
             android:id="@+id/button_going"
             android:text="Going"
