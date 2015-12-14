@@ -188,12 +188,34 @@
         <!--android:onClick="addAContact"-->
         <!--/>-->
 
-    <Button
-        android:layout_width="wrap_content"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Pick Contacts"
-        android:onClick="pickContacts"
-        />
+        android:orientation="horizontal"
+        tools:context="com.aptmini.jreacs.connexus.CreateAGather">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pick Contacts"
+            android:onClick="pickContacts"
+            />
+
+        <TextView android:id="@+id/blank_space"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text=" " />
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Public"
+            android:id="@+id/visibility_switch"
+            android:layout_gravity="right" />
+
+    </LinearLayout>
+
 
     <Button
         android:layout_width="wrap_content"

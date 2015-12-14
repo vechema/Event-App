@@ -16,8 +16,10 @@ import android.telephony.SmsManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -88,6 +90,7 @@ public class CreateAGather extends FragmentActivity implements
     String endString;
     String description;
     String imageFilePath = "";
+    String visibility = "private";
     byte[] encodedImage;
     float lat;
     float lng;
@@ -96,6 +99,8 @@ public class CreateAGather extends FragmentActivity implements
     int PICK_CONTACTS = 1;
     int PICK_PICTURE = 2;
     boolean has_pic;
+
+
 
 
     @Override
@@ -141,6 +146,30 @@ public class CreateAGather extends FragmentActivity implements
         mPlaceArrayAdapter = new PlaceArrayAdapter(this, android.R.layout.simple_list_item_1,
                 BOUNDS_AUSTIN_TX, null);
         mAutocompleteTextView.setAdapter(mPlaceArrayAdapter);
+
+        //Set-up the on-click listener for the switch
+        Switch mySwitch = (Switch) findViewById(R.id.visibility_switch);
+
+        //set the switch to ON
+        mySwitch.setChecked(false);
+        //attach a listener to check for changes in state
+        mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+
+                if(isChecked){
+                    visibility = "public";
+                    Toast.makeText(getApplicationContext(), "ALL Gather users can see public gathers.", Toast.LENGTH_LONG).show();
+                    s.o(visibility);
+                }else{
+                    visibility = "private";
+                    s.o(visibility);
+                }
+
+            }
+        });
     }
 
     //Start Date: Define a fragment which will help us display a start date picker dialog.
@@ -509,9 +538,13 @@ public class CreateAGather extends FragmentActivity implements
         params.put("latitude", lat);
         params.put("longitude", lng);
         params.put("number", User.getInstance().getNumber());
-        params.put("visibility", "private");
+
+        s.o("ANDREW DEBUGGING VISIBILITY");
+        s.o(visibility);
+
+        params.put("visibility", visibility);
         params.put("description", description);
-        params.put("has_pic",has_pic);
+        params.put("has_pic",String.valueOf(has_pic));
 
 
 //        String upload_url = "http://www." + Homepage.SITE + ".appspot.com/creategather?";

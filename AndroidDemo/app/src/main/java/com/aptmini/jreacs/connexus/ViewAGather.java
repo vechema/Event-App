@@ -75,7 +75,7 @@ public class ViewAGather extends BasicActivity {
                 final String adStat;
                 final String visibility;
                 final String pic_url;
-                final boolean has_pic;
+                final String has_pic;
 
 
                 try {
@@ -90,13 +90,14 @@ public class ViewAGather extends BasicActivity {
                     adStat = jObject.getString("admin");
                     visibility = jObject.getString(Homepage.VISIBILITY);
                     pic_url = jObject.getString(Homepage.PIC_URL);
-                    has_pic = jObject.getString(Homepage.HAS_PIC).equals("True");
+                    has_pic = jObject.getString(Homepage.HAS_PIC);
 
                     s.o("ANDREW DEBUG TAG");
-                    s.o(String.valueOf(has_pic));
+                    s.o(has_pic);
                     s.o(visibility);
                     s.o(start);
                     s.o(adStat);
+                    s.o(pic_url);
 
                     //Make the delete button show up
                     boolean isAdmin = Boolean.parseBoolean(adStat);
@@ -148,7 +149,7 @@ public class ViewAGather extends BasicActivity {
 
 
                     //add image to gather if it exists
-                    if(has_pic) {
+                    if(has_pic.equals("true")) {
                         ImageView imgViewPic = (ImageView) findViewById(R.id.viewg_pic);
                         Picasso.with(context).load(pic_url).into(imgViewPic);
                     }
