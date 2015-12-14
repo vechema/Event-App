@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 public class MyGathers extends BasicActivity implements SwipeRefreshLayout.OnRefreshListener{
     Context context = this;
     SwipeRefreshLayout swipeLayout;
+    GridView gridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +45,34 @@ public class MyGathers extends BasicActivity implements SwipeRefreshLayout.OnRef
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
 
+        gridView = (GridView) findViewById(R.id.gridview_gathers);
+        disableScrolling();
         getGathers();
+    }
+
+    public void disableScrolling()
+    {
+        gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+                boolean enable = false;
+                if(gridView != null && gridView.getChildCount() > 0){
+                    // check if the first item of the list is visible
+                    boolean firstItemVisible = gridView.getFirstVisiblePosition() == 0;
+                    // check if the top of the first item is visible
+                    boolean topOfFirstItemVisible = gridView.getChildAt(0).getTop() == 0;
+                    // enabling or disabling the refresh layout
+                    enable = firstItemVisible && topOfFirstItemVisible;
+                }
+                swipeLayout.setEnabled(enable);
+            }
+        });
     }
 
     private void getGathers() {

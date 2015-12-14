@@ -3,9 +3,11 @@ package com.aptmini.jreacs.connexus;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -23,11 +25,13 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Search extends BasicActivity {
+public class Search extends BasicActivity implements SwipeRefreshLayout.OnRefreshListener{
     Context context = this;
     String search_terms;
     AutoCompleteTextView mEdit;
     String[] suggestions;
+    SwipeRefreshLayout swipeLayout;
+    GridView gridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +44,41 @@ public class Search extends BasicActivity {
 
         mEdit = (AutoCompleteTextView)findViewById(R.id.search_message);
 
+        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(this);
+        swipeLayout.setColorScheme(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
+        gridView = (GridView) findViewById(R.id.gridview_gathers);
+        disableScrolling();
+
+    }
+
+    public void disableScrolling()
+    {
+        gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+                boolean enable = false;
+                if (gridView != null && gridView.getChildCount() > 0) {
+                    // check if the first item of the list is visible
+                    boolean firstItemVisible = gridView.getFirstVisiblePosition() == 0;
+                    // check if the top of the first item is visible
+                    boolean topOfFirstItemVisible = gridView.getChildAt(0).getTop() == 0;
+                    // enabling or disabling the refresh layout
+                    enable = firstItemVisible && topOfFirstItemVisible;
+                }
+                swipeLayout.setEnabled(enable);
+            }
+        });
     }
 
     public void getSuggestions() {
@@ -178,6 +217,13 @@ public class Search extends BasicActivity {
     {
         super.onRestart();
         getResults(search_terms);
+    }
+
+    @Override
+    public void onRefresh() {
+        s.o("Went to onRefresh()");
+        getResults(search_terms);
+        swipeLayout.setRefreshing(false);
     }
 
 }
