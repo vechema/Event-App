@@ -29,5 +29,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.2.+'
     compile 'com.loopj.android:android-async-http:1.4.5'
     compile 'com.google.android.gms:play-services:7.0.0'
+    compile 'com.shamanland:fab:0.0.6'
+    compile 'com.github.shell-software:fab:1.1.2'
     testCompile 'junit:junit:4.12'
 }

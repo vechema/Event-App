@@ -73,6 +73,9 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dex-cache" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/appcompat-v7/19.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/support-v4/22.0.0/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.github.shell-software/fab/1.1.2/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.github.shell-software/uitools/1.1.0/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.github.shell-software/viewmover/1.1.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.google.android.gms/play-services-ads/7.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.google.android.gms/play-services-analytics/7.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.google.android.gms/play-services-appindexing/7.0.0/jars" />
@@ -93,6 +96,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.google.android.gms/play-services-wallet/7.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.google.android.gms/play-services-wearable/7.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.google.android.gms/play-services/7.0.0/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.shamanland/fab/0.0.6/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jacoco" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/javaResources" />
@@ -115,11 +119,14 @@
     <orderEntry type="library" exported="" name="play-services-maps-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-appindexing-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-cast-7.0.0" level="project" />
+    <orderEntry type="library" exported="" name="fab-0.0.6" level="project" />
     <orderEntry type="library" exported="" name="picasso-2.3.2" level="project" />
     <orderEntry type="library" exported="" name="play-services-wearable-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-panorama-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-plus-7.0.0" level="project" />
+    <orderEntry type="library" exported="" name="slf4j-api-1.7.9" level="project" />
+    <orderEntry type="library" exported="" name="uitools-1.1.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-ads-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-7.0.0" level="project" />
@@ -131,7 +138,9 @@
     <orderEntry type="library" exported="" name="play-services-fitness-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-analytics-7.0.0" level="project" />
+    <orderEntry type="library" exported="" name="viewmover-1.1.0" level="project" />
     <orderEntry type="library" exported="" name="android-async-http-1.4.5" level="project" />
+    <orderEntry type="library" exported="" name="fab-1.1.2" level="project" />
     <orderEntry type="library" exported="" name="play-services-appstate-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-identity-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-games-7.0.0" level="project" />
