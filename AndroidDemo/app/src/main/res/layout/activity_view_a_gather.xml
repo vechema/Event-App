@@ -72,6 +72,14 @@
         android:visibility="gone"
         android:layout_below="@+id/viewg_description"/>
 
+    <Button
+        android:id="@+id/invite_friends"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Invite Friends"
+        android:onClick="inviteFriends"
+        android:layout_below="@+id/button_delete"/>
+
     <LinearLayout
         android:id="@+id/InnerRelativeLayout"
         android:layout_width="match_parent"

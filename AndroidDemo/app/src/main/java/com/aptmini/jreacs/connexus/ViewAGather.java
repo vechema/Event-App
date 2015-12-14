@@ -24,6 +24,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,6 +41,11 @@ public class ViewAGather extends BasicActivity {
 
     String number;
     String gatherTitle;
+
+    final ArrayList<String> going = new ArrayList<String>();
+    final ArrayList<String> invited = new ArrayList<String>();
+    final ArrayList<String> interested = new ArrayList<String>();
+    final ArrayList<String> ignored = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +84,7 @@ public class ViewAGather extends BasicActivity {
                 final String has_pic;
 
 
+
                 try {
                     JSONObject jObject = new JSONObject(new String(response));
                     name = jObject.getString(Homepage.NAME);
@@ -91,6 +98,29 @@ public class ViewAGather extends BasicActivity {
                     visibility = jObject.getString(Homepage.VISIBILITY);
                     pic_url = jObject.getString(Homepage.PIC_URL);
                     has_pic = jObject.getString(Homepage.HAS_PIC);
+                    JSONArray jgoing = jObject.getJSONArray(Homepage.GOING);
+                    JSONArray jinterested = jObject.getJSONArray(Homepage.INTERESTED);
+                    JSONArray jinvited = jObject.getJSONArray(Homepage.INVITED);
+                    JSONArray jignored = jObject.getJSONArray(Homepage.IGNORED);
+
+                    //Populate the guest string arrays
+                    for (int i = 0; i < jgoing.length(); i++){
+                        going.add(jgoing.getString(i));
+                    }
+                    for (int i = 0; i < jinterested.length(); i++){
+                        interested.add(jinterested.getString(i));
+                    }
+                    for (int i = 0; i < jignored.length(); i++){
+                        ignored.add(jignored.getString(i));
+                    }
+                    for (int i = 0; i < jinvited.length(); i++){
+                        invited.add(jinvited.getString(i));
+                    }
+
+                    System.out.println(going);
+                    System.out.println(interested);
+                    System.out.println(invited);
+                    System.out.println(ignored);
 
                     s.o("ANDREW DEBUG TAG");
                     s.o(has_pic);
@@ -259,6 +289,11 @@ public class ViewAGather extends BasicActivity {
                 s.o("There was a problem in retrieving the url : " + e.toString());
             }
         });
+    }
+
+    public void inviteFriends(View view)
+    {
+
     }
 
     public void deleteButton(View view)
