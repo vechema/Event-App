@@ -117,12 +117,13 @@ public class ViewAGather extends BasicActivity {
                         invited.add(jinvited.getString(i));
                     }
 
+                    s.o("ANDREW DEBUGGING TAG");
                     System.out.println(going);
                     System.out.println(interested);
                     System.out.println(invited);
                     System.out.println(ignored);
 
-                    s.o("ANDREW DEBUG TAG");
+
                     s.o(has_pic);
                     s.o(visibility);
                     s.o(start);
@@ -294,6 +295,33 @@ public class ViewAGather extends BasicActivity {
     public void inviteFriends(View view)
     {
 
+    }
+
+    public void displayGoing(View view)
+    {
+        s.o(going.toString());
+        Intent intent= new Intent(this, Display_Guests.class);
+        intent.putStringArrayListExtra(s.GUESTS,going);
+        intent.putExtra(s.GUEST_CATEGORY, "Going");
+        startActivity(intent);
+    }
+
+    public void displayInvited(View view)
+    {
+        s.o(invited.toString());
+        Intent intent= new Intent(this, Display_Guests.class);
+        intent.putStringArrayListExtra(s.GUESTS,invited);
+        intent.putExtra(s.GUEST_CATEGORY, "Invited");
+        startActivity(intent);
+    }
+
+    public void displayInterested(View view)
+    {
+        s.o(interested.toString());
+        Intent intent= new Intent(this, Display_Guests.class);
+        intent.putStringArrayListExtra(s.GUESTS,interested);
+        intent.putExtra(s.GUEST_CATEGORY, "Interested");
+        startActivity(intent);
     }
 
     public void deleteButton(View view)

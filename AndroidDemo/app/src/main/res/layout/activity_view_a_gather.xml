@@ -73,12 +73,39 @@
         android:layout_below="@+id/viewg_description"/>
 
     <Button
+        android:id="@+id/guests_going"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Guests Going"
+        android:onClick="displayGoing"
+        android:background="@null"
+        android:layout_below="@+id/button_delete"/>
+
+    <Button
+        android:id="@+id/guests_interested"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Guests Interested"
+        android:onClick="displayInterested"
+        android:background="@null"
+        android:layout_below="@+id/guests_going"/>
+
+    <Button
+        android:id="@+id/guests_invited"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Guests Invited"
+        android:onClick="displayInvited"
+        android:background="@null"
+        android:layout_below="@+id/guests_interested"/>
+
+    <Button
         android:id="@+id/invite_friends"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Invite Friends"
         android:onClick="inviteFriends"
-        android:layout_below="@+id/button_delete"/>
+        android:layout_below="@+id/guests_going"/>
 
     <LinearLayout
         android:id="@+id/InnerRelativeLayout"
