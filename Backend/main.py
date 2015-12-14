@@ -321,26 +321,28 @@ class CreateGather (blobstore_handlers.BlobstoreUploadHandler):
             # Automatically set the owner to going
             add_to_list(user, gather, "going")
 
+
             # Add the users that are invited to users_invited
             users_invited_string = self.request.params[USERS_INVITED]
-            users_invited = users_invited_string.split('+')
+            if users_invited_string != "":
+                users_invited = users_invited_string.split('+')
 
-            for invited in users_invited:
-                user_invited = identify_user(invited)
-                # If they aren't a user, make them one
-                if user_invited is None:
-                    user_invited = User(id=invited, phone_number=invited)
+                for invited in users_invited:
+                    user_invited = identify_user(invited)
+                    # If they aren't a user, make them one
+                    if user_invited is None:
+                        user_invited = User(id=invited, phone_number=invited)
+                        user_invited.put()
+                    # Add the gather to the list of gathers they are invited to
+                    user_gather_invited = user_invited.gathers_invited
+                    user_gather_invited.append(gather.key)
+                    user_invited.gathers_invited = user_gather_invited
                     user_invited.put()
-                # Add the gather to the list of gathers they are invited to
-                user_gather_invited = user_invited.gathers_invited
-                user_gather_invited.append(gather.key)
-                user_invited.gathers_invited = user_gather_invited
-                user_invited.put()
 
-                # Add the user to the list of users that are invited
-                gather_invited = gather.users_invited
-                gather_invited.append(user_invited.key)
-                gather.users_invited = gather_invited
+                    # Add the user to the list of users that are invited
+                    gather_invited = gather.users_invited
+                    gather_invited.append(user_invited.key)
+                    gather.users_invited = gather_invited
 
             # Put everything in the database!
             user.put()
