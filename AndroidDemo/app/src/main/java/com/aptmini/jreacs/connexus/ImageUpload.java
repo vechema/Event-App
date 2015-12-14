@@ -53,7 +53,6 @@ public class ImageUpload extends ActionBarActivity {
 
         System.out.println("this is the file path: " + imageFilePath);
         Intent intent = getIntent();
-        streamName = intent.getStringExtra(ViewAStream.STREAM_NAME);
         setContentView(R.layout.activity_image_upload);
         System.out.println("!!STREAM NAME: " + streamName);
 
@@ -318,10 +317,5 @@ public class ImageUpload extends ActionBarActivity {
     public void takePicture(View view){
         Intent intent= new Intent(this, TakePhoto.class);
         startActivityForResult(intent, TAKE_IMAGE);
-    }
-
-    public void viewAllStreams(View view) {
-        Intent intent = new Intent(this, DisplayStreams.class);
-        startActivity(intent);
     }
 }
