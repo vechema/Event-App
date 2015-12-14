@@ -693,10 +693,12 @@ class MyGathers (webapp2.RequestHandler):
 
 # find the user by weird_id
 def find_user(weird_id):
-    user_query = User.query(User.weird_id == weird_id)
+    user_query = User.query()
     users = user_query.fetch(400)
     if len(users) > 0:
-        return users[0]
+        for user in users:
+            if weird_id in user.weird_id:
+                return user
     return None
 
 
@@ -734,16 +736,24 @@ class SignUp (webapp2.RequestHandler):
         name = self.request.get(NAME)
         weird_id = self.request.get(ID)
 
-        # Add them to datastore
-        new_user = User(id=number, phone_number=number)
-        new_user.weird_id.append(weird_id)
-        new_user.put()
+        # Look to see if that phone number is already in the datastore
+        user_key = ndb.Key(User, number)
+
+        if user_key is not None:
+            user = user_key.get()
+            user.weird_id.append(weird_id)
+            user.name = name
+        # Else add them to datastore
+        else:
+            new_user = User(id=number, phone_number=number)
+            new_user.weird_id.append(weird_id)
+            new_user.name = name
+            user = new_user
 
         # Set the user's name
-        new_user.name = name
 
         # Put the user back into the data store
-        new_user.put()
+        user.put()
 
         # Return true on success
         result = True
