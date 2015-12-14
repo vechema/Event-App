@@ -142,6 +142,7 @@ public class MyGatherTextAdapter extends BaseAdapter {
             s.o("YOU ARE INVITED!!!");
         } else {
             //Something wacky going on!
+            result = R.drawable.grid_public;
             s.o("Doesn't have a normal status: " + status);
         }
         return result;
