@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -7,130 +9,151 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.aptmini.jreacs.connexus.ViewAGather">
 
-    <TextView
-        android:text="Title"
-        android:layout_height="wrap_content"
-        android:id="@+id/viewg_title"
-        android:layout_width="wrap_content"
-        android:layout_alignParentTop="true"
-        android:textSize="25sp"
-        android:layout_centerHorizontal="true">
-    </TextView>
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+        <TextView
+            android:text="Title"
+            android:layout_height="wrap_content"
+            android:id="@+id/viewg_title"
+            android:layout_width="wrap_content"
+            android:layout_alignParentTop="true"
+            android:textSize="40sp"
+            android:layout_centerHorizontal="true">
+        </TextView>
 
-    <TextView
-        android:text="Time"
-        android:layout_height="wrap_content"
-        android:id="@+id/viewg_time"
-        android:layout_below="@+id/viewg_title"
-        android:layout_width="wrap_content"
-        android:textSize="25sp"
-        >
-    </TextView>
+        <TextView
+            android:text="Time"
+            android:layout_height="wrap_content"
+            android:id="@+id/viewg_time"
+            android:layout_below="@+id/viewg_title"
+            android:layout_width="wrap_content"
+            android:textSize="25sp"
+            >
+        </TextView>
 
-    <TextView
-        android:text="Place"
-        android:layout_height="wrap_content"
-        android:id="@+id/viewg_place"
-        android:layout_below="@+id/viewg_time"
-        android:layout_width="wrap_content"
-        android:textSize="25sp"
-        >
-    </TextView>
+        <TextView
+            android:text="Place"
+            android:layout_height="wrap_content"
+            android:id="@+id/viewg_place"
+            android:layout_below="@+id/viewg_time"
+            android:layout_width="wrap_content"
+            android:textSize="25sp"
+            >
+        </TextView>
 
-    <TextView
-        android:text=" "
-        android:layout_height="wrap_content"
-        android:id="@+id/viewg_hosts"
-        android:layout_below="@+id/viewg_place"
-        android:layout_width="wrap_content"
-        android:textSize="18sp"
-        >
-    </TextView>
+        <TextView
+            android:text=" "
+            android:layout_height="wrap_content"
+            android:id="@+id/viewg_hosts"
+            android:layout_below="@+id/viewg_place"
+            android:layout_width="wrap_content"
+            android:textSize="18sp"
+            >
+        </TextView>
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/viewg_pic"
-        android:layout_below="@+id/viewg_hosts"
-        />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/viewg_pic"
+            android:layout_below="@+id/viewg_hosts"
+            android:layout_centerHorizontal="true"
+            />
 
-    <TextView
-        android:text="Description"
-        android:layout_height="wrap_content"
-        android:id="@+id/viewg_description"
-        android:layout_below="@+id/viewg_pic"
-        android:layout_width="wrap_content"
-        android:textSize="25sp"
-        >
-    </TextView>
-    <Button
-        android:id="@+id/button_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Delete"
-        android:onClick="deleteButton"
-        android:visibility="gone"
-        android:layout_below="@+id/viewg_description"/>
+        <TextView
+            android:text="Description"
+            android:layout_height="wrap_content"
+            android:id="@+id/viewg_description"
+            android:layout_below="@+id/viewg_pic"
+            android:layout_width="fill_parent"
+            android:textSize="25sp"
+            android:background="@drawable/background"
+            android:minHeight="40dp"
+            >
+        </TextView>
+        <Button
+            android:id="@+id/button_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete"
+            android:onClick="deleteButton"
+            android:visibility="gone"
+            android:layout_below="@+id/viewg_description"/>
 
-    <Button
-        android:id="@+id/guests_going"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Guests Going"
-        android:onClick="displayGoing"
-        android:background="@null"
-        android:layout_below="@+id/button_delete"/>
+        <Button
+            android:id="@+id/guests_going"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Guests Going"
+            android:onClick="displayGoing"
+            android:background="@null"
+            android:layout_below="@+id/button_delete"/>
 
-    <Button
-        android:id="@+id/guests_interested"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Guests Interested"
-        android:onClick="displayInterested"
-        android:background="@null"
-        android:layout_below="@+id/guests_going"/>
+        <Button
+            android:id="@+id/guests_interested"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Guests Interested"
+            android:onClick="displayInterested"
+            android:background="@null"
+            android:layout_below="@+id/guests_going"/>
 
-    <Button
-        android:id="@+id/guests_invited"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Guests Invited"
-        android:onClick="displayInvited"
-        android:background="@null"
-        android:layout_below="@+id/guests_interested"/>
+        <Button
+            android:id="@+id/guests_invited"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Guests Invited"
+            android:onClick="displayInvited"
+            android:background="@null"
+            android:layout_below="@+id/guests_interested"/>
 
-    <Button
-        android:id="@+id/invite_friends"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Invite Friends"
-        android:onClick="inviteFriends"
-        android:layout_below="@+id/guests_going"/>
+        <Button
+            android:id="@+id/invite_friends"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Invite Friends"
+            android:onClick="inviteFriends"
+            android:layout_below="@+id/guests_invited"/>
+
+
+    <!--<View android:id="@+id/separator"-->
+        <!--android:background="#ffffff"-->
+        <!--android:layout_width = "fill_parent"-->
+        <!--android:layout_height="1dp"-->
+        <!--android:layout_centerVertical ="true"-->
+        <!--android:layout_above="@+id/InnerRelativeLayout"/>-->
 
     <LinearLayout
         android:id="@+id/InnerRelativeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true" >
+        android:layout_below="@+id/invite_friends">
         <Button
             android:id="@+id/button_going"
             android:text="Going"
             android:onClick="selectGoing"
             style="@style/StatusButton"
-            android:background="@drawable/going_button"/>
+            android:background="@drawable/going_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
         <Button
             android:id="@+id/button_interested"
             android:text="Interested"
             android:onClick="selectInterested"
             style="@style/StatusButton"
-            android:background="@drawable/interested_button"/>
+            android:background="@drawable/interested_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
         <Button
             android:id="@+id/button_ignore"
             android:text="Ignore"
             android:onClick="selectIgnore"
             style="@style/StatusButton"
-            android:background="@drawable/ignore_button"/>
+            android:background="@drawable/ignore_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 
 </RelativeLayout>
+</ScrollView>
