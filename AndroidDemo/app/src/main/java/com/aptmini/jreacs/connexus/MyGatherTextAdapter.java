@@ -63,14 +63,14 @@ public class MyGatherTextAdapter extends BaseAdapter {
         ViewHolder view;
         LayoutInflater inflator = mActivity.getLayoutInflater();
 
+        String status = statuses.get(position);
         if(convertView==null)
         {
             view = new ViewHolder();
             convertView = inflator.inflate(R.layout.layout_gather_text, null);
 
-            String status = statuses.get(position);
-            convertView.setBackgroundResource(statusToColor(status));
             //convertView.setBackgroundResource(R.drawable.grid_going);
+            convertView.setBackgroundResource(statusToColor(status));
 
             //view.nameTxt = (TextView) convertView.findViewById(R.id.gather_name);
             //view.placeTxt = (TextView) convertView.findViewById(R.id.gather_place);
@@ -81,6 +81,7 @@ public class MyGatherTextAdapter extends BaseAdapter {
         }
         else
         {
+            convertView.setBackgroundResource(statusToColor(status));
             view = (ViewHolder) convertView.getTag();
         }
 
@@ -103,6 +104,8 @@ public class MyGatherTextAdapter extends BaseAdapter {
         s.o("But location: " + location);
         //view.placeTxt.setText(lats.get(position)+ " " + longs.get(position));
 
+        s.o("ADAPTOR: name & place: " + nameAndPlace + " and status: " + status);
+
         //Set the start to end time
         String start_time = starts.get(position);
         String end_time = ends.get(position);
@@ -119,7 +122,7 @@ public class MyGatherTextAdapter extends BaseAdapter {
 
     public int statusToColor(String status)
     {
-        int result = 0x00000000;
+        int result = 0xEBEBEB;
         if(status.equals("going"))
         {
             //Green
@@ -136,8 +139,10 @@ public class MyGatherTextAdapter extends BaseAdapter {
         } else if (status.equals("invited")) {
             //Blue OR nothing
             result = R.drawable.grid_invited;
+            s.o("YOU ARE INVITED!!!");
         } else {
             //Something wacky going on!
+            result = R.drawable.grid_public;
             s.o("Doesn't have a normal status: " + status);
         }
         return result;

@@ -108,7 +108,7 @@ public class MyGathers extends BasicActivity implements SwipeRefreshLayout.OnRef
                         starts.add(displayStarts.getString(i));
                         statuses.add(displayStatuses.getString(i));
 
-                        System.out.println(displayNames.getString(i));
+                        System.out.println(displayNames.getString(i) + " status: " + displayStatuses.getString(i));
                     }
                     GridView gridview = (GridView) findViewById(R.id.gridview_gathers);
                     //gridview.setAdapter(new ImageAdapter(context,coverURLs));
