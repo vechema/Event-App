@@ -94,7 +94,7 @@ public class CreateAGather extends FragmentActivity implements
     byte[] encodedImage;
     float lat;
     float lng;
-    String allNumbersString;
+    String allNumbersString = "";
     ArrayList<String> numbers =  new ArrayList<String>();
     int PICK_CONTACTS = 1;
     int PICK_PICTURE = 2;
