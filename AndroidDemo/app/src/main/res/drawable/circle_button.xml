@@ -94,15 +94,17 @@
 
         </layer-list>
     </item>
-    <item android:id="@+id/circle_thing">
-        <shape android:shape="oval">
-            <solid android:color="#FFBB00" />
-        </shape>
-    </item>
     <item>
-        <shape android:shape="oval">
-            <solid android:color="#00ff00" />
-        </shape>
+        <item android:id="@+id/circle_thing">
+            <shape android:shape="oval">
+                <solid android:color="#FFBB00" />
+            </shape>
+        </item>
+        <item>
+            <shape android:shape="oval">
+                <solid android:color="#00ff00" />
+            </shape>
+        </item>
     </item>
 
 
