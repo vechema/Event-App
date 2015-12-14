@@ -101,16 +101,16 @@ public class Homepage extends ActionBarActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         s.o("Debugging start; Hey it works!");
-
+        super.onCreate(savedInstanceState);
         //Get id of user
         this.weird_id = getWeirdId();
+
+        // For a loading page or whatever
+        //setContentView(R.layout.activity_homepage);
 
         //See if they are already a user
         seeIfUser(weird_id);
 
-        //If the user does not already exist, create the new user page
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_homepage);
 
     }
 
@@ -140,6 +140,7 @@ public class Homepage extends ActionBarActivity {
                         startActivity(intent);
                     } else {
                         System.out.println("User does not exist.");
+                        setContentView(R.layout.activity_homepage);
                     }
 
                 } catch (JSONException j) {
