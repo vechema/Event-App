@@ -1,6 +1,7 @@
 package com.aptmini.jreacs.connexus;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Created by Andrew on 11/17/2015.
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 public class User {
     String name;
     String number;
-    ArrayList<String> id = new ArrayList<String>();
+    HashSet<String> id = new HashSet<String>();
 
     private static User instance = null;
 
@@ -31,7 +32,7 @@ public class User {
         return number;
     }
 
-    public ArrayList<String> getId() {
+    public HashSet<String> getId() {
         return this.id;
     }
 

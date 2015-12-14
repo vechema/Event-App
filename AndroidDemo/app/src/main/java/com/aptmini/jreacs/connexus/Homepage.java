@@ -109,7 +109,7 @@ public class Homepage extends ActionBarActivity {
         //setContentView(R.layout.activity_homepage);
 
         //See if they are already a user
-        seeIfUser(weird_id);
+        seeIfUser(this.weird_id);
 
 
     }
@@ -136,6 +136,7 @@ public class Homepage extends ActionBarActivity {
                         System.out.println("user exists!");
                         User.getInstance().setName(user_name);
                         User.getInstance().setNumber(user_number);
+                        User.getInstance().addId(weird_id);
                         Intent intent = new Intent(context, MyGathers.class);
                         startActivity(intent);
                     } else {
@@ -146,8 +147,6 @@ public class Homepage extends ActionBarActivity {
                 } catch (JSONException j) {
                     System.out.println("JSON Error");
                 }
-
-
             }
 
             @Override
