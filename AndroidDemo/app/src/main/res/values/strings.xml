@@ -41,6 +41,7 @@
     <string name="action_my_squads">Squads</string>
     <string name="action_whats_happening">What\'s Happening</string>
     <string name="title_activity_whats_happening">WhatsHappening</string>
+    <string name="title_activity_display__guests">Display_Guests</string>
 
 
 </resources>

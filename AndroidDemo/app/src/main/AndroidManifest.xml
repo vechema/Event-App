@@ -129,6 +129,10 @@
             android:name=".WhatsHappening"
             android:label="@string/title_activity_whats_happening" >
         </activity>
+        <activity
+            android:name=".Display_Guests"
+            android:label="@string/title_activity_display__guests" >
+        </activity>
     </application>
 
 </manifest>

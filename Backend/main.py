@@ -507,11 +507,29 @@ class ViewGather (webapp2.RequestHandler):
         visibility = gather.visibility
         invite_level = gather.invite_level
         has_pic = gather.has_pic
-        going = gather.users_going
-        interested = gather.users_interested
-        invited = gather.users_invited
-        ignored = gather.users_ignored
 
+        #Generate guest lists
+        going_keys = gather.users_going
+        going = []
+        for key in going_keys:
+            going.add(key.get().phone_number)
+
+        invited_keys = gather.users_invited
+        invited = []
+        for key in invited_keys:
+            invited.add(key.get().phone_number)
+
+        ignored_keys = gather.users_ignored
+        ignored = []
+        for key in ignored_keys:
+            ignored.add(key.get().phone_number)
+
+        interested_keys = gather.users_interested
+        interested = []
+        for key in interested_keys:
+            interested.add(key.get().phone_number)
+
+        #get pic url if it exists
         pic_url = ""
         if has_pic:
             pic_url = get_serving_url(gather.picture)
