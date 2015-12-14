@@ -427,7 +427,7 @@ public class CreateAGather extends FragmentActivity implements
 
 
         //Update all the guests that they have been invited to the gather via text message.
-        //sendSMSMessage();
+        sendSMSMessage();
         s.o("ANDREW DEBUGGING TAG!");
         s.o(String.valueOf(has_pic));
         //Send the gather data to the backend, where a gather object will be created.
