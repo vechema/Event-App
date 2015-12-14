@@ -36,11 +36,13 @@ USERS_INVITED = 'users_invited'
 PIC_URL = 'pic_url'
 HAS_PIC = 'has_pic'
 
+
 TERMS = 'terms'
 
 PUBLIC = 'public'
 PRIVATE = 'private'
 
+IGNORED = 'ignored'
 IGNORE = 'ignore'
 GOING = 'going'
 INVITED = 'invited'
@@ -505,6 +507,10 @@ class ViewGather (webapp2.RequestHandler):
         visibility = gather.visibility
         invite_level = gather.invite_level
         has_pic = gather.has_pic
+        going = gather.users_going
+        interested = gather.users_interested
+        invited = gather.users_invited
+        ignored = gather.users_ignored
 
         pic_url = ""
         if has_pic:
@@ -534,6 +540,10 @@ class ViewGather (webapp2.RequestHandler):
             PIC_URL: pic_url,
             HAS_PIC: has_pic,
             'admin': admin,
+            IGNORED: ignored,
+            INVITED: invited,
+            GOING: going,
+            INTERESTED: interested,
         }
         json_obj = json.dumps(dict_passed, sort_keys=True, indent=4, separators=(',', ': '))
         self.response.write(json_obj)

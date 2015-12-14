@@ -65,6 +65,11 @@ public class Homepage extends ActionBarActivity {
     static public String INVITE_LEVEL = "invite_level";
     static public String USERS_INVITED = "users_invited";
     static public String SITE = "apt2015final2";
+    static public String IGNORED = "ignored";
+    static public String IGNORE = "ignore";
+    static public String GOING = "going";
+    static public String INVITED = "invited";
+    static public String INTERESTED = "interested";
 
     public static int randNum;
     String temp_phone_number;
@@ -239,7 +244,7 @@ public class Homepage extends ActionBarActivity {
                     User.getInstance().addId(weird_id_final);
 
                     //If so, redirect to MyGathers
-                    if(result.equals("true")){
+                    if (result.equals("true")) {
                         Intent intent = new Intent(context, MyGathers.class);
                         startActivity(intent);
                     }
